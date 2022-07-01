@@ -13,7 +13,7 @@
     # 是否启用nacos用为服务发现注册中心
     EnableDiscovery         = true
     # 应用的监听端口
-    AppPort                 = 8121
+    AppPort                 = 8115
     # 配置文件的Group属性，默认为public
     ConfigGroup             = "public"
     # 服务注册中的Group属性，默认为DEFAULT_GROUP
