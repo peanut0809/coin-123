@@ -1,0 +1,249 @@
+package service
+
+import (
+	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/utils"
+	"database/sql"
+	"fmt"
+	"github.com/gogf/gf/database/gdb"
+	"github.com/gogf/gf/frame/g"
+	"github.com/gogf/gf/os/gtime"
+	"meta_launchpad/model"
+	"meta_launchpad/provider"
+	"time"
+)
+
+type subscribeRecord struct {
+}
+
+var SubscribeRecord = new(subscribeRecord)
+
+func (s *subscribeRecord) GetSubscribeRecords(aid int, userId string) (ret *model.SubscribeRecord, err error) {
+	err = g.DB().Model("subscribe_records").Where("aid = ? AND user_id = ?", aid, userId).Scan(&ret)
+	if err != nil {
+		return
+	}
+	return
+}
+
+func (s *subscribeRecord) CreateSubscribeRecord(tx *gdb.TX, in model.SubscribeRecord) (err error) {
+	_, err = tx.Model("subscribe_records").Insert(&in)
+	if err != nil {
+		return
+	}
+	var result sql.Result
+	result, err = tx.Exec("UPDATE subscribe_activity SET sub_sum_people = sub_sum_people + 1,sub_sum = sub_sum + ? WHERE id = ?", in.BuyNum, in.Aid)
+	if err != nil {
+		return
+	}
+	affectedNum, _ := result.RowsAffected()
+	if affectedNum != 1 {
+		err = fmt.Errorf("操作是吧")
+		return
+	}
+	return
+}
+
+//获取未公布中签结果的用户
+func (s *subscribeRecord) GetWaitLuckyDraw(aid int) (ret []model.SubscribeRecord, err error) {
+	err = g.DB().Model("subscribe_records").Where("aid = ? and award = 0", aid).Scan(&ret)
+	if err != nil {
+		return
+	}
+	return
+}
+
+//更新活动为全部中签
+func (s *subscribeRecord) AllAward(tx *gdb.TX, aid int) (err error) {
+	_, err = tx.Exec("UPDATE subscribe_records SET award = 1,award_num = buy_num WHERE aid = ? and award = 0", aid)
+	return
+}
+
+//更新活动为全部未中签
+func (s *subscribeRecord) AllUnAward(aid int) (err error) {
+	_, err = g.DB().Exec("UPDATE subscribe_records SET award = 2 WHERE aid = ? and award = 0", aid)
+	return
+}
+
+//更新中签
+func (s *subscribeRecord) UpdateAward(tx *gdb.TX, id, awardNum int) (err error) {
+	_, err = tx.Exec("UPDATE subscribe_records SET award = 1,award_num = ?,award_at = ? WHERE id = ?", awardNum, gtime.Now(), id)
+	return
+}
+
+//更新未中签
+func (s *subscribeRecord) UpdateUnAward(id int) (err error) {
+	_, err = g.DB().Exec("UPDATE subscribe_records SET award = 2 WHERE id = ? AND award_num = 0", id)
+	return
+}
+
+//获取到未全部中签的人（包括了未中签的）
+func (s *subscribeRecord) GetUnFullAward(aid int) (ret []model.SubscribeRecord, err error) {
+	err = g.DB().Model("subscribe_records").Where("aid = ? and award_num < buy_num", aid).Scan(&ret)
+	return
+}
+
+//获取认购记录列表
+func (s *subscribeRecord) GetList(userId string, publisherId string, pageNum int, award int) (ret model.SubscribeRecordList, err error) {
+	pageSize := 20
+	m := g.DB().Model("subscribe_records").Where("user_id = ? and publisher_id = ?", userId, publisherId)
+	if award != -1 {
+		m = m.Where("award", award)
+	}
+	ret.Total, err = m.Count()
+	if err != nil {
+		return
+	}
+	if ret.Total == 0 {
+		return
+	}
+	m.Page(pageNum, pageSize).Order("id desc").Scan(&ret.List)
+	return
+}
+
+//获取认购记录详情
+func (s *subscribeRecord) GetDetail(orderNo string) (ret model.SubscribeRecordDetail, err error) {
+	var record *model.SubscribeRecord
+	err = g.DB().Model("subscribe_records").Where("order_no = ?", orderNo).Scan(&record)
+	if err != nil {
+		return
+	}
+	if record == nil {
+		err = fmt.Errorf("未查询到信息")
+		return
+	}
+	if record.TicketType == model.TICKET_MONTH {
+		ret.ConsumeUnit = fmt.Sprintf("%d月票", record.SumUnitMonthTicket)
+	}
+	if record.TicketType == model.TICKET_CRYSTAL {
+		ret.ConsumeUnit = fmt.Sprintf("%d元晶", record.SumUnitCrystal)
+	}
+	if record.TicketType == model.TICKET_MONEY {
+		ret.ConsumeUnit = fmt.Sprintf("%.2f元", float64(record.SumUnitPrice)/100)
+	}
+	ret.AwardNum = record.AwardNum
+	ret.Name = record.Name
+	ret.AwardAt = record.AwardAt
+	ret.Award = record.Award
+	ret.BuyNum = record.BuyNum
+	ret.Icon = record.Icon
+	ret.UserId = record.UserId
+	ret.Aid = record.Aid
+	return
+}
+
+//获取认购记录详情
+func (s *subscribeRecord) GetSimpleDetail(orderNo string) (ret *model.SubscribeRecord, err error) {
+	err = g.DB().Model("subscribe_records").Where("order_no = ?", orderNo).Scan(&ret)
+	if err != nil {
+		return
+	}
+	if ret == nil {
+		err = fmt.Errorf("未查询到信息")
+		return
+	}
+	return
+}
+
+//以订单维度查询认购记录
+func (s *subscribeRecord) GetListByOrder(userId string, orderNo string, pageNum int, status int) (ret model.SubscribeListByOrderRet, err error) {
+	var records []model.SubscribeRecord
+	m := g.DB().Model("subscribe_records").Where("user_id = ? AND award = 1", userId)
+	if status != -1 {
+		m = m.Where("pay_status = ?", status)
+	}
+	if orderNo != "" {
+		m = m.Where("order_no = ?", orderNo)
+	}
+	ret.Total, err = m.Count()
+	if err != nil {
+		return
+	}
+	if ret.Total == 0 {
+		return
+	}
+	pageSize := 20
+	err = m.Page(pageNum, pageSize).Order("id desc").Scan(&records)
+	if err != nil {
+		return
+	}
+	for _, v := range records {
+		item := model.SubscribeListByOrderRetItem{
+			BuyNum:       v.BuyNum,
+			SumPriceYuan: fmt.Sprintf("%.2f", float64(v.SumPrice)/100),
+			SumPrice:     v.SumPrice,
+			OrderNo:      v.OrderNo,
+			Name:         v.Name,
+			Icon:         v.Icon,
+			PayOrderNo:   v.PayOrderNo,
+			PayEndTime:   v.PayEndTime,
+			PaidAt:       v.PaidAt,
+			PayMethod:    v.PayMethod,
+			Status:       v.PayStatus,
+		}
+		ret.List = append(ret.List, item)
+	}
+	return
+}
+
+//创建支付订单
+func (s *subscribeRecord) CreateOrder(userId, clientIp, orderNo, successRedirectUrl, exitRedirectUrl string) (orderReq *provider.CreateOrderReq, err error) {
+	info, e := s.GetListByOrder(userId, orderNo, 1, 0)
+	if e != nil {
+		err = e
+		return
+	}
+	if len(info.List) == 0 {
+		err = fmt.Errorf("订单不存在")
+		return
+	}
+	record := info.List[0]
+	//向聚合支付下单
+	orderReq = new(provider.CreateOrderReq)
+	orderReq.ClientIp = clientIp
+	orderReq.UserId = userId
+	orderReq.AppType = "launchpad_pay"
+	orderReq.PayAmount = record.SumPrice
+	orderReq.PayExpire = gtime.Now().Add(time.Minute * 10)
+	orderReq.Subject = "元初发射台付款"
+	orderReq.Description = "元初发射台付款"
+	orderReq.SuccessRedirectUrl = successRedirectUrl
+	orderReq.ExitRedirectUrl = exitRedirectUrl
+	orderReq.AppOrderNo = fmt.Sprintf("%d", utils.GetOrderNo())
+	orderReq.Extra = fmt.Sprintf(`{"fromUserId":"%s","toUserId":"B","orderNo":"%s","totalFee":%d}`, userId, orderNo, record.SumPrice)
+	err = provider.Payment.CreateOrder(orderReq)
+	if err != nil {
+		g.Log().Errorf("CreateOrder err:%v", err)
+		return
+	}
+	return
+}
+
+//已发放资产
+func (s *subscribeRecord) UpdatePublishAsset(orderNo string) (err error) {
+	var retSql sql.Result
+	retSql, err = g.DB().Exec("UPDATE subscribe_records SET publish_asset = 1 WHERE order_no = ?", orderNo)
+	if err != nil {
+		return
+	}
+	affectedNum, _ := retSql.RowsAffected()
+	if affectedNum != 1 {
+		err = fmt.Errorf("更新状态失败")
+		return
+	}
+	return
+}
+
+//已支付
+func (s *subscribeRecord) DoPaid(payMethod string, orderNo string, payOrderNo string) (err error) {
+	var retSql sql.Result
+	retSql, err = g.DB().Exec("UPDATE subscribe_records SET pay_status = 1,paid_at = ?,pay_method = ?,pay_order_no = ? WHERE order_no = ?", gtime.Now(), payMethod, payOrderNo, orderNo)
+	if err != nil {
+		return
+	}
+	affectedNum, _ := retSql.RowsAffected()
+	if affectedNum != 1 {
+		err = fmt.Errorf("更新状态失败")
+		return
+	}
+	return
+}
