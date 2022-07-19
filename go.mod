@@ -8,10 +8,10 @@ require (
 	github.com/gogf/gf v1.16.9
 	github.com/imloama/gf-nacos v0.0.8
 	github.com/parnurzeal/gorequest v0.2.16
-	github.com/shopspring/decimal v1.3.1
 )
 
 require (
+	bou.ke/monkey v1.0.2 // indirect
 	github.com/BurntSushi/toml v1.1.0 // indirect
 	github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible // indirect
 	github.com/afex/hystrix-go v0.0.0-20180502004556-fa1af6a1f4f5 // indirect
@@ -64,6 +64,8 @@ require (
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/juju/ratelimit v1.0.1 // indirect
+	github.com/julienschmidt/httprouter v1.3.0 // indirect
+	github.com/kavu/go_reuseport v1.5.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.0.12 // indirect
 	github.com/klauspost/reedsolomon v1.9.16 // indirect
 	github.com/lestrrat/go-file-rotatelogs v0.0.0-20180223000712-d3151e2a480f // indirect
@@ -91,10 +93,12 @@ require (
 	github.com/qiniu/go-sdk/v7 v7.11.0 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/rpcxio/libkv v0.5.1-0.20210420120011-1fceaedca8a5 // indirect
+	github.com/rs/cors v1.8.2 // indirect
 	github.com/rubyist/circuitbreaker v2.2.1+incompatible // indirect
 	github.com/samuel/go-zookeeper v0.0.0-20201211165307-7117e9ea2414 // indirect
 	github.com/smallnest/quick v0.0.0-20220103065406-780def6371e6 // indirect
 	github.com/smallnest/rpcx v1.7.4 // indirect
+	github.com/soheilhy/cmux v0.1.5 // indirect
 	github.com/streadway/amqp v1.0.0 // indirect
 	github.com/templexxx/cpufeat v0.0.0-20180724012125-cef66df7f161 // indirect
 	github.com/templexxx/xor v0.0.0-20191217153810-f85b25db303b // indirect

@@ -6,6 +6,7 @@ import (
 	"github.com/gogf/gf/os/gcfg"
 	gfnacos "github.com/imloama/gf-nacos"
 	"meta_launchpad/router"
+	_ "meta_launchpad/rpc"
 	"meta_launchpad/task"
 )
 

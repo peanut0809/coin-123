@@ -87,6 +87,11 @@ func (s *subscribeActivity) GetSimpleDetail(id int) (ret model.SubscribeActivity
 	return
 }
 
+func (s *subscribeActivity) GetListSimple(ids []int) (ret []model.SubscribeActivity, err error) {
+	err = g.DB().Model("subscribe_activity").Where("id in (?)", ids).Scan(&ret)
+	return
+}
+
 func (s *subscribeActivity) GetDetail(alias, userId string) (ret model.SubscribeActivityFull, err error) {
 	as, e := s.GetValidDetail(alias)
 	if e != nil {

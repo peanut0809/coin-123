@@ -1,31 +1,29 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/smallnest/rpcx/client"
+	"github.com/smallnest/rpcx/protocol"
 	"io/ioutil"
 	"log"
-	"net"
-	"net/rpc/jsonrpc"
 	"os"
-	"time"
+	"strings"
 )
 
-func SendRpc(addr, rpcName string, params *map[string]interface{}) {
-	conn, e := net.DialTimeout("tcp", addr, 30*time.Second) // 30秒超时时间
-	if e != nil {
-		fmt.Println("服务连接失败===========" + addr)
-		return
-	}
-	defer conn.Close()
-	client := jsonrpc.NewClient(conn)
-	if client != nil {
-		defer client.Close()
-	}
+func SendRpc(addr, rpcName string, params interface{}) {
 	var result interface{}
-	e = client.Call(rpcName, params, &result)
-	if e != nil {
-		fmt.Println("服务出错===========", e)
+	d, _ := client.NewPeer2PeerDiscovery("tcp@"+addr, "")
+	rpc := strings.Split(rpcName, ".")
+	o := client.DefaultOption
+	o.SerializeType = protocol.JSON
+	client := client.NewXClient(rpc[0], client.Failtry, client.RandomSelect, d, o)
+	defer client.Close()
+	err := client.Call(context.Background(), rpc[1], params, &result)
+	if err != nil {
+		fmt.Println(err)
+		return
 	}
 	log.Printf("请求结果：%v \n", result)
 	j, _ := json.Marshal(result)
@@ -39,7 +37,7 @@ func SendRpc(addr, rpcName string, params *map[string]interface{}) {
 func main() {
 	fmt.Println(11122)
 	//	time.Sleep(time.Second * 3)
-	addr := "127.0.0.1:18121"
+	addr := "127.0.0.1:18126"
 	//addr := "39.107.72.102:18121"
 
 	//params := &map[string]interface{}{
@@ -84,10 +82,9 @@ func main() {
 	//SendRpc(addr, "Asset.GetMateDataByAks", params)
 
 	params := &map[string]interface{}{
-		"appIds":      []string{"testAppId"},
-		"templateIds": []string{"101000000008"},
+		"ids": []int{89},
 	}
-	SendRpc(addr, "Asset.GetMateDataByTemps", params)
+	SendRpc(addr, "Launchpad.GetDetailByIds", params)
 
 	//params := &map[string]interface{}{
 	//	"appId":   "testAppId",
