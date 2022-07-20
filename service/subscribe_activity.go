@@ -356,28 +356,30 @@ func (s *subscribeActivity) DoSub(in model.DoSubReq) {
 			g.Log().Errorf("DoSub err:%v", err)
 			return
 		}
-		err = provider.User.OptUserMonthTicket(&map[string]interface{}{
-			"userId": in.UserId,                         //用户ID
-			"num":    oneTicketInfo.UnitNum * in.SubNum, //月票数量
-			"type":   2,                                 //1.增加月票 2.减少月票
-			"recordList": []map[string]interface{}{
-				{
-					"num":    oneTicketInfo.UnitNum * in.SubNum,                          //月票数量
-					"source": 3,                                                          //来源 0.默认 1.持有资产 2.会员 3.优先购 4.投票
-					"extra":  fmt.Sprintf(`{"desc":"元初发射台门票消耗","alias":"%s"}`, in.Alias), //扩展信息
+		if oneTicketInfo.UnitNum > 0 {
+			err = provider.User.OptUserMonthTicket(&map[string]interface{}{
+				"userId": in.UserId,                         //用户ID
+				"num":    oneTicketInfo.UnitNum * in.SubNum, //月票数量
+				"type":   2,                                 //1.增加月票 2.减少月票
+				"recordList": []map[string]interface{}{
+					{
+						"num":    oneTicketInfo.UnitNum * in.SubNum,                          //月票数量
+						"source": 3,                                                          //来源 0.默认 1.持有资产 2.会员 3.优先购 4.投票
+						"extra":  fmt.Sprintf(`{"desc":"元初发射台门票消耗","alias":"%s"}`, in.Alias), //扩展信息
+					},
 				},
-			},
-		})
-		if err != nil {
-			tx.Rollback()
-			s.SetSubResult(model.DoSubResult{
-				Reason:  err.Error(),
-				Step:    "fail",
-				Type:    in.Type,
-				OrderNo: orderNo,
 			})
-			g.Log().Errorf("DoSub err:%v", err)
-			return
+			if err != nil {
+				tx.Rollback()
+				s.SetSubResult(model.DoSubResult{
+					Reason:  err.Error(),
+					Step:    "fail",
+					Type:    in.Type,
+					OrderNo: orderNo,
+				})
+				g.Log().Errorf("DoSub err:%v", err)
+				return
+			}
 		}
 		err = tx.Commit()
 		if err != nil {
@@ -433,24 +435,25 @@ func (s *subscribeActivity) DoSub(in model.DoSubReq) {
 			g.Log().Errorf("DoSub err:%v", err)
 			return
 		}
-
-		err = provider.User.YJTransfer(&map[string]interface{}{
-			"userId":   in.UserId,
-			"category": 2,
-			"amount":   oneTicketInfo.UnitNum * in.SubNum,
-			"source":   23,
-			"orderNo":  utils.Generate(),
-		})
-		if err != nil {
-			tx.Rollback()
-			s.SetSubResult(model.DoSubResult{
-				Reason:  err.Error(),
-				Step:    "fail",
-				Type:    in.Type,
-				OrderNo: orderNo,
+		if oneTicketInfo.UnitNum > 0 {
+			err = provider.User.YJTransfer(&map[string]interface{}{
+				"userId":   in.UserId,
+				"category": 2,
+				"amount":   oneTicketInfo.UnitNum * in.SubNum,
+				"source":   23,
+				"orderNo":  utils.Generate(),
 			})
-			g.Log().Errorf("DoSub err:%v", err)
-			return
+			if err != nil {
+				tx.Rollback()
+				s.SetSubResult(model.DoSubResult{
+					Reason:  err.Error(),
+					Step:    "fail",
+					Type:    in.Type,
+					OrderNo: orderNo,
+				})
+				g.Log().Errorf("DoSub err:%v", err)
+				return
+			}
 		}
 		err = tx.Commit()
 		if err != nil {
