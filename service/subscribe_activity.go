@@ -594,9 +594,16 @@ func (s *subscribeActivity) UpdatePayEnd(id int) (err error) {
 
 func (s *subscribeActivity) UpdateActivityStatus(aid, status int) (err error) {
 	var ret sql.Result
-	ret, err = g.DB().Exec("UPDATE subscribe_activity SET award_status = ? WHERE id = ?", status, aid)
-	if err != nil {
-		return
+	if status == 2 {
+		ret, err = g.DB().Exec("UPDATE subscribe_activity SET award_status = ?,award_complete_time = ? WHERE id = ?", status, time.Now(), aid)
+		if err != nil {
+			return
+		}
+	} else {
+		ret, err = g.DB().Exec("UPDATE subscribe_activity SET award_status = ? WHERE id = ?", status, aid)
+		if err != nil {
+			return
+		}
 	}
 	affectedNum, _ := ret.RowsAffected()
 	if affectedNum != 1 {
