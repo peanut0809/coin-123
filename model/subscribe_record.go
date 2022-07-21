@@ -32,8 +32,6 @@ type SubscribeRecord struct {
 	TicketType         string      `orm:"ticket_type" json:"ticketType"`
 	PublishAsset       int         `orm:"publish_asset" json:"publishAsset"` // 发放状态
 	PayStatus          int         `orm:"pay_status" json:"payStatus"`
-	SubSum             int         `orm:"sub_sum" json:"subSum"`
-	SubSumPeople       int         `orm:"sub_sum_people" json:"subSumPeople"`
 	PublisherId        string      `orm:"publisher_id" json:"publisherId"`
 	PayEndTime         *gtime.Time `orm:"pay_end_time" json:"payEndTime"`
 	PaidAt             *gtime.Time `orm:"paid_at" json:"paidAt"`

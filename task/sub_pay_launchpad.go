@@ -87,11 +87,13 @@ func RunSubLaunchpadPayTask() {
 								}
 							} else {
 								//通知钱包
-								service.NoticeWallet(service.NoticeWalletReq{
-									FromUserId: subRecord.UserId,
-									ToUserId:   "B",
-									TotalFee:   0,
-								})
+								if data.PayType != "wallet_pay" {
+									service.NoticeWallet(service.NoticeWalletReq{
+										FromUserId: subRecord.UserId,
+										ToUserId:   "B",
+										TotalFee:   subRecord.SumPrice,
+									})
+								}
 							}
 						}
 					}

@@ -204,6 +204,11 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string) (ticketInf
 	if err != nil {
 		return
 	}
+	now := time.Now()
+	if !(now.Unix() > as.ActivityStartTime.Unix() && now.Unix() < as.ActivityEndTime.Unix()) {
+		err = fmt.Errorf("认购时间已结束")
+		return
+	}
 	//获取用户元晶余额
 	_, userInfoMap, _ := provider.User.GetUserInfo([]string{userId})
 	if len(userInfoMap) == 0 {
@@ -533,6 +538,7 @@ func (s *subscribeActivity) DoSub(in model.DoSubReq) {
 		extra.FromUserId = in.UserId
 		extra.ToUserId = "B"
 		extra.TotalFee = extra.SumPrice
+		extra.PublisherId = as.PublisherId
 
 		//向聚合支付下单
 		orderReq := new(provider.CreateOrderReq)

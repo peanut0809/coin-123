@@ -35,18 +35,42 @@ func RunSubPayTask() {
 		if err != nil {
 			g.Log().Errorf("RunSubPayTask json.Unmarshal err:%v", err)
 		} else {
-			var extra model.SubscribeRecord
+			var extra model.SubscribeRecordQueueData
 			err = json.Unmarshal([]byte(data.Extra), &extra)
 			if err != nil {
 				g.Log().Errorf("RunSubPayTask json.Unmarshal err:%v", err)
 			} else {
 				extra.PayTicketMethod = data.PayType
 				err = g.DB().Transaction(context.Background(), func(ctx context.Context, tx *gdb.TX) error {
-					err = service.SubscribeRecord.CreateSubscribeRecord(tx, extra)
+					err = service.SubscribeRecord.CreateSubscribeRecord(tx, model.SubscribeRecord{
+						ActivityType:    extra.ActivityType,
+						Aid:             extra.Aid,
+						Name:            extra.Name,
+						Icon:            extra.Icon,
+						UserId:          extra.UserId,
+						BuyNum:          extra.BuyNum,
+						OrderNo:         extra.OrderNo,
+						PayOrderNo:      extra.OrderNo,
+						SumPrice:        extra.SumPrice,
+						SumUnitPrice:    extra.SumUnitPrice,
+						TicketType:      extra.TicketType,
+						PublisherId:     extra.PublisherId,
+						PayEndTime:      extra.PayEndTime,
+						PayTicketMethod: data.PayType,
+					})
 					return err
 				})
 				if err != nil {
 					g.Log().Errorf("RunSubPayTask json.Unmarshal err:%v", err)
+				} else {
+					//通知钱包
+					if data.PayType != "wallet_pay" && extra.SumUnitPrice != 0 {
+						service.NoticeWallet(service.NoticeWalletReq{
+							FromUserId: extra.UserId,
+							ToUserId:   "B",
+							TotalFee:   extra.SumUnitPrice,
+						})
+					}
 				}
 			}
 		}
