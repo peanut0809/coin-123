@@ -154,3 +154,8 @@
 #开发者后台的配置
 [developer]
     host = "http://39.107.72.102:1573"
+
+# rabbitmq 配置
+[rabbitmq]
+    [rabbitmq.default]
+        link = "amqp://chat:ZHlLORFUeUcv@39.107.72.102:5672/"

@@ -3,10 +3,11 @@ module meta_open_sdk
 go 1.17
 
 require (
-	brq5j1d.gfanx.pro/meta_cloud/meta_common v1.6.0
+	brq5j1d.gfanx.pro/meta_cloud/meta_common v1.8.5
 	brq5j1d.gfanx.pro/meta_cloud/meta_service v0.0.59
 	github.com/gogf/gf v1.16.9
 	github.com/imloama/gf-nacos v0.0.8
+	github.com/parnurzeal/gorequest v0.2.16
 )
 
 require (
@@ -88,7 +89,7 @@ require (
 	github.com/nxadm/tail v1.4.8 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/onsi/ginkgo v1.16.5 // indirect
-	github.com/parnurzeal/gorequest v0.2.16 // indirect
+	github.com/opentracing/opentracing-go v1.1.0 // indirect
 	github.com/philhofer/fwd v1.1.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/qiniu/go-sdk/v7 v7.11.0 // indirect

@@ -2,6 +2,7 @@ package main
 
 import (
 	"meta_open_sdk/router"
+	"meta_open_sdk/task"
 
 	_ "brq5j1d.gfanx.pro/meta_cloud/meta_service/app/assets/dao"
 	"github.com/gogf/gf/frame/g"
@@ -18,5 +19,7 @@ func main() {
 			gcfg.SetContent(configStr)
 		},
 	})
+
+	go task.PaymentQueue()
 	s.Run()
 }
