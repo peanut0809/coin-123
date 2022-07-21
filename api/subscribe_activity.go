@@ -41,6 +41,20 @@ func (s *subscribeActivity) GetSubscribeActivityDetail(r *ghttp.Request) {
 	s.SusJsonExit(r, ret)
 }
 
+func (s *subscribeActivity) GetActivityAwardRecord(r *ghttp.Request) {
+	alias := r.GetQueryString("alias")
+	if alias == "" {
+		s.FailJsonExit(r, "参数错误")
+		return
+	}
+	ret, err := service.SubscribeRecord.GetSubscribeAwardRecord(alias)
+	if err != nil {
+		s.FailJsonExit(r, err.Error())
+		return
+	}
+	s.SusJsonExit(r, ret)
+}
+
 func (s *subscribeActivity) GetPayInfo(r *ghttp.Request) {
 	userId := s.GetUserId(r)
 	alias := r.GetQueryString("alias")

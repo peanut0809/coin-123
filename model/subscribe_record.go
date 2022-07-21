@@ -92,3 +92,8 @@ type CreateOrderReq struct {
 	SuccessRedirectUrl string `json:"successRedirectUrl"`
 	ExitRedirectUrl    string `json:"exitRedirectUrl"`
 }
+
+type GetSubscribeAwardRecordRet struct {
+	Phone    string `json:"phone"`
+	AwardNum int    `json:"awardNum"`
+}

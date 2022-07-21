@@ -45,20 +45,27 @@ type TicketInfoJson struct {
 }
 
 type SubscribeActivityFull struct {
-	SumNum        int    `json:"sumNum"`
-	CoverImgUrl   string `json:"coverImgUrl"` //商品封面图
-	Name          string `json:"name"`        // 活动名
-	PriceYuan     string `json:"priceYuan"`
-	LastSec       int64  `json:"lastSec"`
-	Status        int    `json:"status"`
-	Alias         string `json:"alias"`
-	AssetIntro    string `json:"assetIntro"`
-	ActivityIntro string `json:"activityIntro"`
-	ActivityType  int    `json:"activityType"`
-	SubSumPeople  int    `json:"subSumPeople"`
-	Subed         bool   `json:"subed"`     //是否已认购
-	Award         int    `json:"award"`     //是否中签
-	PayStatus     int    `json:"payStatus"` //是否已付款
+	SumNum        int                         `json:"sumNum"`
+	CoverImgUrl   string                      `json:"coverImgUrl"` //商品封面图
+	Name          string                      `json:"name"`        // 活动名
+	PriceYuan     string                      `json:"priceYuan"`
+	LastSec       int64                       `json:"lastSec"`
+	Status        int                         `json:"status"`
+	Alias         string                      `json:"alias"`
+	AssetIntro    string                      `json:"assetIntro"`
+	ActivityIntro string                      `json:"activityIntro"`
+	ActivityType  int                         `json:"activityType"`
+	SubSumPeople  int                         `json:"subSumPeople"`
+	SubSum        int                         `json:"subSum"`
+	Subed         bool                        `json:"subed"`     //是否已认购
+	Award         int                         `json:"award"`     //是否中签
+	PayStatus     int                         `json:"payStatus"` //是否已付款
+	Steps         []SubscribeActivityFullStep `json:"steps"`
+}
+
+type SubscribeActivityFullStep struct {
+	Txt     string `json:"txt"`
+	TimeStr string `json:"timeStr"`
 }
 
 type DoSubReq struct {
@@ -79,10 +86,11 @@ type DoSubResult struct {
 	Step    string `json:"step"`
 }
 
-const STATUS_AWAY_START = 1   //距开始
-const STATUS_AWAY_AWARD = 2   //距公布
-const STATUS_AWAY_END = 3     //距结束
-const STATUS_AWAY_PAY_END = 4 //距付款结束
+const STATUS_AWAY_START = 1 //未开始
+const STATUS_ING = 2        //进行中
+const STATUS_AWAIT_OPEN = 3 //待公布
+const STATUS_AWAIT_PAY = 4  //待付款
+const STATUS_END = 5        //已结束
 
 const TICKET_MONTH = "month_ticket"
 const TICKET_CRYSTAL = "crystal"

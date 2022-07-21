@@ -40,7 +40,7 @@ func (s *subscribeActivity) GetList() (ret map[string][]model.SubscribeActivityF
 		item.SumNum = v.SumNum
 		item.Alias = v.Alias
 		item.PriceYuan = fmt.Sprintf("%.2f", float64(v.Price)/100)
-		item.Status, item.LastSec = s.GetActivityStatus(v)
+		item.Status = s.GetActivityStatusV2(v)
 		if v.ActivityType == 1 {
 			ret["priority"] = append(ret["priority"], item)
 		} else {
@@ -50,20 +50,36 @@ func (s *subscribeActivity) GetList() (ret map[string][]model.SubscribeActivityF
 	return
 }
 
-func (s *subscribeActivity) GetActivityStatus(v model.SubscribeActivity) (status int, lastSec int64) {
+//func (s *subscribeActivity) GetActivityStatus(v model.SubscribeActivity) (status int, lastSec int64) {
+//	now := time.Now()
+//	if now.Unix() <= v.ActivityStartTime.Unix() { //距开始
+//		status = model.STATUS_AWAY_START
+//		lastSec = v.ActivityStartTime.Unix() - now.Unix()
+//	} else if now.Unix() >= v.ActivityStartTime.Unix() && now.Unix() < v.ActivityEndTime.Unix() { //距结束
+//		status = model.STATUS_AWAY_END
+//		lastSec = v.ActivityEndTime.Unix() - now.Unix()
+//	} else if now.Unix() >= v.ActivityEndTime.Unix() && now.Unix() <= v.OpenAwardTime.Unix() { //距开奖
+//		status = model.STATUS_AWAY_AWARD
+//		lastSec = v.OpenAwardTime.Unix() - now.Unix()
+//	} else if now.Unix() > v.OpenAwardTime.Unix() && now.Unix() <= v.PayEndTime.Unix() { //距付款截止
+//		status = model.STATUS_AWAY_PAY_END
+//		lastSec = v.PayEndTime.Unix() - now.Unix()
+//	}
+//	return
+//}
+
+func (s *subscribeActivity) GetActivityStatusV2(v model.SubscribeActivity) (status int) {
 	now := time.Now()
-	if now.Unix() <= v.ActivityStartTime.Unix() { //距开始
+	if now.Unix() <= v.ActivityStartTime.Unix() { //未开始
 		status = model.STATUS_AWAY_START
-		lastSec = v.ActivityStartTime.Unix() - now.Unix()
 	} else if now.Unix() >= v.ActivityStartTime.Unix() && now.Unix() < v.ActivityEndTime.Unix() { //距结束
-		status = model.STATUS_AWAY_END
-		lastSec = v.ActivityEndTime.Unix() - now.Unix()
-	} else if now.Unix() >= v.ActivityEndTime.Unix() && now.Unix() <= v.OpenAwardTime.Unix() { //距开奖
-		status = model.STATUS_AWAY_AWARD
-		lastSec = v.OpenAwardTime.Unix() - now.Unix()
-	} else if now.Unix() > v.OpenAwardTime.Unix() && now.Unix() <= v.PayEndTime.Unix() { //距付款截止
-		status = model.STATUS_AWAY_PAY_END
-		lastSec = v.PayEndTime.Unix() - now.Unix()
+		status = model.STATUS_ING
+	} else if now.Unix() >= v.ActivityEndTime.Unix() && now.Unix() <= v.OpenAwardTime.Unix() { //待公布
+		status = model.STATUS_AWAIT_OPEN
+	} else if now.Unix() > v.OpenAwardTime.Unix() && now.Unix() <= v.PayEndTime.Unix() { //待付款
+		status = model.STATUS_AWAIT_PAY
+	} else if now.Unix() > v.PayEndTime.Unix() { //已结束
+		status = model.STATUS_END
 	}
 	return
 }
@@ -71,12 +87,12 @@ func (s *subscribeActivity) GetActivityStatus(v model.SubscribeActivity) (status
 func (s *subscribeActivity) GetValidDetail(alias string) (ret *model.SubscribeActivity, err error) {
 	m := g.DB().Model("subscribe_activity")
 	now := time.Now()
-	err = m.Where("publisher_id != 'ZHW' AND start_time <= ? AND pay_end_time >= ? AND alias = ?", now, now, alias).Scan(&ret)
+	err = m.Where("start_time <= ? AND alias = ?", now, alias).Scan(&ret)
 	if err != nil {
 		return
 	}
 	if ret == nil {
-		err = fmt.Errorf("活动不存在或已结束")
+		err = fmt.Errorf("活动不存在")
 		return
 	}
 	return
@@ -84,6 +100,11 @@ func (s *subscribeActivity) GetValidDetail(alias string) (ret *model.SubscribeAc
 
 func (s *subscribeActivity) GetSimpleDetail(id int) (ret model.SubscribeActivity, err error) {
 	err = g.DB().Model("subscribe_activity").Where("id = ?", id).Scan(&ret)
+	return
+}
+
+func (s *subscribeActivity) GetSimpleDetailByAlias(alias string) (ret *model.SubscribeActivity, err error) {
+	err = g.DB().Model("subscribe_activity").Where("alias = ?", alias).Scan(&ret)
 	return
 }
 
@@ -95,6 +116,7 @@ func (s *subscribeActivity) GetListSimple(ids []int) (ret []model.SubscribeActiv
 func (s *subscribeActivity) GetDetail(alias, userId string) (ret model.SubscribeActivityFull, err error) {
 	as, e := s.GetValidDetail(alias)
 	if e != nil {
+		err = e
 		return
 	}
 	ret.Name = as.Name
@@ -102,11 +124,12 @@ func (s *subscribeActivity) GetDetail(alias, userId string) (ret model.Subscribe
 	ret.SumNum = as.SumNum
 	ret.Alias = as.Alias
 	ret.PriceYuan = fmt.Sprintf("%.2f", float64(as.Price)/100)
-	ret.Status, ret.LastSec = s.GetActivityStatus(*as)
+	ret.Status = s.GetActivityStatusV2(*as)
 	ret.ActivityType = as.ActivityType
 	ret.AssetIntro = as.AssetIntro
 	ret.ActivityIntro = as.AssetIntro
 	ret.SubSumPeople = as.SubSumPeople
+	ret.SubSum = as.SubSum
 	record, e := SubscribeRecord.GetSubscribeRecords(as.Id, userId)
 	if e != nil {
 		err = e
@@ -117,6 +140,26 @@ func (s *subscribeActivity) GetDetail(alias, userId string) (ret model.Subscribe
 		ret.Award = record.Award
 		ret.PayStatus = record.PayStatus
 	}
+	now := gtime.Now()
+	if now.Unix() >= as.ActivityStartTime.Unix() && now.Unix() < as.ActivityEndTime.Unix() {
+
+	}
+	ret.Steps = append(ret.Steps, model.SubscribeActivityFullStep{
+		Txt:     "开放抽签",
+		TimeStr: as.ActivityStartTime.Layout("01-02 15:04"),
+	})
+	ret.Steps = append(ret.Steps, model.SubscribeActivityFullStep{
+		Txt:     "抽签结束",
+		TimeStr: as.ActivityEndTime.Layout("01-02 15:04"),
+	})
+	ret.Steps = append(ret.Steps, model.SubscribeActivityFullStep{
+		Txt:     "公布时间",
+		TimeStr: as.OpenAwardTime.Layout("01-02 15:04"),
+	})
+	ret.Steps = append(ret.Steps, model.SubscribeActivityFullStep{
+		Txt:     "付款截止",
+		TimeStr: as.PayEndTime.Layout("01-02 15:04"),
+	})
 	return
 }
 

@@ -29,6 +29,7 @@ func InitRouter() *ghttp.Server {
 	s.Group("/api", func(group *ghttp.RouterGroup) {
 		group.Middleware(middleware.Auth)
 		group.GET("/activity/detail", api.SubscribeActivity.GetSubscribeActivityDetail)
+		group.GET("/activity/award/record", api.SubscribeActivity.GetActivityAwardRecord)
 		group.GET("/pay/info", api.SubscribeActivity.GetPayInfo)
 		group.POST("/activity/sub", api.SubscribeActivity.SubActivity)
 		group.GET("/activity/sub/result", api.SubscribeActivity.GetSubActivityResult)

@@ -17,6 +17,38 @@ type subscribeRecord struct {
 
 var SubscribeRecord = new(subscribeRecord)
 
+func (s *subscribeRecord) GetSubscribeAwardRecord(alias string) (ret []model.GetSubscribeAwardRecordRet, err error) {
+	as, e := SubscribeActivity.GetSimpleDetailByAlias(alias)
+	if e != nil {
+		err = e
+		return
+	}
+	if as == nil {
+		err = fmt.Errorf("活动不存在")
+		return
+	}
+	if as.AwardStatus != 2 {
+		return
+	}
+	var records []model.SubscribeRecord
+	err = g.DB().Model("subscribe_records").Where("aid = ? AND award_num != 0", as.Id).Scan(&records)
+	if err != nil {
+		return
+	}
+	userIds := make([]string, 0)
+	for _, v := range records {
+		userIds = append(userIds, v.UserId)
+	}
+	_, uMap, _ := provider.User.GetUserInfo(userIds)
+	for _, v := range records {
+		ret = append(ret, model.GetSubscribeAwardRecordRet{
+			Phone:    utils.FormatMobileStar(uMap[v.UserId].Phone),
+			AwardNum: v.AwardNum,
+		})
+	}
+	return
+}
+
 func (s *subscribeRecord) GetSubscribeRecords(aid int, userId string) (ret *model.SubscribeRecord, err error) {
 	err = g.DB().Model("subscribe_records").Where("aid = ? AND user_id = ?", aid, userId).Scan(&ret)
 	if err != nil {
