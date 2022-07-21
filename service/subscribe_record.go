@@ -219,7 +219,7 @@ func (s *subscribeRecord) GetListByOrder(userId string, orderNo string, pageNum 
 }
 
 //创建支付订单
-func (s *subscribeRecord) CreateOrder(userId, clientIp, orderNo, successRedirectUrl, exitRedirectUrl string) (orderReq *provider.CreateOrderReq, err error) {
+func (s *subscribeRecord) CreateOrder(userId, clientIp, orderNo, successRedirectUrl, exitRedirectUrl, publisherId, appId string) (orderReq *provider.CreateOrderReq, err error) {
 	info, e := s.GetListByOrder(userId, orderNo, 1, 0)
 	if e != nil {
 		err = e
@@ -241,6 +241,8 @@ func (s *subscribeRecord) CreateOrder(userId, clientIp, orderNo, successRedirect
 	orderReq.Description = "元初发射台付款"
 	orderReq.SuccessRedirectUrl = successRedirectUrl
 	orderReq.ExitRedirectUrl = exitRedirectUrl
+	orderReq.PublisherId = publisherId
+	orderReq.PlatformAppId = appId
 	orderReq.AppOrderNo = fmt.Sprintf("%d", utils.GetOrderNo())
 	orderReq.Extra = fmt.Sprintf(`{"fromUserId":"%s","toUserId":"B","orderNo":"%s","totalFee":%d}`, userId, orderNo, record.SumPrice)
 	err = provider.Payment.CreateOrder(orderReq)

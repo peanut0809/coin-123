@@ -89,6 +89,8 @@ func (s *subscribeActivity) SubActivity(r *ghttp.Request) {
 	req.UserId = s.GetUserId(r)
 	req.ClientIp = r.GetClientIp()
 	req.OrderNo = orderNo
+	req.PublisherId = s.GetPublisherId(r)
+	req.PlatformAppId = s.GetAppid(r)
 	if req.Type == model.TICKET_MONEY && (req.ExitRedirectUrl == "" || req.SuccessRedirectUrl == "") {
 		s.FailJsonExit(r, "参数错误")
 		return

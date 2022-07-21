@@ -78,6 +78,8 @@ type DoSubReq struct {
 	OrderNo            string `json:"orderNo"`
 	SuccessRedirectUrl string `json:"successRedirectUrl"`
 	ExitRedirectUrl    string `json:"exitRedirectUrl"`
+	PublisherId        string `json:"publisherId"`
+	PlatformAppId      string `json:"platformAppId"`
 }
 
 type DoSubResult struct {

@@ -546,6 +546,8 @@ func (s *subscribeActivity) DoSub(in model.DoSubReq) {
 		orderReq.SuccessRedirectUrl = in.SuccessRedirectUrl
 		orderReq.ExitRedirectUrl = in.ExitRedirectUrl
 		orderReq.AppOrderNo = orderNo
+		orderReq.PublisherId = in.PublisherId
+		orderReq.PlatformAppId = in.PlatformAppId
 		orderReq.Extra = gconv.String(extra)
 		err = provider.Payment.CreateOrder(orderReq)
 		if err != nil {

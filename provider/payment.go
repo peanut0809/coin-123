@@ -24,6 +24,8 @@ type CreateOrderReq struct {
 	Extra              string      `json:"extra"`
 	PayExpire          *gtime.Time `json:"pay_expire"`
 	AppOrderNo         string      `json:"app_order_no"`
+	PublisherId        string      `json:"publisherId"`
+	PlatformAppId      string      `json:"platformAppId"`
 }
 
 func (c *payment) CreateOrder(req *CreateOrderReq) (err error) {

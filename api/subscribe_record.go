@@ -103,7 +103,7 @@ func (s *subscribeRecord) CreateOrder(r *ghttp.Request) {
 		return
 	}
 	userId := s.GetUserId(r)
-	ret, err := service.SubscribeRecord.CreateOrder(userId, r.GetClientIp(), req.OrderNo, req.SuccessRedirectUrl, req.ExitRedirectUrl)
+	ret, err := service.SubscribeRecord.CreateOrder(userId, r.GetClientIp(), req.OrderNo, req.SuccessRedirectUrl, req.ExitRedirectUrl, s.GetPublisherId(r), s.GetAppid(r))
 	if err != nil {
 		s.FailJsonExit(r, err.Error())
 		return
