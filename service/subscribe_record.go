@@ -17,7 +17,7 @@ type subscribeRecord struct {
 
 var SubscribeRecord = new(subscribeRecord)
 
-func (s *subscribeRecord) GetSubscribeAwardRecord(alias string) (ret []model.GetSubscribeAwardRecordRet, err error) {
+func (s *subscribeRecord) GetSubscribeAwardRecord(alias string) (ret model.GetSubscribeAwardRecordRet, err error) {
 	as, e := SubscribeActivity.GetSimpleDetailByAlias(alias)
 	if e != nil {
 		err = e
@@ -35,13 +35,14 @@ func (s *subscribeRecord) GetSubscribeAwardRecord(alias string) (ret []model.Get
 	if err != nil {
 		return
 	}
+	ret.AwardCompleteTime = as.AwardCompleteTime
 	userIds := make([]string, 0)
 	for _, v := range records {
 		userIds = append(userIds, v.UserId)
 	}
 	_, uMap, _ := provider.User.GetUserInfo(userIds)
 	for _, v := range records {
-		ret = append(ret, model.GetSubscribeAwardRecordRet{
+		ret.List = append(ret.List, model.GetSubscribeAwardRecordRetItem{
 			Phone:    utils.FormatMobileStar(uMap[v.UserId].Phone),
 			AwardNum: v.AwardNum,
 		})

@@ -94,6 +94,11 @@ type CreateOrderReq struct {
 }
 
 type GetSubscribeAwardRecordRet struct {
+	List              []GetSubscribeAwardRecordRetItem `json:"list"`
+	AwardCompleteTime *gtime.Time                      `orm:"award_complete_time" json:"awardCompleteTime"`
+}
+
+type GetSubscribeAwardRecordRetItem struct {
 	Phone    string `json:"phone"`
 	AwardNum int    `json:"awardNum"`
 }

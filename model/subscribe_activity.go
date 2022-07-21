@@ -32,6 +32,7 @@ type SubscribeActivity struct {
 	SubSumPeople      int         `orm:"sub_sum_people" json:"subSumPeople"`
 	GeneralBuyNum     int         `orm:"general_buy_num" json:"generalBuyNum"`
 	AwardMethod       int         `orm:"award_method" json:"awardMethod"`
+	AwardCompleteTime *gtime.Time `orm:"award_complete_time" json:"awardCompleteTime"`
 	CreatedAt         *gtime.Time `orm:"created_at" json:"createdAt"` // 新建时间
 	UpdatedAt         *gtime.Time `orm:"updated_at" json:"updatedAt"` // 更新时间
 }
