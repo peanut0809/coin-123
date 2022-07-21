@@ -85,6 +85,13 @@ func RunSubLaunchpadPayTask() {
 								if err != nil {
 									g.Log().Errorf("RunSubLaunchpadPayTask err:%v", err)
 								}
+							} else {
+								//通知钱包
+								service.NoticeWallet(service.NoticeWalletReq{
+									FromUserId: subRecord.UserId,
+									ToUserId:   "B",
+									TotalFee:   0,
+								})
 							}
 						}
 					}

@@ -66,6 +66,7 @@ type SubscribeRecordDetail struct {
 	AwardAt      *gtime.Time `json:"awardAt"`
 	Icon         string      `json:"icon"`
 	Aid          int         `json:"aid"`
+	CreatedAt    *gtime.Time `json:"createdAt"`
 }
 
 type SubscribeListByOrderRetItem struct {

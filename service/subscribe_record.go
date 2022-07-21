@@ -161,6 +161,7 @@ func (s *subscribeRecord) GetDetail(orderNo string) (ret model.SubscribeRecordDe
 	ret.Icon = record.Icon
 	ret.UserId = record.UserId
 	ret.Aid = record.Aid
+	ret.CreatedAt = record.CreatedAt
 	return
 }
 
