@@ -204,11 +204,6 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string) (ticketInf
 	if err != nil {
 		return
 	}
-	now := time.Now()
-	if !(now.Unix() > as.ActivityStartTime.Unix() && now.Unix() < as.ActivityEndTime.Unix()) {
-		err = fmt.Errorf("认购时间已结束")
-		return
-	}
 	//获取用户元晶余额
 	_, userInfoMap, _ := provider.User.GetUserInfo([]string{userId})
 	if len(userInfoMap) == 0 {
@@ -273,6 +268,8 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string) (ticketInf
 					if ticketInfo[k].MaxBuyNum >= as.GeneralBuyNum {
 						ticketInfo[k].MaxBuyNum = as.GeneralBuyNum
 					}
+				} else {
+					ticketInfo[k].MaxBuyNum = as.GeneralBuyNum
 				}
 			} else if v.Type == model.TICKET_MONTH {
 				if v.UnitNum != 0 {
@@ -280,6 +277,8 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string) (ticketInf
 					if ticketInfo[k].MaxBuyNum >= as.GeneralBuyNum {
 						ticketInfo[k].MaxBuyNum = as.GeneralBuyNum
 					}
+				} else {
+					ticketInfo[k].MaxBuyNum = as.GeneralBuyNum
 				}
 			}
 		}
@@ -291,6 +290,11 @@ func (s *subscribeActivity) DoSubVerify(in model.DoSubReq) (oneTicketInfo model.
 	ticketInfo, as, e := s.GetMaxBuyNum(in.Alias, in.UserId)
 	if e != nil {
 		err = e
+		return
+	}
+	now := time.Now()
+	if !(now.Unix() > as.ActivityStartTime.Unix() && now.Unix() < as.ActivityEndTime.Unix()) {
+		err = fmt.Errorf("认购时间已结束")
 		return
 	}
 	//检查超时行为
