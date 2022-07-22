@@ -206,18 +206,19 @@ func (s *subscribeRecord) GetListByOrder(userId string, orderNo string, pageNum 
 			lastSec = 0
 		}
 		item := model.SubscribeListByOrderRetItem{
-			BuyNum:       v.BuyNum,
-			SumPriceYuan: fmt.Sprintf("%.2f", float64(v.SumPrice)/100),
-			SumPrice:     v.SumPrice,
-			OrderNo:      v.OrderNo,
-			Name:         v.Name,
-			Icon:         v.Icon,
-			PayOrderNo:   v.PayOrderNo,
-			PayEndTime:   v.PayEndTime,
-			PaidAt:       v.PaidAt,
-			PayMethod:    v.PayMethod,
-			Status:       v.PayStatus,
-			LastSec:      lastSec,
+			BuyNum:        v.Award,
+			UnitPriceYuan: fmt.Sprintf("%.2f", float64(v.SumPrice)/float64(v.Award)/100),
+			SumPriceYuan:  fmt.Sprintf("%.2f", float64(v.SumPrice)/100),
+			SumPrice:      v.SumPrice,
+			OrderNo:       v.OrderNo,
+			Name:          v.Name,
+			Icon:          v.Icon,
+			PayOrderNo:    v.PayOrderNo,
+			PayEndTime:    v.PayEndTime,
+			PaidAt:        v.PaidAt,
+			PayMethod:     v.PayMethod,
+			Status:        v.PayStatus,
+			LastSec:       lastSec,
 		}
 		ret.List = append(ret.List, item)
 	}

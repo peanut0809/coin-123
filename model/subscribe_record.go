@@ -68,18 +68,19 @@ type SubscribeRecordDetail struct {
 }
 
 type SubscribeListByOrderRetItem struct {
-	BuyNum       int         `json:"buyNum"`
-	SumPriceYuan string      `json:"sumPriceYuan"`
-	SumPrice     int         `json:"sumPrice"`
-	OrderNo      string      `json:"orderNo"` // 订单号
-	Name         string      `json:"name"`
-	Icon         string      `json:"icon"`
-	Status       int         `json:"status"`
-	PayOrderNo   string      `json:"payOrderNo"`
-	PaidAt       *gtime.Time `json:"paidAt"`
-	PayEndTime   *gtime.Time `json:"payEndTime"`
-	PayMethod    string      `json:"payMethod"`
-	LastSec      int64       `json:"lastSec"`
+	BuyNum        int         `json:"buyNum"`
+	SumPriceYuan  string      `json:"sumPriceYuan"`
+	UnitPriceYuan string      `json:"unitPriceYuan"`
+	SumPrice      int         `json:"sumPrice"`
+	OrderNo       string      `json:"orderNo"` // 订单号
+	Name          string      `json:"name"`
+	Icon          string      `json:"icon"`
+	Status        int         `json:"status"`
+	PayOrderNo    string      `json:"payOrderNo"`
+	PaidAt        *gtime.Time `json:"paidAt"`
+	PayEndTime    *gtime.Time `json:"payEndTime"`
+	PayMethod     string      `json:"payMethod"`
+	LastSec       int64       `json:"lastSec"`
 }
 
 type SubscribeListByOrderRet struct {
