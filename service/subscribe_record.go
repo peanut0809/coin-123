@@ -87,7 +87,7 @@ func (s *subscribeRecord) GetWaitLuckyDraw(aid int) (ret []model.SubscribeRecord
 
 //更新活动为全部中签
 func (s *subscribeRecord) AllAward(tx *gdb.TX, aid int) (err error) {
-	_, err = tx.Exec("UPDATE subscribe_records SET award = 1,award_num = buy_num WHERE aid = ? and award = 0", aid)
+	_, err = tx.Exec("UPDATE subscribe_records SET award = 1,award_num = buy_num,award_at = ? WHERE aid = ? and award = 0", gtime.Now(), aid)
 	return
 }
 
