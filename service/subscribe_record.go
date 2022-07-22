@@ -201,6 +201,10 @@ func (s *subscribeRecord) GetListByOrder(userId string, orderNo string, pageNum 
 		return
 	}
 	for _, v := range records {
+		lastSec := v.PayEndTime.Unix() - time.Now().Unix()
+		if lastSec <= 0 {
+			lastSec = 0
+		}
 		item := model.SubscribeListByOrderRetItem{
 			BuyNum:       v.BuyNum,
 			SumPriceYuan: fmt.Sprintf("%.2f", float64(v.SumPrice)/100),
@@ -213,6 +217,7 @@ func (s *subscribeRecord) GetListByOrder(userId string, orderNo string, pageNum 
 			PaidAt:       v.PaidAt,
 			PayMethod:    v.PayMethod,
 			Status:       v.PayStatus,
+			LastSec:      lastSec,
 		}
 		ret.List = append(ret.List, item)
 	}

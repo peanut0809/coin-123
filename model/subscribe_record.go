@@ -79,6 +79,7 @@ type SubscribeListByOrderRetItem struct {
 	PaidAt       *gtime.Time `json:"paidAt"`
 	PayEndTime   *gtime.Time `json:"payEndTime"`
 	PayMethod    string      `json:"payMethod"`
+	LastSec      int64       `json:"lastSec"`
 }
 
 type SubscribeListByOrderRet struct {
