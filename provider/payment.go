@@ -24,11 +24,12 @@ type CreateOrderReq struct {
 	Extra              string      `json:"extra"`
 	PayExpire          *gtime.Time `json:"pay_expire"`
 	AppOrderNo         string      `json:"app_order_no"`
-	PublisherId        string      `json:"publisherId"`
-	PlatformAppId      string      `json:"platformAppId"`
+	PublisherId        string      `json:"publisher_id"`
+	PlatformAppId      string      `json:"platform_app_id"`
 }
 
 func (c *payment) CreateOrder(req *CreateOrderReq) (err error) {
+	//ioutil.WriteFile("1.txt", []byte(gconv.String(req)), os.ModePerm)
 	_, err = utils.SendJsonRpc(context.Background(), "payment", "PayOrderBeforehand.CreatePayOrderBeforehand", req)
 	if err != nil {
 		g.Log().Errorf("下单失败：%v,data:%+v", err, req)
