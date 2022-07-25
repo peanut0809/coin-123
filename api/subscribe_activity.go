@@ -121,3 +121,13 @@ func (s *subscribeActivity) GetSubActivityResult(r *ghttp.Request) {
 	}
 	s.SusJsonExit(r, ret)
 }
+
+func (s *subscribeActivity) GetSubActivityAwardResult(r *ghttp.Request) {
+	aid := r.GetQueryInt("aid")
+	userId := s.GetUserId(r)
+	ret, err := service.SubscribeActivity.GetSubAwardResult(aid, userId)
+	if err != nil {
+		return
+	}
+	s.SusJsonExit(r, ret)
+}

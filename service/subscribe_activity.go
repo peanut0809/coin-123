@@ -358,6 +358,18 @@ func (s *subscribeActivity) GetSubResult(orderNo string) (ret model.DoSubResult,
 	return
 }
 
+func (s *subscribeActivity) GetSubAwardResult(aid int, userId string) (ret *model.SubscribeRecord, err error) {
+	err = g.DB().Model("subscribe_records").Where("aid = ? AND user_id = ? AND once_show = 0 AND award != 0", aid, userId).Scan(&ret)
+	if err != nil {
+		return
+	}
+	_, err = g.DB().Exec("UPDATE subscribe_records SET once_show = 1 WHERE aid = ? AND user_id = ?", aid, userId)
+	if err != nil {
+		return
+	}
+	return
+}
+
 func (s *subscribeActivity) DoSub(in model.DoSubReq) {
 	orderNo := in.OrderNo
 	//校验是否可认购
