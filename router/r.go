@@ -51,6 +51,9 @@ func InitRouter() *ghttp.Server {
 		group.GET("/sub/order/list", api.SubscribeRecord.GetListByOrder)
 		group.GET("/sub/order/detail", api.SubscribeRecord.GetDetailByOrder)
 		group.POST("/sub/order/create", api.SubscribeRecord.CreateOrder)
+
+		//秒杀活动
+		group.GET("/seckill/activity/detail", api.SeckillActivity.GetDetail)
 	})
 	return s
 }

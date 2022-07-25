@@ -186,7 +186,7 @@ func (s *subscribeRecord) GetListByOrder(userId string, orderNo string, pageNum 
 		m = m.Where("pay_status = ?", status)
 	}
 	if orderNo != "" {
-		m = m.Where("order_no = ?", orderNo)
+		m = m.Where("(order_no = ? or pay_order_no = ?)", orderNo, orderNo)
 	}
 	ret.Total, err = m.Count()
 	if err != nil {
