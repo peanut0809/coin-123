@@ -396,6 +396,7 @@ func (s *subscribeActivity) DoSub(in model.DoSubReq) {
 			SumUnitMonthTicket: in.SubNum * oneTicketInfo.UnitNum,
 			TicketType:         model.TICKET_MONTH,
 			PayEndTime:         as.PayEndTime,
+			PublisherId:        as.PublisherId,
 		})
 		if err != nil {
 			tx.Rollback()
@@ -475,6 +476,7 @@ func (s *subscribeActivity) DoSub(in model.DoSubReq) {
 			SumUnitCrystal: in.SubNum * oneTicketInfo.UnitNum,
 			TicketType:     model.TICKET_CRYSTAL,
 			PayEndTime:     as.PayEndTime,
+			PublisherId:    as.PublisherId,
 		})
 		if err != nil {
 			tx.Rollback()
