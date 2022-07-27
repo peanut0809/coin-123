@@ -108,7 +108,7 @@ func (s *subscribeRecord) UpdateAward(tx *gdb.TX, id, awardNum int, unitPrice in
 
 //更新未中签
 func (s *subscribeRecord) UpdateUnAward(id int) (err error) {
-	_, err = g.DB().Exec("UPDATE subscribe_records SET award = 2 WHERE id = ? AND award_num = 0", id)
+	_, err = g.DB().Exec("UPDATE subscribe_records SET award = 2 WHERE aid = ? AND award_num = 0", id)
 	return
 }
 
