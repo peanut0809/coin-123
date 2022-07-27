@@ -21,7 +21,7 @@ func main() {
 	})
 	go task.RunSubTask()
 	go task.RunSubPayTask()
-	//go task.RunLuckyDrawTask()
+	go task.RunLuckyDrawTask()
 	go task.RunSubLaunchpadPayTask()
 
 	go task.RunSeckillOrderTask()

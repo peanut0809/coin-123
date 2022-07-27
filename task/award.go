@@ -2,7 +2,6 @@ package task
 
 import (
 	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/utils"
-	"fmt"
 	"github.com/gogf/gf/frame/g"
 	"meta_launchpad/cache"
 	"meta_launchpad/model"
@@ -40,7 +39,6 @@ func LuckyDraw() {
 				g.Log().Errorf("RunLuckyDrawTask err:%v", err)
 				return
 			}
-			fmt.Println("========", records)
 			if v.SubSum <= v.SumNum { //认购总数小于或等于发行总数，全部中签
 				tx, e := g.DB().Begin()
 				if e != nil {
@@ -97,7 +95,7 @@ func LuckyDraw() {
 }
 
 //中签
-func Award(aid int, awardNum int) (err error) {
+func Award(rid, aid int, awardNum int) (err error) {
 	tx, e := g.DB().Begin()
 	if e != nil {
 		err = e
@@ -108,7 +106,7 @@ func Award(aid int, awardNum int) (err error) {
 		tx.Rollback()
 		return
 	}
-	err = service.SubscribeRecord.UpdateAward(tx, aid, awardNum)
+	err = service.SubscribeRecord.UpdateAward(tx, rid, awardNum)
 	if err != nil {
 		tx.Rollback()
 		return
@@ -126,7 +124,7 @@ func LuckyDrawBySplit(as model.SubscribeActivity, records []model.SubscribeRecor
 	for _, v := range records {
 		awardNum := v.BuyNum / as.SubSum * as.SumNum
 		if awardNum != 0 {
-			err = Award(v.Id, awardNum)
+			err = Award(v.Id, as.Id, awardNum)
 			if err == nil {
 				sumAwardNum += awardNum
 			} else {
@@ -168,7 +166,7 @@ func LuckyDrawByRandom(records []model.SubscribeRecord, remainNum, aid int) {
 	}
 	for i, awardNum := range recordMap {
 		record := records[i]
-		err := Award(record.Aid, record.AwardNum+awardNum)
+		err := Award(record.Id, record.Aid, record.AwardNum+awardNum)
 		if err != nil {
 			g.Log().Errorf("RunLuckyDrawTask err:%v", err)
 			return
