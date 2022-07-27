@@ -30,6 +30,9 @@ func (s *subscribeRecord) GetSubscribeAwardRecord(alias string) (ret model.GetSu
 	if as.AwardStatus != 2 {
 		return
 	}
+	if as.PayEndTime.Unix() < time.Now().Unix() {
+		return
+	}
 	var records []model.SubscribeRecord
 	err = g.DB().Model("subscribe_records").Where("aid = ? AND award_num != 0", as.Id).Scan(&records)
 	if err != nil {
