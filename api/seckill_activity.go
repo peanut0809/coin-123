@@ -36,6 +36,10 @@ func (s *seckillActivity) GetDetail(r *ghttp.Request) {
 	s.SusJsonExit(r, ret)
 }
 
+func (s *seckillActivity) CancelOrder(r *ghttp.Request) {
+
+}
+
 func (s *seckillActivity) CreateOrder(r *ghttp.Request) {
 	var req model.DoBuyReq
 	err := r.Parse(&req)

@@ -7,7 +7,7 @@ import (
 
 const DISTRIBUTED_LOCK = "meta_launchpad:lock:%s"
 const SUB_PAY_TIMEOUT = "meta_launchpad:sub:timeout:%s_%d"
-const SECKILL_STOCK = "meta_launchpad:stock:%d"
+const SECKILL_DISCIPLINE = "meta_launchpad:discipline:%s"
 
 //分布式锁
 func DistributedLock(taskName string) bool {

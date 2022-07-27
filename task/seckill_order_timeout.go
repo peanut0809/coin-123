@@ -1,7 +1,9 @@
 package task
 
 import (
+	"fmt"
 	"github.com/gogf/gf/frame/g"
+	"meta_launchpad/cache"
 	"meta_launchpad/service"
 )
 
@@ -53,5 +55,6 @@ func CheckSeckillOrderTimeout() {
 			return
 		}
 		//设置处罚时间
+		g.Redis().Do("SET", fmt.Sprintf(cache.SECKILL_DISCIPLINE, v.UserId), 1, "ex", 3600*24*30)
 	}
 }

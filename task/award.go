@@ -51,7 +51,7 @@ func LuckyDraw() {
 					g.Log().Errorf("RunLuckyDrawTask err:%v", err)
 					return
 				}
-				err = service.SubscribeRecord.AllAward(tx, v.Id)
+				err = service.SubscribeRecord.AllAward(tx, v.Id, v.Price)
 				if err != nil {
 					tx.Rollback()
 					g.Log().Errorf("RunLuckyDrawTask err:%v", err)
@@ -78,11 +78,11 @@ func LuckyDraw() {
 						}
 					}
 					if v.AwardMethod == 1 { //抽签
-						LuckyDrawByRandom(records, v.RemainNum, v.Id)
+						LuckyDrawByRandom(records, v.RemainNum, v.Id, v.Price)
 					}
 				}
 				if v.ActivityType == 2 { //普通购
-					LuckyDrawByRandom(records, v.RemainNum, v.Id)
+					LuckyDrawByRandom(records, v.RemainNum, v.Id, v.Price)
 				}
 				err = service.SubscribeActivity.UpdateActivityStatus(v.Id, model.AWARD_STATUS_END)
 				if err != nil {
@@ -95,7 +95,7 @@ func LuckyDraw() {
 }
 
 //中签
-func Award(rid, aid int, awardNum int) (err error) {
+func Award(rid, aid int, awardNum, unitPrice int) (err error) {
 	tx, e := g.DB().Begin()
 	if e != nil {
 		err = e
@@ -106,7 +106,7 @@ func Award(rid, aid int, awardNum int) (err error) {
 		tx.Rollback()
 		return
 	}
-	err = service.SubscribeRecord.UpdateAward(tx, rid, awardNum)
+	err = service.SubscribeRecord.UpdateAward(tx, rid, awardNum, unitPrice)
 	if err != nil {
 		tx.Rollback()
 		return
@@ -124,7 +124,7 @@ func LuckyDrawBySplit(as model.SubscribeActivity, records []model.SubscribeRecor
 	for _, v := range records {
 		awardNum := v.BuyNum / as.SubSum * as.SumNum
 		if awardNum != 0 {
-			err = Award(v.Id, as.Id, awardNum)
+			err = Award(v.Id, as.Id, awardNum, as.Price)
 			if err == nil {
 				sumAwardNum += awardNum
 			} else {
@@ -140,12 +140,12 @@ func LuckyDrawBySplit(as model.SubscribeActivity, records []model.SubscribeRecor
 			g.Log().Errorf("RunLuckyDrawTask err:%v", e)
 			return
 		}
-		LuckyDrawByRandom(rs, remainNum, as.Id)
+		LuckyDrawByRandom(rs, remainNum, as.Id, as.Price)
 	}
 	return
 }
 
-func LuckyDrawByRandom(records []model.SubscribeRecord, remainNum, aid int) {
+func LuckyDrawByRandom(records []model.SubscribeRecord, remainNum, aid int, unitPrice int) {
 	//取出
 	var fullIndexs []int //总签数
 	for i, v := range records {
@@ -166,7 +166,7 @@ func LuckyDrawByRandom(records []model.SubscribeRecord, remainNum, aid int) {
 	}
 	for i, awardNum := range recordMap {
 		record := records[i]
-		err := Award(record.Id, record.Aid, record.AwardNum+awardNum)
+		err := Award(record.Id, record.Aid, record.AwardNum+awardNum, unitPrice)
 		if err != nil {
 			g.Log().Errorf("RunLuckyDrawTask err:%v", err)
 			return

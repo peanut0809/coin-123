@@ -73,7 +73,7 @@ func (s *subscribeRecord) CreateSubscribeRecord(tx *gdb.TX, in model.SubscribeRe
 	}
 	affectedNum, _ := result.RowsAffected()
 	if affectedNum != 1 {
-		err = fmt.Errorf("操作是吧")
+		err = fmt.Errorf("操作失败")
 		return
 	}
 	return
@@ -89,8 +89,8 @@ func (s *subscribeRecord) GetWaitLuckyDraw(aid int) (ret []model.SubscribeRecord
 }
 
 //更新活动为全部中签
-func (s *subscribeRecord) AllAward(tx *gdb.TX, aid int) (err error) {
-	_, err = tx.Exec("UPDATE subscribe_records SET award = 1,award_num = buy_num,award_at = ? WHERE aid = ? and award = 0", gtime.Now(), aid)
+func (s *subscribeRecord) AllAward(tx *gdb.TX, aid int, unitPrice int) (err error) {
+	_, err = tx.Exec("UPDATE subscribe_records SET award = 1,award_num = buy_num,award_at = ?,sum_price = buy_num*? WHERE aid = ? and award = 0", gtime.Now(), unitPrice, aid)
 	return
 }
 
@@ -101,8 +101,8 @@ func (s *subscribeRecord) AllUnAward(aid int) (err error) {
 }
 
 //更新中签
-func (s *subscribeRecord) UpdateAward(tx *gdb.TX, id, awardNum int) (err error) {
-	_, err = tx.Exec("UPDATE subscribe_records SET award = 1,award_num = ?,award_at = ? WHERE id = ?", awardNum, gtime.Now(), id)
+func (s *subscribeRecord) UpdateAward(tx *gdb.TX, id, awardNum int, unitPrice int) (err error) {
+	_, err = tx.Exec("UPDATE subscribe_records SET award = 1,award_num = ?,award_at = ?,sum_price = ? WHERE id = ?", awardNum, gtime.Now(), awardNum*unitPrice, id)
 	return
 }
 
@@ -209,7 +209,7 @@ func (s *subscribeRecord) GetListByOrder(userId string, orderNo string, pageNum 
 			lastSec = 0
 		}
 		item := model.SubscribeListByOrderRetItem{
-			BuyNum:        v.Award,
+			BuyNum:        v.AwardNum,
 			UnitPriceYuan: fmt.Sprintf("%.2f", float64(v.SumPrice)/float64(v.Award)/100),
 			SumPriceYuan:  fmt.Sprintf("%.2f", float64(v.SumPrice)/100),
 			SumPrice:      v.SumPrice,

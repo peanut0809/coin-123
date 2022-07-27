@@ -68,3 +68,21 @@ func (s *seckillOrder) UpdateOrderNosStatus(orderNos []string, status int) (err 
 	_, err = g.DB().Exec("UPDATE seckill_orders SET status = ? WHERE order_no in (?)", status, orderNos)
 	return
 }
+
+func (s *seckillOrder) Cancel(userId string, orderNo string) (err error) {
+	orderInfo, e := s.GetByOrderNos([]string{orderNo})
+	if e != nil {
+		err = e
+		return
+	}
+	if len(orderInfo) == 0 {
+		err = fmt.Errorf("订单不存在")
+		return
+	}
+	if orderInfo[0].UserId != userId {
+		err = fmt.Errorf("无权操作")
+		return
+	}
+
+	return
+}

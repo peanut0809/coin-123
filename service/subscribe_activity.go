@@ -407,7 +407,6 @@ func (s *subscribeActivity) DoSub(in model.DoSubReq) {
 			UserId:             in.UserId,
 			BuyNum:             in.SubNum,
 			OrderNo:            orderNo,
-			SumPrice:           in.SubNum * as.Price,
 			SumUnitMonthTicket: in.SubNum * oneTicketInfo.UnitNum,
 			TicketType:         model.TICKET_MONTH,
 			PayEndTime:         as.PayEndTime,
@@ -487,7 +486,6 @@ func (s *subscribeActivity) DoSub(in model.DoSubReq) {
 			UserId:         in.UserId,
 			BuyNum:         in.SubNum,
 			OrderNo:        orderNo,
-			SumPrice:       in.SubNum * as.Price,
 			SumUnitCrystal: in.SubNum * oneTicketInfo.UnitNum,
 			TicketType:     model.TICKET_CRYSTAL,
 			PayEndTime:     as.PayEndTime,
@@ -552,13 +550,11 @@ func (s *subscribeActivity) DoSub(in model.DoSubReq) {
 		extra.UserId = in.UserId
 		extra.BuyNum = in.SubNum
 		extra.OrderNo = orderNo
-		extra.SumPrice = in.SubNum * as.Price
 		extra.SumUnitPrice = in.SubNum * oneTicketInfo.UnitNum
 		extra.TicketType = model.TICKET_MONEY
 		extra.PayEndTime = as.PayEndTime
 		extra.FromUserId = in.UserId
 		extra.ToUserId = "B"
-		extra.TotalFee = extra.SumPrice
 		extra.PublisherId = as.PublisherId
 
 		//向聚合支付下单
