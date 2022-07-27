@@ -82,7 +82,8 @@ func (s *subscribeActivity) GetActivityStatusV2(v model.SubscribeActivity, userI
 	} else if now.Unix() >= v.ActivityEndTime.Unix() && now.Unix() <= v.OpenAwardTime.Unix() { //待公布
 		status = model.STATUS_AWAIT_OPEN
 	} else if now.Unix() > v.OpenAwardTime.Unix() && now.Unix() <= v.PayEndTime.Unix() { //待付款
-		status = model.STATUS_AWAIT_PAY
+		//status = model.STATUS_AWAIT_PAY
+		status = model.STATUS_END
 	} else if now.Unix() > v.PayEndTime.Unix() { //已结束
 		status = model.STATUS_END
 	}
