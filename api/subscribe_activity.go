@@ -17,14 +17,14 @@ type subscribeActivity struct {
 
 var SubscribeActivity = new(subscribeActivity)
 
-func (s *subscribeActivity) GetSubscribeActivityList(r *ghttp.Request) {
-	ret, err := service.SubscribeActivity.GetList()
-	if err != nil {
-		s.FailJsonExit(r, err.Error())
-		return
-	}
-	s.SusJsonExit(r, ret)
-}
+//func (s *subscribeActivity) GetSubscribeActivityList(r *ghttp.Request) {
+//	ret, err := service.SubscribeActivity.GetList()
+//	if err != nil {
+//		s.FailJsonExit(r, err.Error())
+//		return
+//	}
+//	s.SusJsonExit(r, ret)
+//}
 
 func (s *subscribeActivity) GetSubscribeActivityDetail(r *ghttp.Request) {
 	userId := s.GetUserId(r)

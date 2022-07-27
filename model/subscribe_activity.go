@@ -94,6 +94,7 @@ const STATUS_ING = 2        //进行中
 const STATUS_AWAIT_OPEN = 3 //待公布
 const STATUS_AWAIT_PAY = 4  //待付款
 const STATUS_END = 5        //已结束
+const STATUS_SUBED = 6      //已认购
 
 const TICKET_MONTH = "month_ticket"
 const TICKET_CRYSTAL = "crystal"

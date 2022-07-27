@@ -180,12 +180,21 @@ func LuckyDrawByRandom(records []model.SubscribeRecord, remainNum, aid int) {
 	}
 }
 
+const TASK_RunLuckyDrawTask = "RunLuckyDrawTask"
+const TASK_CheckSubPayTimeout = "CheckSubPayTimeout"
+
 //检查超时未支付
 func CheckSubPayTimeout() {
-
+	cache.DistributedUnLock(TASK_CheckSubPayTimeout)
+	for {
+		lock := cache.DistributedLock(TASK_CheckSubPayTimeout)
+		if lock {
+			LuckyDraw()
+			cache.DistributedUnLock(TASK_CheckSubPayTimeout)
+		}
+		time.Sleep(time.Second * 10)
+	}
 }
-
-const TASK_RunLuckyDrawTask = "RunLuckyDrawTask"
 
 func RunLuckyDrawTask() {
 	cache.DistributedUnLock(TASK_RunLuckyDrawTask)
@@ -193,7 +202,6 @@ func RunLuckyDrawTask() {
 		lock := cache.DistributedLock(TASK_RunLuckyDrawTask)
 		if lock {
 			LuckyDraw()
-			service.SubscribeActivity.DoSubPayTimeOut()
 			cache.DistributedUnLock(TASK_RunLuckyDrawTask)
 		}
 		time.Sleep(time.Second * 10)

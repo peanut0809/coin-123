@@ -48,3 +48,8 @@ func (s *seckillUserBnum) GetDetail(userId string, aid int) (ret *model.SeckillU
 	err = g.DB().Model("seckill_user_bnum").Where("user_id = ? AND aid = ?", userId, aid).Scan(&ret)
 	return
 }
+
+func (s *seckillUserBnum) UpdateRemain(tx *gdb.TX, userId string, aid int, num int) (err error) {
+	_, err = tx.Exec("UPDATE seckill_user_bnum SET can_buy = can_buy + ? WHERE user_id = ? AND aid = ?", num, userId, aid)
+	return
+}

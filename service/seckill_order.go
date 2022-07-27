@@ -21,13 +21,19 @@ func (s *seckillOrder) Create(tx *gdb.TX, in model.SeckillOrder) (err error) {
 	return
 }
 
-func (s *seckillOrder) GetOrderList(pageNum int, userId string, status int) (ret model.SeckillOrderList, err error) {
+func (s *seckillOrder) GetOrderList(pageNum int, userId string, status int, orderNo string) (ret model.SeckillOrderList, err error) {
 	m := g.DB().Model("seckill_orders").Where("user_id", userId)
 	if status != 0 {
 		m = m.Where("status", status)
 	}
+	if orderNo != "" {
+		m = m.Where("order_no", orderNo)
+	}
 	ret.Total, err = m.Count()
 	if err != nil {
+		return
+	}
+	if ret.Total == 0 {
 		return
 	}
 	list := make([]model.SeckillOrder, 0)
@@ -47,5 +53,18 @@ func (s *seckillOrder) GetOrderList(pageNum int, userId string, status int) (ret
 			LastSec:      lastSec,
 		})
 	}
+	return
+}
+
+func (s *seckillOrder) GetByOrderNos(orderNos []string) (ret []model.SeckillOrder, err error) {
+	err = g.DB().Model("seckill_orders").Where("order_no in (?)", orderNos).Scan(&ret)
+	if err != nil {
+		return
+	}
+	return
+}
+
+func (s *seckillOrder) UpdateOrderNosStatus(orderNos []string, status int) (err error) {
+	_, err = g.DB().Exec("UPDATE seckill_orders SET status = ? WHERE order_no in (?)", status, orderNos)
 	return
 }

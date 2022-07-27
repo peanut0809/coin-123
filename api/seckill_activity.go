@@ -88,7 +88,7 @@ func (s *seckillActivity) GetOrderList(r *ghttp.Request) {
 	}
 	status := r.GetQueryInt("status")
 	userId := s.GetUserId(r)
-	ret, err := service.SeckillOrder.GetOrderList(pageNum, userId, status)
+	ret, err := service.SeckillOrder.GetOrderList(pageNum, userId, status, "")
 	if err != nil {
 		s.FailJsonExit(r, err.Error())
 		return
@@ -97,5 +97,16 @@ func (s *seckillActivity) GetOrderList(r *ghttp.Request) {
 }
 
 func (s *seckillActivity) GetOrderDetail(r *ghttp.Request) {
-
+	orderNo := r.GetQueryString("order_no")
+	userId := s.GetUserId(r)
+	ret, err := service.SeckillOrder.GetOrderList(1, userId, 0, orderNo)
+	if err != nil {
+		s.FailJsonExit(r, err.Error())
+		return
+	}
+	if len(ret.List) == 0 {
+		s.FailJsonExit(r, "订单不存在")
+		return
+	}
+	s.SusJsonExit(r, ret.List[0])
 }

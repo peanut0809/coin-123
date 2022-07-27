@@ -22,33 +22,33 @@ type subscribeActivity struct {
 
 var SubscribeActivity = new(subscribeActivity)
 
-func (s *subscribeActivity) GetList() (ret map[string][]model.SubscribeActivityFull, err error) {
-	ret = make(map[string][]model.SubscribeActivityFull)
-	var as []model.SubscribeActivity
-	m := g.DB().Model("subscribe_activity")
-	now := time.Now()
-	err = m.Where("publisher_id != 'ZHW' AND start_time <= ? AND pay_end_time >= ?", now, now).Order("activity_start_time ASC").Scan(&as)
-	if err != nil {
-		return
-	}
-	ret["priority"] = make([]model.SubscribeActivityFull, 0)
-	ret["general"] = make([]model.SubscribeActivityFull, 0)
-	for _, v := range as {
-		var item model.SubscribeActivityFull
-		item.Name = v.Name
-		item.CoverImgUrl = v.CoverImgUrl
-		item.SumNum = v.SumNum
-		item.Alias = v.Alias
-		item.PriceYuan = fmt.Sprintf("%.2f", float64(v.Price)/100)
-		item.Status = s.GetActivityStatusV2(v)
-		if v.ActivityType == 1 {
-			ret["priority"] = append(ret["priority"], item)
-		} else {
-			ret["general"] = append(ret["general"], item)
-		}
-	}
-	return
-}
+//func (s *subscribeActivity) GetList() (ret map[string][]model.SubscribeActivityFull, err error) {
+//	ret = make(map[string][]model.SubscribeActivityFull)
+//	var as []model.SubscribeActivity
+//	m := g.DB().Model("subscribe_activity")
+//	now := time.Now()
+//	err = m.Where("publisher_id != 'ZHW' AND start_time <= ? AND pay_end_time >= ?", now, now).Order("activity_start_time ASC").Scan(&as)
+//	if err != nil {
+//		return
+//	}
+//	ret["priority"] = make([]model.SubscribeActivityFull, 0)
+//	ret["general"] = make([]model.SubscribeActivityFull, 0)
+//	for _, v := range as {
+//		var item model.SubscribeActivityFull
+//		item.Name = v.Name
+//		item.CoverImgUrl = v.CoverImgUrl
+//		item.SumNum = v.SumNum
+//		item.Alias = v.Alias
+//		item.PriceYuan = fmt.Sprintf("%.2f", float64(v.Price)/100)
+//		item.Status = s.GetActivityStatusV2(v)
+//		if v.ActivityType == 1 {
+//			ret["priority"] = append(ret["priority"], item)
+//		} else {
+//			ret["general"] = append(ret["general"], item)
+//		}
+//	}
+//	return
+//}
 
 //func (s *subscribeActivity) GetActivityStatus(v model.SubscribeActivity) (status int, lastSec int64) {
 //	now := time.Now()
@@ -68,12 +68,17 @@ func (s *subscribeActivity) GetList() (ret map[string][]model.SubscribeActivityF
 //	return
 //}
 
-func (s *subscribeActivity) GetActivityStatusV2(v model.SubscribeActivity) (status int) {
+func (s *subscribeActivity) GetActivityStatusV2(v model.SubscribeActivity, userId string) (status int) {
 	now := time.Now()
 	if now.Unix() <= v.ActivityStartTime.Unix() { //未开始
 		status = model.STATUS_AWAY_START
 	} else if now.Unix() >= v.ActivityStartTime.Unix() && now.Unix() < v.ActivityEndTime.Unix() { //距结束
 		status = model.STATUS_ING
+		record, _ := SubscribeRecord.GetSubscribeRecords(v.Id, userId)
+		if record != nil {
+			status = model.STATUS_SUBED
+		}
+		//ret.Subed = record != nil
 	} else if now.Unix() >= v.ActivityEndTime.Unix() && now.Unix() <= v.OpenAwardTime.Unix() { //待公布
 		status = model.STATUS_AWAIT_OPEN
 	} else if now.Unix() > v.OpenAwardTime.Unix() && now.Unix() <= v.PayEndTime.Unix() { //待付款
@@ -124,22 +129,17 @@ func (s *subscribeActivity) GetDetail(alias, userId string) (ret model.Subscribe
 	ret.SumNum = as.SumNum
 	ret.Alias = as.Alias
 	ret.PriceYuan = fmt.Sprintf("%.2f", float64(as.Price)/100)
-	ret.Status = s.GetActivityStatusV2(*as)
+	ret.Status = s.GetActivityStatusV2(*as, userId)
 	ret.ActivityType = as.ActivityType
 	ret.AssetIntro = as.AssetIntro
 	ret.ActivityIntro = as.AssetIntro
 	ret.SubSumPeople = as.SubSumPeople
 	ret.SubSum = as.SubSum
-	record, e := SubscribeRecord.GetSubscribeRecords(as.Id, userId)
-	if e != nil {
-		err = e
-		return
-	}
-	ret.Subed = record != nil
-	if ret.Subed {
-		ret.Award = record.Award
-		ret.PayStatus = record.PayStatus
-	}
+
+	//if ret.Subed {
+	//	ret.Award = record.Award
+	//	ret.PayStatus = record.PayStatus
+	//}
 	now := gtime.Now()
 	if now.Unix() >= as.ActivityStartTime.Unix() && now.Unix() < as.ActivityEndTime.Unix() {
 

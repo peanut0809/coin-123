@@ -26,7 +26,9 @@ func InitRouter() *ghttp.Server {
 	//跨域处理
 	s.Use(middleware.CORS)
 	s.Group("/open", func(group *ghttp.RouterGroup) {
-		group.GET("/activity/list", api.SubscribeActivity.GetSubscribeActivityList)
+		//group.GET("/activity/list", api.SubscribeActivity.GetSubscribeActivityList)
+		group.GET("/activity/award/record", api.SubscribeActivity.GetActivityAwardRecord)
+		group.GET("/activity/detail", api.SubscribeActivity.GetSubscribeActivityDetail)
 		group.GET("/temp/del", func(r *ghttp.Request) {
 			//检查超时行为
 			userId := r.GetQueryString("userId")

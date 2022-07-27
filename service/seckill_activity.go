@@ -64,6 +64,12 @@ func (s *seckillActivity) SetSubResult(in model.DoSubResult) {
 	return
 }
 
+//回退库存
+func (s *seckillActivity) UpdateRemain(tx *gdb.TX, aid int, num int) (err error) {
+	_, err = tx.Exec("UPDATE seckill_activity SET remain_num = remain_num + ? WHERE id = ?", num, aid)
+	return
+}
+
 func (s *seckillActivity) GetSubResult(orderNo string) (ret model.DoSubResult, err error) {
 	gv, e := g.Redis().DoVar("GET", fmt.Sprintf(SubSetSeckillResultKey, orderNo))
 	if e != nil {
