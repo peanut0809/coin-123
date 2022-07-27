@@ -26,10 +26,23 @@ type SeckillActivity struct {
 
 type SeckillActivityFull struct {
 	*SeckillActivity
-	LastSec int64 `json:"lastSec"`
-	Status  int   `json:"status"`
+	LastSec   int64  `json:"lastSec"`
+	Status    int    `json:"status"`
+	PriceYuan string `json:"priceYuan"`
 }
 
 const SeckillActivityStatus_Wait_Start = 0
 const SeckillActivityStatus_Ing = 1
 const SeckillActivityStatus_End = 2
+
+type DoBuyReq struct {
+	Alias              string `json:"alias"`
+	Num                int    `json:"num"`
+	ClientIp           string `json:"clientIp"`
+	SuccessRedirectUrl string `json:"successRedirectUrl"`
+	ExitRedirectUrl    string `json:"exitRedirectUrl"`
+	PublisherId        string `json:"publisherId"`
+	PlatformAppId      string `json:"platformAppId"`
+	UserId             string `json:"userId"`
+	OrderNo            string `json:"orderNo"`
+}

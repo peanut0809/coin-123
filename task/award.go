@@ -2,6 +2,7 @@ package task
 
 import (
 	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/utils"
+	"fmt"
 	"github.com/gogf/gf/frame/g"
 	"meta_launchpad/cache"
 	"meta_launchpad/model"
@@ -39,6 +40,7 @@ func LuckyDraw() {
 				g.Log().Errorf("RunLuckyDrawTask err:%v", err)
 				return
 			}
+			fmt.Println("========", records)
 			if v.SubSum <= v.SumNum { //认购总数小于或等于发行总数，全部中签
 				tx, e := g.DB().Begin()
 				if e != nil {

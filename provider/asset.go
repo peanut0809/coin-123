@@ -104,3 +104,12 @@ func (s *asset) PublishAssetWithTemplateId(params *map[string]interface{}) (err 
 	}
 	return
 }
+
+func (s *asset) GetMateDataByAm(params *map[string]interface{}) (ret GetMateDataByAksRet, err error) {
+	err = utils.SendJsonRpcScan(context.Background(), "asset", "Asset.GetMateDataByTemp", params, &ret)
+	if err != nil {
+		g.Log().Errorf("GetMateDataByTemp err:%v", err)
+		return
+	}
+	return
+}

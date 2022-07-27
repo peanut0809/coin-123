@@ -104,10 +104,12 @@ func (s *subscribeActivity) SubActivity(r *ghttp.Request) {
 		MqUrl:      g.Cfg().GetString("rabbitmq.default.link"),
 	})
 	if err != nil {
+		s.FailJsonExit(r, err.Error())
 		return
 	}
 	err = mqClient.Publish(req)
 	if err != nil {
+		s.FailJsonExit(r, err.Error())
 		return
 	}
 	s.SusJsonExit(r, orderNo)

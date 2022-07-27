@@ -53,7 +53,11 @@ func InitRouter() *ghttp.Server {
 		group.POST("/sub/order/create", api.SubscribeRecord.CreateOrder)
 
 		//秒杀活动
-		group.GET("/seckill/activity/detail", api.SeckillActivity.GetDetail)
+		group.GET("/seckill/activity/detail", api.SeckillActivity.GetDetail)                         //活动详情
+		group.POST("/seckill/activity/order/create", api.SeckillActivity.CreateOrder)                //下单
+		group.GET("/seckill/activity/order/create/result", api.SeckillActivity.GetCreateOrderResult) //获取下单结果
+		group.GET("/seckill/activity/order/list", api.SeckillActivity.GetOrderList)                  //订单列表
+		group.GET("/seckill/activity/order/detail", api.SeckillActivity.GetOrderDetail)              //订单详情
 	})
 	return s
 }
