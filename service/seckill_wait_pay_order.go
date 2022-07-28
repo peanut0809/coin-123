@@ -27,3 +27,11 @@ func (s *seckillWaitPayOrder) GetWaitPayOrder() (ret []model.SeckillWaitPayOrder
 	}
 	return
 }
+
+func (s *seckillWaitPayOrder) Del(orderNo string) (err error) {
+	_, err = g.DB().Exec("DELETE FROM seckill_wait_pay_orders WHERE order_no = ?", orderNo)
+	if err != nil {
+		return
+	}
+	return
+}

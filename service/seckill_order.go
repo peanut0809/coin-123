@@ -1,9 +1,11 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"github.com/gogf/gf/database/gdb"
 	"github.com/gogf/gf/frame/g"
+	"meta_launchpad/cache"
 	"meta_launchpad/model"
 	"time"
 )
@@ -83,6 +85,40 @@ func (s *seckillOrder) Cancel(userId string, orderNo string) (err error) {
 		err = fmt.Errorf("无权操作")
 		return
 	}
+	if orderInfo[0].Status != 1 {
+		err = fmt.Errorf("当前状态不能取消")
+		return
+	}
+	now := time.Now()
+	if now.Unix() >= orderInfo[0].PayExpireAt.Unix() {
+		err = fmt.Errorf("订单已过期")
+		return
+	}
+	if orderInfo[0].PayExpireAt.Unix()-now.Unix() < 300 { //超过5分钟了,算超时
+		//设置处罚时间
+		g.Redis().Do("SET", fmt.Sprintf(cache.SECKILL_DISCIPLINE, userId), 1, "ex", 3600*24*30)
+		_ = SeckillOrder.UpdateOrderNosStatus([]string{orderNo}, 3)
+	}
+	_ = SeckillOrder.UpdateOrderNosStatus([]string{orderNo}, 4)
+	err = g.DB().Transaction(context.Background(), func(ctx context.Context, tx *gdb.TX) error {
+		return s.CancelHandel(tx, orderInfo[0].Aid, orderInfo[0].Num, orderNo, userId)
+	})
+	return
+}
 
+func (s *seckillOrder) CancelHandel(tx *gdb.TX, aid int, num int, orderNo string, userId string) (err error) {
+	err = SeckillActivity.UpdateRemain(tx, aid, num)
+	if err != nil {
+		return
+	}
+	err = SeckillUserBnum.UpdateRemain(tx, userId, aid, num)
+	if err != nil {
+		return
+	}
+	//删除待支付的订单
+	err = SeckillWaitPayOrder.Del(orderNo)
+	if err != nil {
+		return
+	}
 	return
 }

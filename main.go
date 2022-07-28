@@ -26,5 +26,6 @@ func main() {
 	go task.CheckSubPayTimeout()
 
 	go task.RunSeckillOrderTask()
+	go task.CheckSeckillOrderTimeoutTask()
 	s.Run()
 }

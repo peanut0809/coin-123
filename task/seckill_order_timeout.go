@@ -5,7 +5,23 @@ import (
 	"github.com/gogf/gf/frame/g"
 	"meta_launchpad/cache"
 	"meta_launchpad/service"
+	"time"
 )
+
+const TASK_CheckSeckillOrderTimeoutTask = "CheckSeckillOrderTimeoutTask"
+
+//检查超时未支付
+func CheckSeckillOrderTimeoutTask() {
+	cache.DistributedUnLock(TASK_CheckSeckillOrderTimeoutTask)
+	for {
+		lock := cache.DistributedLock(TASK_CheckSeckillOrderTimeoutTask)
+		if lock {
+			CheckSeckillOrderTimeout()
+			cache.DistributedUnLock(TASK_CheckSeckillOrderTimeoutTask)
+		}
+		time.Sleep(time.Second * 10)
+	}
+}
 
 func CheckSeckillOrderTimeout() {
 	worders, err := service.SeckillWaitPayOrder.GetWaitPayOrder()
@@ -36,13 +52,7 @@ func CheckSeckillOrderTimeout() {
 			g.Log().Errorf("CheckSeckillOrderTimeout err:%v", e)
 			return
 		}
-		e = service.SeckillActivity.UpdateRemain(tx, v.Aid, v.Num)
-		if e != nil {
-			tx.Rollback()
-			g.Log().Errorf("CheckSeckillOrderTimeout err:%v", e)
-			return
-		}
-		e = service.SeckillUserBnum.UpdateRemain(tx, v.UserId, v.Aid, v.Num)
+		e = service.SeckillOrder.CancelHandel(tx, v.Aid, v.Num, v.OrderNo, v.UserId)
 		if e != nil {
 			tx.Rollback()
 			g.Log().Errorf("CheckSeckillOrderTimeout err:%v", e)

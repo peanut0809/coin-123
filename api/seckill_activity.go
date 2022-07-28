@@ -37,7 +37,18 @@ func (s *seckillActivity) GetDetail(r *ghttp.Request) {
 }
 
 func (s *seckillActivity) CancelOrder(r *ghttp.Request) {
-
+	userId := s.GetUserId(r)
+	orderNo := r.GetString("orderNo")
+	if orderNo == "" {
+		s.FailJsonExit(r, "参数错误")
+		return
+	}
+	err := service.SeckillOrder.Cancel(userId, orderNo)
+	if err != nil {
+		s.FailJsonExit(r, err.Error())
+		return
+	}
+	s.SusJsonExit(r)
 }
 
 func (s *seckillActivity) CreateOrder(r *ghttp.Request) {
