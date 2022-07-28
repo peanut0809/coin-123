@@ -189,7 +189,7 @@ func CheckSubPayTimeout() {
 	for {
 		lock := cache.DistributedLock(TASK_CheckSubPayTimeout)
 		if lock {
-			LuckyDraw()
+			service.SubscribeActivity.DoSubPayTimeOut()
 			cache.DistributedUnLock(TASK_CheckSubPayTimeout)
 		}
 		time.Sleep(time.Second * 10)
