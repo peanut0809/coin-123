@@ -267,3 +267,15 @@ func (s *seckillActivity) DoBuy(in model.DoBuyReq) {
 	})
 	return
 }
+
+func (s *seckillActivity) GetSimpleDetail(aid int) (ret *model.SeckillActivity, err error) {
+	err = g.DB().Model("seckill_activity").Where("id = ?", aid).Scan(&ret)
+	if err != nil {
+		return
+	}
+	if ret == nil {
+		err = fmt.Errorf("活动不存在")
+		return
+	}
+	return
+}

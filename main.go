@@ -27,5 +27,6 @@ func main() {
 
 	go task.RunSeckillOrderTask()
 	go task.CheckSeckillOrderTimeoutTask()
+	go task.RunSeckillOrderPayTask()
 	s.Run()
 }

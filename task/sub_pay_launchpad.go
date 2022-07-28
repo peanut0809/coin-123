@@ -84,8 +84,8 @@ func RunSubLaunchpadPayTask() {
 								err = service.SubscribeRecord.UpdatePublishAsset(extra.OrderNo)
 								if err != nil {
 									g.Log().Errorf("RunSubLaunchpadPayTask err:%v", err)
+									return nil
 								}
-							} else {
 								//通知钱包
 								if data.PayType != "wallet_pay" {
 									service.NoticeWallet(service.NoticeWalletReq{
