@@ -29,7 +29,6 @@ func InitRouter() *ghttp.Server {
 		//group.GET("/activity/list", api.SubscribeActivity.GetSubscribeActivityList)
 		group.GET("/activity/award/record", api.SubscribeActivity.GetActivityAwardRecord)
 		group.GET("/activity/detail", api.SubscribeActivity.GetSubscribeActivityDetail)
-		group.GET("/pay/info", api.SubscribeActivity.GetPayInfo)
 		group.GET("/temp/del", func(r *ghttp.Request) {
 			//检查超时行为
 			userId := r.GetQueryString("userId")
