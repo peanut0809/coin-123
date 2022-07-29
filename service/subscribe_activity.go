@@ -212,11 +212,11 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string) (ticketInf
 	//	return
 	//}
 	//获取用户月票
-	monthTicketInfo, e := provider.User.GetUserMonthTicket(userId)
-	if e != nil {
-		err = e
-		return
-	}
+	monthTicketInfo, _ := provider.User.GetUserMonthTicket(userId)
+	//if e != nil {
+	//	err = e
+	//	return
+	//}
 	if monthTicketInfo == nil {
 		monthTicketInfo = new(provider.GetUserMonthTicketRet)
 		//err = fmt.Errorf("月票数据异常")
