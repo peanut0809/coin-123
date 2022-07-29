@@ -212,15 +212,15 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string) (ticketInf
 		return
 	}
 	//获取用户月票
-	monthTicketInfo, e := provider.User.GetUserMonthTicket(userId)
-	if e != nil {
-		err = e
-		return
-	}
-	if monthTicketInfo == nil {
-		err = fmt.Errorf("月票数据异常")
-		return
-	}
+	//monthTicketInfo, e := provider.User.GetUserMonthTicket(userId)
+	//if e != nil {
+	//	err = e
+	//	return
+	//}
+	//if monthTicketInfo == nil {
+	//	err = fmt.Errorf("月票数据异常")
+	//	return
+	//}
 	ticketInfo, err = s.GetValidTicketInfo(as.TicketInfo)
 	if err != nil {
 		return
@@ -230,7 +230,7 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string) (ticketInf
 			ticketInfo[k].Num = userInfoMap[userId].Crystal
 		}
 		if v.Type == model.TICKET_MONTH {
-			ticketInfo[k].Num = monthTicketInfo.MonthTicket
+			//ticketInfo[k].Num = monthTicketInfo.MonthTicket
 		}
 	}
 	if as.ActivityType == 1 { //优先购
@@ -251,7 +251,7 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string) (ticketInf
 				}
 			} else if v.Type == model.TICKET_MONTH {
 				if v.UnitNum != 0 {
-					ticketInfo[k].MaxBuyNum = monthTicketInfo.MonthTicket / v.UnitNum
+					//ticketInfo[k].MaxBuyNum = monthTicketInfo.MonthTicket / v.UnitNum
 					if ticketInfo[k].MaxBuyNum >= assetNum {
 						ticketInfo[k].MaxBuyNum = assetNum
 					}
@@ -274,7 +274,7 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string) (ticketInf
 				}
 			} else if v.Type == model.TICKET_MONTH {
 				if v.UnitNum != 0 {
-					ticketInfo[k].MaxBuyNum = monthTicketInfo.MonthTicket / v.UnitNum
+					//ticketInfo[k].MaxBuyNum = monthTicketInfo.MonthTicket / v.UnitNum
 					if ticketInfo[k].MaxBuyNum >= as.GeneralBuyNum {
 						ticketInfo[k].MaxBuyNum = as.GeneralBuyNum
 					}
