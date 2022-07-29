@@ -207,10 +207,10 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string) (ticketInf
 	}
 	//获取用户元晶余额
 	_, userInfoMap, _ := provider.User.GetUserInfo([]string{userId})
-	if len(userInfoMap) == 0 {
-		err = fmt.Errorf("用户信息异常")
-		return
-	}
+	//if len(userInfoMap) == 0 {
+	//	err = fmt.Errorf("用户信息异常")
+	//	return
+	//}
 	//获取用户月票
 	monthTicketInfo, e := provider.User.GetUserMonthTicket(userId)
 	if e != nil {
@@ -218,8 +218,9 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string) (ticketInf
 		return
 	}
 	if monthTicketInfo == nil {
-		err = fmt.Errorf("月票数据异常")
-		return
+		monthTicketInfo = new(provider.GetUserMonthTicketRet)
+		//err = fmt.Errorf("月票数据异常")
+		//return
 	}
 	ticketInfo, err = s.GetValidTicketInfo(as.TicketInfo)
 	if err != nil {
