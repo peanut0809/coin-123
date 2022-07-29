@@ -96,7 +96,7 @@ func (s *subscribeRecord) AllAward(tx *gdb.TX, aid int, unitPrice int) (err erro
 
 //更新活动为全部未中签
 func (s *subscribeRecord) AllUnAward(aid int) (err error) {
-	_, err = g.DB().Exec("UPDATE subscribe_records SET award = 2 WHERE aid = ? and award = 0", aid)
+	_, err = g.DB().Exec("UPDATE subscribe_records SET award = 2,award_at = ? WHERE aid = ? and award = 0", gtime.Now(), aid)
 	return
 }
 
@@ -108,7 +108,7 @@ func (s *subscribeRecord) UpdateAward(tx *gdb.TX, id, awardNum int, unitPrice in
 
 //更新未中签
 func (s *subscribeRecord) UpdateUnAward(id int) (err error) {
-	_, err = g.DB().Exec("UPDATE subscribe_records SET award = 2 WHERE aid = ? AND award_num = 0", id)
+	_, err = g.DB().Exec("UPDATE subscribe_records SET award = 2,award_at = ? WHERE aid = ? AND award_num = 0", gtime.Now(), id)
 	return
 }
 
