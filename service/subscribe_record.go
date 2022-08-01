@@ -312,7 +312,7 @@ func (s *subscribeRecord) SendSms(aid int) {
 
 //支付剩余15分钟，发送短信提醒
 func (s *subscribeRecord) SendSmsWaitPay(as model.SubscribeActivity) {
-	lock := cache.DistributedLock("SendSmsWaitPay" + as.Alias)
+	lock := cache.DistributedLock("SendSmsWaitPay_" + as.Alias)
 	if lock {
 		now := time.Now()
 		if as.PayEndTime.Unix()-now.Unix() < 15*60 && (as.PayEndTime.Unix()-now.Unix() > 0) { //付款截止小于15分钟
@@ -325,7 +325,7 @@ func (s *subscribeRecord) SendSmsWaitPay(as model.SubscribeActivity) {
 				}
 				_ = Sms.SendSms(userMap[r.UserId].Phone, "ecgDjLtq", "aIIbedlG", "4HZdAzLt", map[string]string{
 					"goods": r.Name,
-					"time":  r.PayEndTime.Layout("04:05"),
+					"time":  r.PayEndTime.Layout("15:04"),
 				})
 			}
 		}
