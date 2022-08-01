@@ -600,7 +600,7 @@ func (s *subscribeActivity) GetWaitOpenAwardActivity() (as []model.SubscribeActi
 
 func (s *subscribeActivity) GetIngActivity() (as []model.SubscribeActivity, err error) {
 	now := time.Now()
-	g.DB().Model("subscribe_activity").Where("activity_start_time > ? AND ? < pay_end_time AND award_status = 2", now, now).Scan(&as)
+	g.DB().Model("subscribe_activity").Where("activity_start_time < ? AND ? < pay_end_time AND award_status = 2", now, now).Scan(&as)
 	return
 }
 
