@@ -7,6 +7,7 @@ import (
 	"github.com/gogf/gf/database/gdb"
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/os/gtime"
+	"meta_launchpad/cache"
 	"meta_launchpad/model"
 	"meta_launchpad/provider"
 	"time"
@@ -291,4 +292,42 @@ func (s *subscribeRecord) DoPaid(payMethod string, orderNo string, payOrderNo st
 		return
 	}
 	return
+}
+
+//查出所有根据活动id，查出所有中签人，发送短信
+func (s *subscribeRecord) SendSms(aid int) {
+	var records []model.SubscribeRecord
+	g.DB().Model("subscribe_records").Where("aid = ? AND award = 1", aid).Scan(&records)
+	for _, r := range records {
+		_, userMap, err := provider.User.GetUserInfo([]string{r.UserId})
+		if err != nil {
+			continue
+		}
+		_ = Sms.SendSms(userMap[r.UserId].Phone, "ecgDjLtq", "a1609CKE", "4HZdAzLt", map[string]string{
+			"googs": r.Name,
+			"time":  r.PayEndTime.Layout("2006-01-02 15:04:05"),
+		})
+	}
+}
+
+//支付剩余15分钟，发送短信提醒
+func (s *subscribeRecord) SendSmsWaitPay(as model.SubscribeActivity) {
+	lock := cache.DistributedLock("SendSmsWaitPay" + as.Alias)
+	if lock {
+		now := time.Now()
+		if as.PayEndTime.Unix()-now.Unix() < 15*60 && (as.PayEndTime.Unix()-now.Unix() > 0) { //付款截止小于15分钟
+			var records []model.SubscribeRecord
+			g.DB().Model("subscribe_records").Where("aid = ? AND award = 1 AND pay_status = 0", as.Id).Scan(&records)
+			for _, r := range records {
+				_, userMap, err := provider.User.GetUserInfo([]string{r.UserId})
+				if err != nil {
+					continue
+				}
+				_ = Sms.SendSms(userMap[r.UserId].Phone, "ecgDjLtq", "aIIbedlG", "4HZdAzLt", map[string]string{
+					"goods": r.Name,
+					"time":  r.PayEndTime.Layout("04:05"),
+				})
+			}
+		}
+	}
 }

@@ -17,8 +17,15 @@ func main() {
 		Listener: func(configStr string) {
 			g.Log().Info("配置文件发生了更新！\n", configStr)
 			gcfg.SetContent(configStr)
+
+			//err := service.Sms.SendSms("13720009841", "ecgDjLtq", "aIIbedlG", "4HZdAzLt", map[string]string{
+			//	"goods": "中华网数藏印象·故宫·神秘",
+			//	"time":  "04:05",
+			//})
+			//fmt.Println(err)
 		},
 	})
+
 	go task.RunSubTask()
 	go task.RunSubPayTask()
 	go task.RunLuckyDrawTask()

@@ -202,6 +202,12 @@ func RunLuckyDrawTask() {
 		lock := cache.DistributedLock(TASK_RunLuckyDrawTask)
 		if lock {
 			LuckyDraw()
+
+			ingAs, _ := service.SubscribeActivity.GetIngActivity()
+			for _, v := range ingAs {
+				service.SubscribeRecord.SendSmsWaitPay(v)
+			}
+
 			cache.DistributedUnLock(TASK_RunLuckyDrawTask)
 		}
 		time.Sleep(time.Second * 10)

@@ -598,6 +598,12 @@ func (s *subscribeActivity) GetWaitOpenAwardActivity() (as []model.SubscribeActi
 	return
 }
 
+func (s *subscribeActivity) GetIngActivity() (as []model.SubscribeActivity, err error) {
+	now := time.Now()
+	g.DB().Model("subscribe_activity").Where("activity_start_time > ? AND ? < pay_end_time AND award_status = 2", now, now).Scan(&as)
+	return
+}
+
 func (s *subscribeActivity) GetWaitPayEndActivity() (as []model.SubscribeActivity, err error) {
 	err = g.DB().Model("subscribe_activity").Where("pay_end_time <= ? and award_status = 1 and pay_end = 0", time.Now()).Scan(&as)
 	return
@@ -634,6 +640,9 @@ func (s *subscribeActivity) UpdateActivityStatus(aid, status int) (err error) {
 	if affectedNum != 1 {
 		err = fmt.Errorf("更新活动抽奖状态失败")
 		return
+	}
+	if status == model.AWARD_STATUS_END {
+		go SubscribeRecord.SendSms(aid)
 	}
 	return
 }
