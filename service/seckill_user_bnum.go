@@ -17,6 +17,7 @@ func (s *seckillUserBnum) CreateAndDecr(tx *gdb.TX, in model.SeckillUserBnum, bu
 	_, err = tx.Model("seckill_user_bnum").Insert(&in)
 	if err != nil {
 		if strings.Contains(err.Error(), "udx_aid_uid") {
+			err = nil
 			r, e := tx.Exec("UPDATE seckill_user_bnum SET can_buy = can_buy - ? WHERE user_id = ? AND aid = ?", buyNum, in.UserId, in.Aid)
 			if e != nil {
 				err = fmt.Errorf("超过了最大购买数量")
