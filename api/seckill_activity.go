@@ -112,7 +112,7 @@ func (s *seckillActivity) GetOrderList(r *ghttp.Request) {
 }
 
 func (s *seckillActivity) GetOrderDetail(r *ghttp.Request) {
-	orderNo := r.GetQueryString("order_no")
+	orderNo := r.GetQueryString("orderNo")
 	userId := s.GetUserId(r)
 	ret, err := service.SeckillOrder.GetOrderList(1, userId, 0, orderNo)
 	if err != nil {
