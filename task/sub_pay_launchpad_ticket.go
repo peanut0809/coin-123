@@ -64,7 +64,7 @@ func RunSubPayTask() {
 					g.Log().Errorf("RunSubPayTask json.Unmarshal err:%v", err)
 				} else {
 					//通知钱包
-					if data.PayType != "wallet_pay" && extra.SumUnitPrice != 0 {
+					if data.PayType == "wallet_pay" && extra.SumUnitPrice != 0 {
 						service.NoticeWallet(service.NoticeWalletReq{
 							FromUserId: extra.UserId,
 							ToUserId:   "B",

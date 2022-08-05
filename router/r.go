@@ -27,6 +27,7 @@ func InitRouter() *ghttp.Server {
 	s.Use(middleware.CORS)
 	s.Group("/open", func(group *ghttp.RouterGroup) {
 		//group.GET("/activity/list", api.SubscribeActivity.GetSubscribeActivityList)
+		group.GET("/seckill/activity/detail", api.SeckillActivity.GetDetail) //活动详情
 		group.GET("/activity/award/record", api.SubscribeActivity.GetActivityAwardRecord)
 		group.GET("/activity/detail", api.SubscribeActivity.GetSubscribeActivityDetail)
 		group.GET("/temp/del", func(r *ghttp.Request) {
