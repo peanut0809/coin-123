@@ -96,7 +96,7 @@ func RunSeckillOrderPayTask() {
 						return nil
 					}
 					//通知钱包
-					if data.PayType != "wallet_pay" {
+					if data.PayType == "wallet_pay" {
 						service.NoticeWallet(service.NoticeWalletReq{
 							FromUserId: orderInfo[0].UserId,
 							ToUserId:   "B",
