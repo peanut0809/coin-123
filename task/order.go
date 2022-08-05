@@ -36,7 +36,7 @@ func PaymentQueue() {
 
 		//查出订单信息
 		// var orderInfo model.ThirdOrderFull
-		orderInfo, err := service.PayService.GetOrderDetailByOrderNo(data.AppOrderNo)
+		orderInfo, err := service.PayService.GetOrderDetailByOrderNoNoSign(data.AppOrderNo)
 		if err != nil {
 			return err
 		}
@@ -79,6 +79,7 @@ func UpdateOrder(orderInfo model.ThirdOrderFull) (err error) {
 			g.Log("pay").Errorf("tx.Commit err:%v", err)
 			return
 		}
+		return
 	}
 	err = fmt.Errorf("订单已被支付过")
 	return
