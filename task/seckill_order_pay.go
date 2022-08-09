@@ -101,6 +101,7 @@ func RunSeckillOrderPayTask() {
 							FromUserId: orderInfo[0].UserId,
 							ToUserId:   "B",
 							TotalFee:   orderInfo[0].Price,
+							OrderInfo:  gconv.String(msg),
 						})
 					}
 				} else {

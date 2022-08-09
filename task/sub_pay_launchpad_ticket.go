@@ -69,6 +69,7 @@ func RunSubPayTask() {
 							FromUserId: extra.UserId,
 							ToUserId:   "B",
 							TotalFee:   extra.SumUnitPrice,
+							OrderInfo:  gconv.String(msg),
 						})
 					}
 				}
