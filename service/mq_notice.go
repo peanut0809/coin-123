@@ -12,6 +12,7 @@ type NoticeWalletReq struct {
 	TotalFee   int    `json:"totalFee"`
 	AppId      string `json:"appId"`
 	TokenId    string `json:"tokenId"`
+	OrderInfo  string `json:"orderInfo"`
 }
 
 func NoticeWallet(in NoticeWalletReq) {

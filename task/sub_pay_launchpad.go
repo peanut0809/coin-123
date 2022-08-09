@@ -92,6 +92,7 @@ func RunSubLaunchpadPayTask() {
 										FromUserId: subRecord.UserId,
 										ToUserId:   "B",
 										TotalFee:   subRecord.SumPrice,
+										OrderInfo:  gconv.String(msg),
 									})
 								}
 							}
