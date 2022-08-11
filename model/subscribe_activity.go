@@ -4,7 +4,12 @@ import (
 	"github.com/gogf/gf/os/gtime"
 )
 
-// BlindBoxSubscribeActivity is the golang structure for table blind_box_subscribe_activity.
+type CreateSubscribeActivityReq struct {
+	SubscribeActivity
+	PriceYuan string               `json:"priceYuan"`
+	Condition []SubscribeCondition `json:"condition"`
+}
+
 type SubscribeActivity struct {
 	Id                int         `orm:"id,primary" json:"id"` // 活动iD
 	ActivityType      int         `orm:"activity_type" json:"activityType"`
@@ -16,6 +21,7 @@ type SubscribeActivity struct {
 	Price             int         `orm:"price" json:"price"`                           // 发售价,单位：分
 	TicketInfo        string      `orm:"ticket_info" json:"ticketInfo"`
 	AssetIntro        string      `orm:"asset_intro" json:"assetIntro"`
+	ActivityIntro     string      `orm:"activity_intro" json:"activityIntro"`
 	CoverImgUrl       string      `orm:"cover_img_url" json:"coverImgUrl"` //商品封面图
 	PublisherId       string      `orm:"publisher_id" json:"publisherId"`
 	AppId             string      `orm:"app_id" json:"appId"`           // 应用ID
