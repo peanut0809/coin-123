@@ -8,6 +8,11 @@ import (
 	"time"
 )
 
+var SmsConfig = map[string]string{
+	"ZHW":  "ecgDjLtq",
+	"YTWC": "",
+}
+
 type sms struct {
 }
 
