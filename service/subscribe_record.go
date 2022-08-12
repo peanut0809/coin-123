@@ -183,9 +183,9 @@ func (s *subscribeRecord) GetSimpleDetail(orderNo string) (ret *model.SubscribeR
 }
 
 //以订单维度查询认购记录
-func (s *subscribeRecord) GetListByOrder(userId string, orderNo string, pageNum int, status int) (ret model.SubscribeListByOrderRet, err error) {
+func (s *subscribeRecord) GetListByOrder(userId string, orderNo string, pageNum int, status int, publisherId string) (ret model.SubscribeListByOrderRet, err error) {
 	var records []model.SubscribeRecord
-	m := g.DB().Model("subscribe_records").Where("user_id = ? AND award = 1", userId)
+	m := g.DB().Model("subscribe_records").Where("user_id = ? AND award = 1 AND publisher_id = ?", userId, publisherId)
 	if status != -1 {
 		m = m.Where("pay_status = ?", status)
 	}
@@ -231,7 +231,7 @@ func (s *subscribeRecord) GetListByOrder(userId string, orderNo string, pageNum 
 
 //创建支付订单
 func (s *subscribeRecord) CreateOrder(userId, clientIp, orderNo, successRedirectUrl, exitRedirectUrl, publisherId, appId string) (orderReq *provider.CreateOrderReq, err error) {
-	info, e := s.GetListByOrder(userId, orderNo, 1, 0)
+	info, e := s.GetListByOrder(userId, orderNo, 1, 0, publisherId)
 	if e != nil {
 		err = e
 		return
@@ -303,7 +303,7 @@ func (s *subscribeRecord) SendSms(aid int) {
 		if err != nil {
 			continue
 		}
-		_ = Sms.SendSms(userMap[r.UserId].Phone, "ecgDjLtq", "a1609CKE", "4HZdAzLt", map[string]string{
+		_ = Sms.SendSms(userMap[r.UserId].Phone, SmsConfig[r.PublisherId], "a1609CKE", "4HZdAzLt", map[string]string{
 			"googs": r.Name,
 			"time":  r.PayEndTime.Layout("2006-01-02 15:04:05"),
 		})
@@ -323,7 +323,7 @@ func (s *subscribeRecord) SendSmsWaitPay(as model.SubscribeActivity) {
 				if err != nil {
 					continue
 				}
-				_ = Sms.SendSms(userMap[r.UserId].Phone, "ecgDjLtq", "aIIbedlG", "4HZdAzLt", map[string]string{
+				_ = Sms.SendSms(userMap[r.UserId].Phone, SmsConfig[r.PublisherId], "aIIbedlG", "4HZdAzLt", map[string]string{
 					"goods": r.Name,
 					"time":  r.PayEndTime.Layout("15:04"),
 				})
