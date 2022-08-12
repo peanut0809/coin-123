@@ -65,6 +65,11 @@ func InitRouter() *ghttp.Server {
 	})
 
 	s.Group("/admin", func(group *ghttp.RouterGroup) {
+		group.Middleware(func(r *ghttp.Request) {
+			//测试临时写个发行商
+			r.SetCtxVar("publisherId", "TEST")
+			r.Middleware.Next()
+		})
 		group.POST("/activity/create", api.AdminSubscribeActivity.Create)
 	})
 	return s

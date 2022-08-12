@@ -51,6 +51,12 @@ func (s *adminSubscribeActivity) Create(r *ghttp.Request) {
 		s.FailJsonExit(r, "活动类型错误")
 		return
 	}
+	if req.ActivityType == 2 {
+		if req.GeneralBuyNum <= 0 {
+			s.FailJsonExit(r, "抽签次数参数错误")
+			return
+		}
+	}
 	decimalValue = decimalValue.Mul(decimal.NewFromFloat(100))
 	priceInt := decimalValue.IntPart()
 	if priceInt < 0 {
@@ -59,6 +65,7 @@ func (s *adminSubscribeActivity) Create(r *ghttp.Request) {
 	}
 	req.Price = int(priceInt)
 	req.Alias = utils.RandString(6)
+	req.PublisherId = r.GetCtxVar("publisherId").String()
 
 	err = service.AdminSubscribeActivity.Create(req.SubscribeActivity, req.Condition)
 	if err != nil {

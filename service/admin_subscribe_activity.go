@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/gogf/gf/database/gdb"
 	"github.com/gogf/gf/frame/g"
+	"github.com/gogf/gf/os/gtime"
 	"meta_launchpad/model"
 )
 
@@ -21,7 +22,27 @@ func (s *adminSubscribeActivity) Create(in model.SubscribeActivity, cons []model
 		return
 	}
 	var sqlRet sql.Result
-	sqlRet, err = tx.Model("subscribe_activity").Insert(&in)
+	m := tx.Model("subscribe_activity")
+	in.TicketInfo = `[
+		{
+			"use": false,
+			"type": "money",
+			"unitNum": 1
+		},
+		{
+			"use": true,
+			"type": "crystal",
+			"unitNum": 0
+		},
+		{
+			"use": false,
+			"type": "month_ticket",
+			"unitNum": 1
+		}
+	]`
+	in.StartTime = gtime.Now()
+	in.RemainNum = in.SumNum
+	sqlRet, err = m.Insert(&in)
 	if err != nil {
 		tx.Rollback()
 		return
@@ -35,15 +56,12 @@ func (s *adminSubscribeActivity) Create(in model.SubscribeActivity, cons []model
 	in.Id = int(aid)
 	if in.ActivityType == 2 { //普通购
 		err = tx.Commit()
-		if err != nil {
-			tx.Rollback()
-			return
-		}
 		return
 	}
 	//优先购
 	if len(cons) != 0 {
-		for k, v := range cons {
+		m := tx.Model("subscribe_condition")
+		for _, v := range cons {
 			if v.AppId == "" {
 				tx.Rollback()
 				err = fmt.Errorf("appId不能为空")
@@ -59,6 +77,11 @@ func (s *adminSubscribeActivity) Create(in model.SubscribeActivity, cons []model
 				err = fmt.Errorf("TemplateId不能为空")
 				return
 			}
+			if v.BuyNum <= 0 {
+				tx.Rollback()
+				err = fmt.Errorf("购买数量参数错误")
+				return
+			}
 			if v.MetaDataRule != "" {
 				vJson := make(map[string]string)
 				err = json.Unmarshal([]byte(v.MetaDataRule), &vJson)
@@ -72,26 +95,21 @@ func (s *adminSubscribeActivity) Create(in model.SubscribeActivity, cons []model
 					err = fmt.Errorf("MetaDataRule参数不合法")
 					return
 				}
+			} else {
+				m = m.FieldsEx("meta_data_rule")
 			}
-			cons[k].PublisherId = in.PublisherId
-			cons[k].Aid = in.Id
-		}
-		_, err = tx.Model("subscribe_condition").Insert(&cons)
-		if err != nil {
-			tx.Rollback()
-			return
+			v.PublisherId = in.PublisherId
+			v.Aid = in.Id
+			_, err = m.Insert(&v)
+			if err != nil {
+				tx.Rollback()
+				return
+			}
 		}
 		err = tx.Commit()
-		if err != nil {
-			tx.Rollback()
-			return
-		}
+		return
 	} else {
 		err = tx.Commit()
-		if err != nil {
-			tx.Rollback()
-			return
-		}
+		return
 	}
-	return
 }
