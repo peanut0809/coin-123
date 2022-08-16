@@ -248,6 +248,8 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string) (ticketInf
 					if ticketInfo[k].MaxBuyNum >= assetNum {
 						ticketInfo[k].MaxBuyNum = assetNum
 					}
+				} else {
+					ticketInfo[k].MaxBuyNum = assetNum
 				}
 			} else if v.Type == model.TICKET_MONTH {
 				if v.UnitNum != 0 {
