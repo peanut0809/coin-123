@@ -20,6 +20,9 @@ type SeckillActivity struct {
 	SumNum            int         `orm:"sum_num" json:"sumNum"`                        // 总数
 	RemainNum         int         `orm:"remain_num" json:"remainNum"`
 	LimitBuy          int         `orm:"limit_buy" json:"limitBuy"`
+	ActivityIntro     string      `orm:"activity_intro" json:"activityIntro"`
+	CoverImgUrl       string      `orm:"cover_img_url" json:"coverImgUrl"`
+	Name              string      `orm:"name" json:"name"`
 	CreatedAt         *gtime.Time `orm:"created_at" json:"createdAt"` // 新建时间
 	UpdatedAt         *gtime.Time `orm:"updated_at" json:"updatedAt"` // 更新时间
 }
@@ -45,4 +48,9 @@ type DoBuyReq struct {
 	PlatformAppId      string `json:"platformAppId"`
 	UserId             string `json:"userId"`
 	OrderNo            string `json:"orderNo"`
+}
+
+type CreateSeckillActivityReq struct {
+	SeckillActivity
+	PriceYuan string `json:"priceYuan"`
 }

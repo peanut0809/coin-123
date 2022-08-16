@@ -23,6 +23,14 @@ func (s *seckillOrder) Create(tx *gdb.TX, in model.SeckillOrder) (err error) {
 	return
 }
 
+func (s *seckillOrder) Count(tx *gdb.TX, in model.SeckillOrder) (err error) {
+	_, err = tx.Model("seckill_orders").Insert(&in)
+	if err != nil {
+		return
+	}
+	return
+}
+
 func (s *seckillOrder) GetOrderList(pageNum int, userId string, status int, orderNo string) (ret model.SeckillOrderList, err error) {
 	m := g.DB().Model("seckill_orders").Where("user_id", userId)
 	if status != 0 {

@@ -5,7 +5,8 @@ import (
 )
 
 type SeckillOrder struct {
-	Id          int         `orm:"id" json:"id"`                     // 主键
+	Id          int         `orm:"id" json:"id"` // 主键
+	PublisherId string      `orm:"publisher_id" json:"publisherId"`
 	OrderNo     string      `orm:"order_no" json:"orderNo"`          // 订单号
 	Num         int         `orm:"num" json:"num"`                   // 购买数量
 	RealFee     int         `orm:"real_fee" json:"realFee"`          // 实际成交额
