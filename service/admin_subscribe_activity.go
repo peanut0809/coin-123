@@ -342,6 +342,13 @@ func (s *adminSubscribeActivity) Delete(publisherId string, id int) (err error) 
 	return
 }
 
+func (s *adminSubscribeActivity) Disable(id int, disable int, publisherId string) (err error) {
+	_, err = g.DB().Model("subscribe_activity").Data(g.Map{
+		"disable": disable,
+	}).Where("id = ? AND ", id).Update()
+	return
+}
+
 func (s *adminSubscribeActivity) GetSubRecords(activityType int, pageNum int, publisherId string, createdAtStart, createdAtEnd string, priceMin int, priceMax int, award int, payStatus int, searchVal string) (ret model.AdminSubscribeRecordByPage, err error) {
 	m := g.DB().Model("subscribe_records").Where("publisher_id = ? AND activity_type = ?", publisherId, activityType)
 	if createdAtStart != "" && createdAtEnd != "" {

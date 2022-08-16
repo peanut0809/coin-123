@@ -161,3 +161,10 @@ func (s *adminSubscribeActivity) GetSubRecords(r *ghttp.Request) {
 	}
 	s.SusJsonExit(r, ret)
 }
+
+func (s *adminSubscribeActivity) Disable(r *ghttp.Request) {
+	action := r.GetQueryString("action")
+	if action == "ON" {
+
+	}
+}
