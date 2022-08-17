@@ -15,12 +15,13 @@ type banner struct {
 var Banner = new(banner)
 
 func (c *banner) GetList(r *ghttp.Request) {
+	publisherId := c.GetPublisherId(r)
 	var params model.BannerReq
 	if err := r.Parse(&params); err != nil {
 		c.FailJsonCodeExit(r, err)
 		return
 	}
-	total, page, list, err := service.Banner.List(params)
+	total, page, list, err := service.Banner.List(publisherId, params)
 	if err != nil {
 		c.FailJsonExit(r, "获取数据失败")
 	}
@@ -39,6 +40,7 @@ func (c *banner) Create(r *ghttp.Request) {
 		c.FailJsonCodeExit(r, err)
 		return
 	}
+	params.PublisherId = c.GetPublisherId(r)
 	state, err := service.Banner.Create(params)
 	if err != nil {
 		c.FailJsonCodeExit(r, err)
