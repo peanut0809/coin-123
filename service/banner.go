@@ -59,10 +59,18 @@ func (c *banner) Add(params model.BannerAddReq) (err error) {
 }
 
 // Edit 修改
-func (c *banner) Edit(params model.BannerEditReq) (err error) {
-
-	params.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
-	_, err = g.DB().Model("banner").Where("id = ?", params.Id).Update(params)
+func (c *banner) Edit(params model.BannerEditReq) (state string, err error) {
+	var list model.Banner
+	err = g.DB().Model("banner").Where("id = ?", params.Id).Scan(&list)
+	if err != nil {
+		return
+	}
+	if list.State == 1 {
+		state = "正在上架中无法修改"
+	} else {
+		params.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
+		_, err = g.DB().Model("banner").Where("id = ?", params.Id).Update(params)
+	}
 	return
 }
 
@@ -79,5 +87,24 @@ func (c *banner) Delete(id int) (state string, err error) {
 	} else {
 		_, err = g.DB().Model("banner").Delete("id = ?", id)
 	}
+	return
+}
+
+// StateEdit 状态修改
+func (c *banner) StateEdit(id int) (err error) {
+	var list model.Banner
+	err = g.DB().Model("banner").Where("id = ?", id).Scan(&list)
+	if err != nil {
+		return
+	}
+
+	if list.State == 0 {
+		list.State = 1
+	} else if list.State == 1 {
+		list.State = 2
+	} else if list.State == 2 {
+		list.State = 1
+	}
+	_, err = g.DB().Model("banner").Where("id = ?", id).Update(list)
 	return
 }

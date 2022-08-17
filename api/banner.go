@@ -53,9 +53,12 @@ func (c *banner) Edit(r *ghttp.Request) {
 		c.FailJsonCodeExit(r, err)
 		return
 	}
-	err := service.Banner.Edit(params)
+	state, err := service.Banner.Edit(params)
 	if err != nil {
 		c.FailJsonCodeExit(r, err)
+	}
+	if state != "" {
+		c.SusJsonExit(r, state)
 	}
 	c.SusJsonExit(r, "修改成功")
 }
@@ -72,4 +75,14 @@ func (c *banner) Delete(r *ghttp.Request) {
 		c.SusJsonExit(r, state)
 	}
 	c.SusJsonExit(r, "删除成功")
+}
+
+// StateEdit 修改
+func (c *banner) StateEdit(r *ghttp.Request) {
+
+	id := r.GetInt("id")
+	err := service.Banner.StateEdit(id)
+	if err != nil {
+		c.FailJsonCodeExit(r, err)
+	}
 }

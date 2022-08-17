@@ -88,6 +88,7 @@ func InitRouter() *ghttp.Server {
 		group.POST("/banner/add", api.Banner.Add)
 		group.PUT("/banner/edit", api.Banner.Edit)
 		group.DELETE("/banner/delete", api.Banner.Delete)
+		group.PUT("/banner/stateEdit", api.Banner.StateEdit)
 	})
 	return s
 }

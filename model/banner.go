@@ -50,7 +50,7 @@ type BannerAddReq struct {
 	CreatedAt    string `json:"createdAt"`
 }
 
-// BannerEditReq 新增
+// BannerEditReq 修改
 type BannerEditReq struct {
 	Id           int    `json:"id"`
 	Name         string `json:"name"`
