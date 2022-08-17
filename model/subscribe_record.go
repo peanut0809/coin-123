@@ -103,3 +103,16 @@ type GetSubscribeAwardRecordRetItem struct {
 	Phone    string `json:"phone"`
 	AwardNum int    `json:"awardNum"`
 }
+
+type AdminSubscribeRecordFull struct {
+	SubscribeRecord
+	OrderStatusTxt string `json:"orderStatusTxt"`
+	UserPhone      string `json:"userPhone"`
+	UserName       string `json:"userName"`
+	SumPriceYuan   string `json:"sumPriceYuan"`
+}
+
+type AdminSubscribeRecordByPage struct {
+	Total int                        `json:"total"`
+	List  []AdminSubscribeRecordFull `json:"list"`
+}

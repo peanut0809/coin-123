@@ -8,6 +8,8 @@ require (
 	github.com/gogf/gf v1.16.9
 	github.com/imloama/gf-nacos v0.0.8
 	github.com/parnurzeal/gorequest v0.2.16
+	github.com/shopspring/decimal v1.3.1
+	github.com/smallnest/rpcx v1.7.4
 )
 
 require (
@@ -97,7 +99,6 @@ require (
 	github.com/rubyist/circuitbreaker v2.2.1+incompatible // indirect
 	github.com/samuel/go-zookeeper v0.0.0-20201211165307-7117e9ea2414 // indirect
 	github.com/smallnest/quick v0.0.0-20220103065406-780def6371e6 // indirect
-	github.com/smallnest/rpcx v1.7.4 // indirect
 	github.com/soheilhy/cmux v0.1.5 // indirect
 	github.com/streadway/amqp v1.0.0 // indirect
 	github.com/templexxx/cpufeat v0.0.0-20180724012125-cef66df7f161 // indirect

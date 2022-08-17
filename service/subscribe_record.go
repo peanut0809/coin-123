@@ -62,6 +62,11 @@ func (s *subscribeRecord) GetSubscribeRecords(aid int, userId string) (ret *mode
 	return
 }
 
+func (s *subscribeRecord) GetSubscribeRecordCount(aid int) (count int) {
+	count, _ = g.DB().Model("subscribe_records").Where("aid = ?", aid).Count()
+	return
+}
+
 func (s *subscribeRecord) CreateSubscribeRecord(tx *gdb.TX, in model.SubscribeRecord) (err error) {
 	_, err = tx.Model("subscribe_records").Insert(&in)
 	if err != nil {

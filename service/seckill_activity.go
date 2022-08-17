@@ -192,6 +192,7 @@ func (s *seckillActivity) DoBuy(in model.DoBuyReq) {
 		Icon:        assetInfo.Icon,
 		Status:      1,
 		Price:       activityInfo.Price,
+		PublisherId: in.PublisherId,
 		PayExpireAt: gtime.Now().Add(time.Minute * 10),
 	}
 	e = SeckillOrder.Create(tx, interOrder)

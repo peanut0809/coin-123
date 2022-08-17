@@ -4,7 +4,12 @@ import (
 	"github.com/gogf/gf/os/gtime"
 )
 
-// BlindBoxSubscribeActivity is the golang structure for table blind_box_subscribe_activity.
+type CreateSubscribeActivityReq struct {
+	SubscribeActivity
+	PriceYuan string               `json:"priceYuan"`
+	Condition []SubscribeCondition `json:"condition"`
+}
+
 type SubscribeActivity struct {
 	Id                int         `orm:"id,primary" json:"id"` // 活动iD
 	ActivityType      int         `orm:"activity_type" json:"activityType"`
@@ -16,6 +21,7 @@ type SubscribeActivity struct {
 	Price             int         `orm:"price" json:"price"`                           // 发售价,单位：分
 	TicketInfo        string      `orm:"ticket_info" json:"ticketInfo"`
 	AssetIntro        string      `orm:"asset_intro" json:"assetIntro"`
+	ActivityIntro     string      `orm:"activity_intro" json:"activityIntro"`
 	CoverImgUrl       string      `orm:"cover_img_url" json:"coverImgUrl"` //商品封面图
 	PublisherId       string      `orm:"publisher_id" json:"publisherId"`
 	AppId             string      `orm:"app_id" json:"appId"`           // 应用ID
@@ -33,6 +39,7 @@ type SubscribeActivity struct {
 	GeneralBuyNum     int         `orm:"general_buy_num" json:"generalBuyNum"`
 	AwardMethod       int         `orm:"award_method" json:"awardMethod"`
 	AwardCompleteTime *gtime.Time `orm:"award_complete_time" json:"awardCompleteTime"`
+	Disable           int         `orm:"disable" json:"disable"`
 	CreatedAt         *gtime.Time `orm:"created_at" json:"createdAt"` // 新建时间
 	UpdatedAt         *gtime.Time `orm:"updated_at" json:"updatedAt"` // 更新时间
 }
@@ -102,3 +109,21 @@ const TICKET_MONEY = "money"
 
 const AWARD_STATUS_ING = 1 //0.未开奖；1.开奖中；2.开奖完毕
 const AWARD_STATUS_END = 2
+
+type AdminSubscribeActivityFull struct {
+	SubscribeActivity
+	Status    string `json:"status"`
+	StatusTxt string `json:"statusTxt"`
+	PriceYuan string `json:"priceYuan"`
+}
+
+type AdminListByPage struct {
+	Total int                          `json:"total"`
+	List  []AdminSubscribeActivityFull `json:"list"`
+}
+
+type AdminSubscribeActivityDetail struct {
+	SubscribeActivity
+	PriceYuan string               `json:"priceYuan"`
+	Cons      []SubscribeCondition `json:"cons"`
+}
