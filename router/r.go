@@ -86,6 +86,12 @@ func InitRouter() *ghttp.Server {
 		group.GET("/seckill/activity/list", api.AdminSeckillActivity.List)
 		group.POST("/seckill/activity/delete", api.AdminSeckillActivity.Delete)
 		group.POST("/seckill/activity/orders", api.AdminSeckillActivity.GetOrders)
+
+		//banner
+		group.GET("/banner/list", api.Banner.GetList)
+		group.POST("/banner/create", api.Banner.Create)
+		group.POST("/banner/delete", api.Banner.Delete)
+		group.POST("/banner/stateEdit", api.Banner.StateEdit)
 	})
 	return s
 }
