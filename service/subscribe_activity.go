@@ -181,7 +181,7 @@ func (s *subscribeActivity) GetAssetMaxBuyNum(aid int, userId string) (num int, 
 		if err != nil {
 			return
 		}
-		num += len(assets)
+		num += len(assets) * condition.BuyNum
 	}
 	return
 }
