@@ -84,7 +84,7 @@ func InitRouter() *ghttp.Server {
 		group.GET("/seckill/activity/detail", api.AdminSeckillActivity.Detail)
 
 		//banner
-		group.POST("/banner/list", api.Banner.GetList)
+		group.GET("/banner/list", api.Banner.GetList)
 		group.POST("/banner/add", api.Banner.Add)
 		group.PUT("/banner/edit", api.Banner.Edit)
 		group.DELETE("/banner/delete", api.Banner.Delete)
