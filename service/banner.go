@@ -43,7 +43,7 @@ func (c *banner) List(params model.BannerReq) (total, page int, list []model.Ban
 	if params.PageSize == 0 {
 		params.PageSize = 10
 	}
-	err = db.Page(page, params.PageSize).Scan(&list)
+	err = db.Page(page, params.PageSize).Order("sort").Scan(&list)
 	if err != nil {
 		g.Log().Error(err)
 		return
@@ -60,6 +60,7 @@ func (c *banner) Add(params model.BannerAddReq) (err error) {
 
 // Edit 修改
 func (c *banner) Edit(params model.BannerEditReq) (err error) {
+
 	params.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
 	_, err = g.DB().Model("banner").Where("id = ?", params.Id).Update(params)
 	return
