@@ -16,7 +16,7 @@ type Banner struct {
 	TimingState  int         `json:"timingState" orm:"timing_state"`
 	GoodsOnTime  *gtime.Time `json:"goodsOnTime" orm:"goods_on_time"`
 	GoodsOffTime *gtime.Time `json:"goodsOffTime" orm:"goods_off_time"`
-	CreatedAt    *gtime.Time `json:"createdAt" orm:"created_at"`
+	CreatedAt    string      `json:"createdAt" orm:"created_at"`
 }
 
 // BannerReq 请求字段

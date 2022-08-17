@@ -65,6 +65,7 @@ func (c *banner) Create(params model.BannerCreateReq) (state string, err error) 
 		if list.State == 1 {
 			state = "正在上架中无法修改"
 		} else {
+			params.CreatedAt = list.CreatedAt
 			params.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
 			_, err = g.DB().Model("banner").Where("id = ?", params.Id).Update(params)
 		}
