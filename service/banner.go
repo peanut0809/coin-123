@@ -66,7 +66,17 @@ func (c *banner) Edit(params model.BannerEditReq) (err error) {
 }
 
 // Delete 修改
-func (c *banner) Delete(id int) (err error) {
-	_, err = g.DB().Model("banner").Delete("id = ?", id)
+func (c *banner) Delete(id int) (state string, err error) {
+	var list model.Banner
+	err = g.DB().Model("banner").Where("id = ?", id).Scan(&list)
+	if err != nil {
+		return
+	}
+
+	if list.State == 1 {
+		state = "正在上架中无法删除"
+	} else {
+		_, err = g.DB().Model("banner").Delete("id = ?", id)
+	}
 	return
 }

@@ -63,9 +63,13 @@ func (c *banner) Edit(r *ghttp.Request) {
 // Delete 修改
 func (c *banner) Delete(r *ghttp.Request) {
 	id := r.GetInt("id")
-	err := service.Banner.Delete(id)
+
+	state, err := service.Banner.Delete(id)
 	if err != nil {
 		c.FailJsonCodeExit(r, err)
+	}
+	if state != "" {
+		c.SusJsonExit(r, state)
 	}
 	c.SusJsonExit(r, "删除成功")
 }
