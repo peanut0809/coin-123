@@ -32,35 +32,25 @@ func (c *banner) GetList(r *ghttp.Request) {
 	c.SusJsonExit(r, req)
 }
 
-// Add 新增
-func (c *banner) Add(r *ghttp.Request) {
-	var params model.BannerAddReq
+// Create 新增，修改
+func (c *banner) Create(r *ghttp.Request) {
+	var params model.BannerCreateReq
 	if err := r.Parse(&params); err != nil {
 		c.FailJsonCodeExit(r, err)
 		return
 	}
-	err := service.Banner.Add(params)
-	if err != nil {
-		c.FailJsonCodeExit(r, err)
-	}
-	c.SusJsonExit(r, "添加成功")
-}
-
-// Edit 修改
-func (c *banner) Edit(r *ghttp.Request) {
-	var params model.BannerEditReq
-	if err := r.Parse(&params); err != nil {
-		c.FailJsonCodeExit(r, err)
-		return
-	}
-	state, err := service.Banner.Edit(params)
+	state, err := service.Banner.Create(params)
 	if err != nil {
 		c.FailJsonCodeExit(r, err)
 	}
 	if state != "" {
 		c.SusJsonExit(r, state)
 	}
-	c.SusJsonExit(r, "修改成功")
+	if params.Id == 0 {
+		c.SusJsonExit(r, "添加成功")
+	} else {
+		c.SusJsonExit(r, "修改成功")
+	}
 }
 
 // Delete 修改

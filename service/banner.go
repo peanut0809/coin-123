@@ -51,25 +51,23 @@ func (c *banner) List(params model.BannerReq) (total, page int, list []model.Ban
 	return
 }
 
-// Add 新增
-func (c *banner) Add(params model.BannerAddReq) (err error) {
-	params.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
-	_, err = g.DB().Model("banner").Insert(params)
-	return
-}
-
-// Edit 修改
-func (c *banner) Edit(params model.BannerEditReq) (state string, err error) {
-	var list model.Banner
-	err = g.DB().Model("banner").Where("id = ?", params.Id).Scan(&list)
-	if err != nil {
-		return
-	}
-	if list.State == 1 {
-		state = "正在上架中无法修改"
+// Create 新增
+func (c *banner) Create(params model.BannerCreateReq) (state string, err error) {
+	if params.Id == 0 {
+		params.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
+		_, err = g.DB().Model("banner").Insert(params)
 	} else {
-		params.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
-		_, err = g.DB().Model("banner").Where("id = ?", params.Id).Update(params)
+		var list model.Banner
+		err = g.DB().Model("banner").Where("id = ?", params.Id).Scan(&list)
+		if err != nil {
+			return
+		}
+		if list.State == 1 {
+			state = "正在上架中无法修改"
+		} else {
+			params.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
+			_, err = g.DB().Model("banner").Where("id = ?", params.Id).Update(params)
+		}
 	}
 	return
 }

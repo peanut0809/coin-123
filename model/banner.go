@@ -34,24 +34,8 @@ type BannerReq struct {
 	Name          string `json:"name"`
 }
 
-// BannerAddReq 新增
-type BannerAddReq struct {
-	Name         string `json:"name"`
-	Remarks      string `json:"remarks"`
-	Image        string `json:"image"`
-	JumpType     string `json:"jumpType"`
-	JumpUrl      string `json:"jumpUrl"`
-	Sort         int    `json:"sort"`
-	State        int    `json:"state"`
-	GoodsState   int    `json:"goodsState"`
-	TimingState  int    `json:"timingState"`
-	GoodsOnTime  string `json:"goodsOnTime"`
-	GoodsOffTime string `json:"goodsOffTime"`
-	CreatedAt    string `json:"createdAt"`
-}
-
-// BannerEditReq 修改
-type BannerEditReq struct {
+// BannerCreateReq 新增、修改
+type BannerCreateReq struct {
 	Id           int    `json:"id"`
 	Name         string `json:"name"`
 	Remarks      string `json:"remarks"`
@@ -64,5 +48,6 @@ type BannerEditReq struct {
 	TimingState  int    `json:"timingState"`
 	GoodsOnTime  string `json:"goodsOnTime"`
 	GoodsOffTime string `json:"goodsOffTime"`
+	CreatedAt    string `json:"createdAt"`
 	UpdatedAt    string `json:"updatedAt"`
 }
