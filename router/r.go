@@ -71,12 +71,17 @@ func InitRouter() *ghttp.Server {
 			r.Middleware.Next()
 		})
 		group.POST("/activity/create", api.AdminSubscribeActivity.Create)
+		group.GET("/activity/list", api.AdminSubscribeActivity.List)
+		group.GET("/activity/detail", api.AdminSubscribeActivity.Detail)
+		group.POST("/activity/delete", api.AdminSubscribeActivity.Delete)
+		group.POST("/activity/disable", api.AdminSubscribeActivity.Disable)
+		group.GET("/activity/sub/record", api.AdminSubscribeActivity.GetSubRecords)
 
-		//banner
-		group.POST("/banner/list", api.Banner.GetList)
-		group.POST("/banner/add", api.Banner.Add)
-		group.PUT("/banner/edit", api.Banner.Edit)
-		group.DELETE("/banner/delete", api.Banner.Delete)
+		//group.POST("/activity/sub/record", api.AdminSubscribeActivity.GetSubRecords)
+
+		//秒杀
+		group.POST("/seckill/activity/create", api.AdminSeckillActivity.Create)
+		group.GET("/seckill/activity/detail", api.AdminSeckillActivity.Detail)
 	})
 	return s
 }

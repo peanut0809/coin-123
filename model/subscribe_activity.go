@@ -39,6 +39,7 @@ type SubscribeActivity struct {
 	GeneralBuyNum     int         `orm:"general_buy_num" json:"generalBuyNum"`
 	AwardMethod       int         `orm:"award_method" json:"awardMethod"`
 	AwardCompleteTime *gtime.Time `orm:"award_complete_time" json:"awardCompleteTime"`
+	Disable           int         `orm:"disable" json:"disable"`
 	CreatedAt         *gtime.Time `orm:"created_at" json:"createdAt"` // 新建时间
 	UpdatedAt         *gtime.Time `orm:"updated_at" json:"updatedAt"` // 更新时间
 }
@@ -108,3 +109,21 @@ const TICKET_MONEY = "money"
 
 const AWARD_STATUS_ING = 1 //0.未开奖；1.开奖中；2.开奖完毕
 const AWARD_STATUS_END = 2
+
+type AdminSubscribeActivityFull struct {
+	SubscribeActivity
+	Status    string `json:"status"`
+	StatusTxt string `json:"statusTxt"`
+	PriceYuan string `json:"priceYuan"`
+}
+
+type AdminListByPage struct {
+	Total int                          `json:"total"`
+	List  []AdminSubscribeActivityFull `json:"list"`
+}
+
+type AdminSubscribeActivityDetail struct {
+	SubscribeActivity
+	PriceYuan string               `json:"priceYuan"`
+	Cons      []SubscribeCondition `json:"cons"`
+}
