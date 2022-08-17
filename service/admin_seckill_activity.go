@@ -6,6 +6,7 @@ import (
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/os/gtime"
 	"meta_launchpad/model"
+	"meta_launchpad/provider"
 )
 
 type adminSecKillActivity struct {
@@ -22,7 +23,59 @@ func (s *adminSecKillActivity) Create(in model.SeckillActivity) (err error) {
 }
 
 func (s *adminSecKillActivity) GetOrders(pageNum int, publisherId string, createdAtStart, createdAtEnd string, priceMin int, priceMax int, payStatus int, searchVal string) (ret model.AdminSeckillOrderByPage, err error) {
-
+	m := g.DB().Model("seckill_orders").Where("publisher_id = ?", publisherId)
+	if createdAtStart != "" && createdAtEnd != "" {
+		m = m.Where("created_at >= ? AND created_at <= ?", createdAtStart, createdAtEnd)
+	}
+	if priceMin != 0 && priceMax != 0 {
+		m = m.Where("real_fee >= ? AND real_fee <= ?", priceMin, priceMax)
+	}
+	if payStatus != 0 {
+		m = m.Where("pay_status = ?", payStatus)
+	}
+	if searchVal != "" {
+		m = m.Where("(aid = ? OR order_no = ? OR name LIKE ?)", searchVal, searchVal, "%"+searchVal+"%")
+	}
+	ret.Total, err = m.Count()
+	if err != nil {
+		return
+	}
+	if ret.Total == 0 {
+		return
+	}
+	var list []model.SeckillOrder
+	err = m.Order("id DESC").Page(pageNum, 20).Scan(&list)
+	if err != nil {
+		return
+	}
+	userIds := make([]string, 0)
+	for _, v := range list {
+		userIds = append(userIds, v.UserId)
+	}
+	_, userInfoMap, _ := provider.User.GetUserInfo(userIds)
+	for _, v := range list {
+		item := model.AdminSeckillOrderFull{
+			SeckillOrder: v,
+			StatusTxt:    "",
+			UserName:     userInfoMap[v.UserId].Nickname,
+			UserPhone:    userInfoMap[v.UserId].Phone,
+			RealFeeYuan:  fmt.Sprintf("%.2f", float64(v.RealFee)/100),
+		}
+		//1.待支付；2.已支付；3.已超时；4.已取消
+		if v.Status == 1 {
+			item.StatusTxt = "待支付"
+		}
+		if v.Status == 1 {
+			item.StatusTxt = "已支付"
+		}
+		if v.Status == 3 {
+			item.StatusTxt = "已超时"
+		}
+		if v.Status == 4 {
+			item.StatusTxt = "已取消"
+		}
+		ret.List = append(ret.List, item)
+	}
 	return
 }
 
