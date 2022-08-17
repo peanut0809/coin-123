@@ -42,3 +42,8 @@ type AdminSeckillOrderFull struct {
 	UserPhone   string `json:"userPhone"`
 	RealFeeYuan string `json:"realFeeYuan"`
 }
+
+type AdminSeckillOrderByPage struct {
+	Total int                     `json:"total"`
+	List  []AdminSeckillOrderFull `json:"list"`
+}

@@ -21,7 +21,8 @@ func (s *adminSecKillActivity) Create(in model.SeckillActivity) (err error) {
 	return
 }
 
-func (s *adminSecKillActivity) GetOrders(pageNum int, publisherId string, createdAtStart, createdAtEnd string, priceMin int, priceMax int, payStatus int, searchVal string) (ret interface{}, err error) {
+func (s *adminSecKillActivity) GetOrders(pageNum int, publisherId string, createdAtStart, createdAtEnd string, priceMin int, priceMax int, payStatus int, searchVal string) (ret model.AdminSeckillOrderByPage, err error) {
+
 	return
 }
 
