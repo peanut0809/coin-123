@@ -23,11 +23,8 @@ func (s *seckillOrder) Create(tx *gdb.TX, in model.SeckillOrder) (err error) {
 	return
 }
 
-func (s *seckillOrder) Count(tx *gdb.TX, in model.SeckillOrder) (err error) {
-	_, err = tx.Model("seckill_orders").Insert(&in)
-	if err != nil {
-		return
-	}
+func (s *seckillOrder) Count(id int) (count int) {
+	count, _ = g.DB().Model("seckill_orders").Where("aid = ?", id).Count()
 	return
 }
 

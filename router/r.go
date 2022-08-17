@@ -82,6 +82,10 @@ func InitRouter() *ghttp.Server {
 		//秒杀
 		group.POST("/seckill/activity/create", api.AdminSeckillActivity.Create)
 		group.GET("/seckill/activity/detail", api.AdminSeckillActivity.Detail)
+		group.POST("/seckill/activity/disable", api.AdminSeckillActivity.Disable)
+		group.GET("/seckill/activity/list", api.AdminSeckillActivity.List)
+		group.POST("/seckill/activity/delete", api.AdminSeckillActivity.Delete)
+		group.POST("/seckill/activity/orders", api.AdminSeckillActivity.GetOrders)
 	})
 	return s
 }

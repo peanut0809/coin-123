@@ -34,3 +34,11 @@ type SeckillOrderList struct {
 	Total int                `json:"total"`
 	List  []SeckillOrderFull `json:"list"`
 }
+
+type AdminSeckillOrderFull struct {
+	SeckillOrder
+	StatusTxt   string `json:"statusTxt"`
+	UserName    string `json:"userName"`
+	UserPhone   string `json:"userPhone"`
+	RealFeeYuan string `json:"realFeeYuan"`
+}

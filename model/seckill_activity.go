@@ -7,6 +7,7 @@ import (
 type SeckillActivity struct {
 	Id                int         `orm:"id,primary" json:"id"` // 活动iD
 	Alias             string      `orm:"alias" json:"alias"`   // 别名
+	Disable           int         `orm:"disable" json:"disable"`
 	PublisherId       string      `orm:"publisher_id" json:"publisherId"`
 	ActivityStartTime *gtime.Time `orm:"activity_start_time" json:"activityStartTime"` // 活动开始时间
 	ActivityEndTime   *gtime.Time `orm:"activity_end_time" json:"activityEndTime"`     //活动结束时间
@@ -53,4 +54,16 @@ type DoBuyReq struct {
 type CreateSeckillActivityReq struct {
 	SeckillActivity
 	PriceYuan string `json:"priceYuan"`
+}
+
+type AdminSeckillActivityList struct {
+	List  []AdminSeckillActivityFull `json:"list"`
+	Total int                        `json:"total"`
+}
+
+type AdminSeckillActivityFull struct {
+	SeckillActivity
+	PriceYuan string `json:"priceYuan"`
+	StatusTxt string `json:"statusTxt"`
+	Status    string `json:"status"`
 }
