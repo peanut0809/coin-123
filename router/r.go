@@ -71,6 +71,12 @@ func InitRouter() *ghttp.Server {
 			r.Middleware.Next()
 		})
 		group.POST("/activity/create", api.AdminSubscribeActivity.Create)
+
+		//banner
+		group.POST("/banner/list", api.Banner.GetList)
+		group.POST("/banner/add", api.Banner.Add)
+		group.PUT("/banner/edit", api.Banner.Edit)
+		group.DELETE("/banner/delete", api.Banner.Delete)
 	})
 	return s
 }
