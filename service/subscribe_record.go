@@ -214,7 +214,7 @@ func (s *subscribeRecord) GetListByOrder(userId string, orderNo string, pageNum 
 		}
 		item := model.SubscribeListByOrderRetItem{
 			BuyNum:        v.AwardNum,
-			UnitPriceYuan: fmt.Sprintf("%.2f", float64(v.SumPrice)/float64(v.Award)/100),
+			UnitPriceYuan: fmt.Sprintf("%.2f", float64(v.SumPrice)/float64(v.AwardNum)/100),
 			SumPriceYuan:  fmt.Sprintf("%.2f", float64(v.SumPrice)/100),
 			SumPrice:      v.SumPrice,
 			OrderNo:       v.OrderNo,
