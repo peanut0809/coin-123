@@ -13,7 +13,6 @@ type Banner struct {
 	JumpUrl      string      `json:"jumpUrl" orm:"jump_url"`
 	Sort         int         `json:"sort" orm:"sort"`
 	State        int         `json:"state" orm:"state"`
-	GoodsState   int         `json:"goodsState" orm:"goods_state"`
 	TimingState  int         `json:"timingState" orm:"timing_state"`
 	GoodsOnTime  *gtime.Time `json:"goodsOnTime" orm:"goods_on_time"`
 	GoodsOffTime *gtime.Time `json:"goodsOffTime" orm:"goods_off_time"`
@@ -43,8 +42,6 @@ type BannerCreateReq struct {
 	JumpType     string `json:"jumpType"`
 	JumpUrl      string `json:"jumpUrl"`
 	Sort         int    `json:"sort"`
-	State        int    `json:"state"`
-	GoodsState   int    `json:"goodsState"`
 	TimingState  int    `json:"timingState"`
 	GoodsOnTime  string `json:"goodsOnTime"`
 	GoodsOffTime string `json:"goodsOffTime"`
