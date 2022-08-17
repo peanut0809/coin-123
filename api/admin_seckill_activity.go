@@ -52,7 +52,6 @@ func (s *adminSeckillActivity) Create(r *ghttp.Request) {
 			return
 		}
 	} else {
-		//service.SeckillOrder.Create()
 		err = service.AdminSecKillActivity.Update(req.SeckillActivity)
 		if err != nil {
 			s.FailJsonExit(r, err.Error())
@@ -65,6 +64,82 @@ func (s *adminSeckillActivity) Create(r *ghttp.Request) {
 func (s *adminSeckillActivity) Detail(r *ghttp.Request) {
 	id := r.GetQueryInt("id")
 	ret, err := service.AdminSecKillActivity.Detail(id, s.GetPublisherId(r))
+	if err != nil {
+		s.FailJsonExit(r, err.Error())
+		return
+	}
+	s.SusJsonExit(r, ret)
+}
+
+func (s *adminSeckillActivity) Disable(r *ghttp.Request) {
+	id := r.GetInt("id")
+	action := r.GetString("action")
+	if action == "ON" {
+		err := service.AdminSecKillActivity.Disable(id, 0, s.GetPublisherId(r))
+		if err != nil {
+			s.FailJsonExit(r, err.Error())
+			return
+		}
+	} else if action == "OFF" {
+		err := service.AdminSecKillActivity.Disable(id, 1, s.GetPublisherId(r))
+		if err != nil {
+			s.FailJsonExit(r, err.Error())
+			return
+		}
+	}
+	s.SusJsonExit(r)
+}
+
+func (s *adminSeckillActivity) List(r *ghttp.Request) {
+	createStartTime := r.GetQueryString("createStartTime")
+	createEndTime := r.GetQueryString("createEndTime")
+	activityStartTimeA := r.GetQueryString("activityStartTimeA")
+	activityStartTimeB := r.GetQueryString("activityStartTimeB")
+	status := r.GetQueryString("status")
+	activityEndTimeA := r.GetQueryString("activityEndTimeA")
+	activityEndTimeB := r.GetQueryString("activityEndTimeB")
+	searchVal := r.GetQueryString("searchVal")
+	pageNum := r.GetQueryInt("pageNum", 1)
+	publisherId := s.GetPublisherId(r)
+	ret, err := service.AdminSecKillActivity.List(publisherId, pageNum, createStartTime, createEndTime, activityStartTimeA, activityStartTimeB, status, activityEndTimeA, activityEndTimeB, searchVal)
+	if err != nil {
+		s.FailJsonExit(r, err.Error())
+		return
+	}
+	s.SusJsonExit(r, ret)
+}
+
+func (s *adminSeckillActivity) Delete(r *ghttp.Request) {
+	id := r.GetInt("id")
+	if service.SeckillOrder.Count(id) > 0 {
+		s.FailJsonExit(r, "活动已有用户参与，不能删除")
+		return
+	}
+	publisherId := s.GetPublisherId(r)
+	err := service.AdminSecKillActivity.Delete(id, publisherId)
+	if err != nil {
+		s.FailJsonExit(r, err.Error())
+		return
+	}
+	s.SusJsonExit(r)
+}
+
+func (s *adminSeckillActivity) GetOrders(r *ghttp.Request) {
+	pageNum := r.GetQueryInt("pageNum", 1)
+	createdAtStart := r.GetQueryString("createdAtStart")
+	createdAtEnd := r.GetQueryString("createdAtEnd")
+	priceMinStr := r.GetQueryString("priceMinStr")
+	priceMaxStr := r.GetQueryString("priceMaxStr")
+	payStatus := r.GetQueryInt("payStatus")
+	searchVal := r.GetQueryString("searchVal")
+	priceMinStrValue, _ := decimal.NewFromString(priceMinStr)
+	priceMinStrValue = priceMinStrValue.Mul(decimal.NewFromInt(100))
+	priceMinInt := priceMinStrValue.IntPart()
+	priceMaxStrValue, _ := decimal.NewFromString(priceMaxStr)
+	priceMaxStrValue = priceMaxStrValue.Mul(decimal.NewFromInt(100))
+	priceMaxInt := priceMaxStrValue.IntPart()
+	publisherId := s.GetPublisherId(r)
+	ret, err := service.AdminSecKillActivity.GetOrders(pageNum, publisherId, createdAtStart, createdAtEnd, int(priceMinInt), int(priceMaxInt), payStatus, searchVal)
 	if err != nil {
 		s.FailJsonExit(r, err.Error())
 		return

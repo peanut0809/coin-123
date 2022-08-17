@@ -163,8 +163,21 @@ func (s *adminSubscribeActivity) GetSubRecords(r *ghttp.Request) {
 }
 
 func (s *adminSubscribeActivity) Disable(r *ghttp.Request) {
-	action := r.GetQueryString("action")
+	action := r.GetString("action")
+	id := r.GetInt("id")
+	publisherId := s.GetPublisherId(r)
 	if action == "ON" {
-
+		err := service.AdminSubscribeActivity.Disable(id, 0, publisherId)
+		if err != nil {
+			s.FailJsonExit(r, err.Error())
+			return
+		}
+	} else if action == "OFF" {
+		err := service.AdminSubscribeActivity.Disable(id, 1, publisherId)
+		if err != nil {
+			s.FailJsonExit(r, err.Error())
+			return
+		}
 	}
+	s.SusJsonExit(r)
 }

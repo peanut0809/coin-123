@@ -343,9 +343,16 @@ func (s *adminSubscribeActivity) Delete(publisherId string, id int) (err error) 
 }
 
 func (s *adminSubscribeActivity) Disable(id int, disable int, publisherId string) (err error) {
-	_, err = g.DB().Model("subscribe_activity").Data(g.Map{
-		"disable": disable,
-	}).Where("id = ? AND ", id).Update()
+	var r sql.Result
+	r, err = g.DB().Exec("UPDATE subscribe_activity SET disable = ? WHERE id = ? AND publisher_id = ?", disable, id, publisherId)
+	if err != nil {
+		return
+	}
+	affectedNum, _ := r.RowsAffected()
+	if affectedNum != 1 {
+		err = fmt.Errorf("更新失败")
+		return
+	}
 	return
 }
 
