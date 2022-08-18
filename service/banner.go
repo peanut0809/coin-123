@@ -108,8 +108,8 @@ func (c *banner) StateEdit(id int) (err error) {
 }
 
 // FrontList 前段展示
-func (c *banner) FrontList() (list []model.BannerFrontReq) {
-	err := g.DB().Model("banner").Where("state = 1").Order("sort").Scan(&list)
+func (c *banner) FrontList(publisherId string) (list []model.BannerFrontReq) {
+	err := g.DB().Model("banner").Where("state = 1").Where("publisher_id = ?", publisherId).Order("sort").Scan(&list)
 	if err != nil {
 		return
 	}

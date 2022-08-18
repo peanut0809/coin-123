@@ -81,7 +81,8 @@ func (c *banner) StateEdit(r *ghttp.Request) {
 
 // GetFrontList 前段展示
 func (c *banner) GetFrontList(r *ghttp.Request) {
-	list := service.Banner.FrontList()
+	publisherId := c.GetPublisherId(r)
+	list := service.Banner.FrontList(publisherId)
 	req := g.Map{
 		"list": list,
 	}
