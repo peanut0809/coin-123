@@ -9,7 +9,7 @@ type Banner struct {
 	Name         string      `json:"name" orm:"name"`                   // banner 名称
 	Remarks      string      `json:"remarks" orm:"remarks"`             // 备注
 	Image        string      `json:"image" orm:"image"`                 // 图片地址
-	JumpType     string      `json:"jumpType" orm:"jump_type"`          // 跳转链接类型
+	JumpType     int         `json:"jumpType" orm:"jump_type"`          // 跳转链接类型
 	JumpUrl      string      `json:"jumpUrl" orm:"jump_url"`            // 跳转链接地址
 	Sort         int         `json:"sort" orm:"sort"`                   // 排序
 	State        int         `json:"state" orm:"state"`                 // 状态 0：未上架 1：已上架 2：已下架
@@ -40,7 +40,7 @@ type BannerCreateReq struct {
 	Name         string `json:"name"`
 	Remarks      string `json:"remarks"`
 	Image        string `json:"image"`
-	JumpType     string `json:"jumpType"`
+	JumpType     int    `json:"jumpType"`
 	JumpUrl      string `json:"jumpUrl"`
 	Sort         int    `json:"sort"`
 	TimingState  int    `json:"timingState"`
