@@ -30,6 +30,9 @@ func InitRouter() *ghttp.Server {
 		group.GET("/seckill/activity/detail", api.SeckillActivity.GetDetail) //活动详情
 		group.GET("/activity/award/record", api.SubscribeActivity.GetActivityAwardRecord)
 		group.GET("/activity/detail", api.SubscribeActivity.GetSubscribeActivityDetail)
+		//banner
+		group.GET("/banner/getFrontList", api.Banner.GetFrontList)
+
 		group.GET("/temp/del", func(r *ghttp.Request) {
 			//检查超时行为
 			userId := r.GetQueryString("userId")
@@ -63,8 +66,6 @@ func InitRouter() *ghttp.Server {
 		group.GET("/seckill/activity/order/list", api.SeckillActivity.GetOrderList)                  //订单列表
 		group.GET("/seckill/activity/order/detail", api.SeckillActivity.GetOrderDetail)              //订单详情
 
-		//banner
-		group.GET("/banner/getFrontList", api.Banner.GetFrontList)
 	})
 
 	s.Group("/admin", func(group *ghttp.RouterGroup) {
