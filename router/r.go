@@ -32,6 +32,7 @@ func InitRouter() *ghttp.Server {
 		group.GET("/activity/detail", api.SubscribeActivity.GetSubscribeActivityDetail)
 		//banner
 		group.GET("/banner/getFrontList", api.Banner.GetFrontList)
+		group.GET("/banner/getRichText", api.Banner.GetRichText)
 
 		group.GET("/temp/del", func(r *ghttp.Request) {
 			//检查超时行为
