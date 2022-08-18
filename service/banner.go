@@ -115,3 +115,12 @@ func (c *banner) FrontList(publisherId string) (list []model.BannerFrontReq) {
 	}
 	return
 }
+
+// RichText 前段展示
+func (c *banner) RichText(id int) (list model.BannerFrontReq) {
+	err := g.DB().Model("banner").Where("state = 1").Where("id = ?", id).Order("sort").Scan(&list)
+	if err != nil {
+		return
+	}
+	return
+}

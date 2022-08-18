@@ -52,6 +52,7 @@ type BannerCreateReq struct {
 
 // BannerFrontReq 前段展示
 type BannerFrontReq struct {
+	Id       string `json:"id"`
 	Image    string `json:"image"`
 	JumpType string `json:"jumpType"`
 	JumpUrl  string `json:"jumpUrl"`

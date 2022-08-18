@@ -89,3 +89,11 @@ func (c *banner) GetFrontList(r *ghttp.Request) {
 	}
 	c.SusJsonExit(r, req)
 }
+
+// GetRichText 前段展示
+func (c *banner) GetRichText(r *ghttp.Request) {
+	//publisherId := c.GetPublisherId(r)
+	id := r.GetInt("id")
+	list := service.Banner.RichText(id)
+	c.SusJsonExit(r, list.JumpUrl)
+}
