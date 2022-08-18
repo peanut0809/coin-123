@@ -106,3 +106,12 @@ func (c *banner) StateEdit(id int) (err error) {
 	_, err = g.DB().Model("banner").Where("id = ?", id).Update(list)
 	return
 }
+
+// FrontList 前段展示
+func (c *banner) FrontList() (list []model.BannerFrontReq) {
+	err := g.DB().Model("banner").Where("state = 1").Order("sort").Scan(&list)
+	if err != nil {
+		return
+	}
+	return
+}

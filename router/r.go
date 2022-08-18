@@ -87,11 +87,13 @@ func InitRouter() *ghttp.Server {
 		group.POST("/seckill/activity/delete", api.AdminSeckillActivity.Delete)
 		group.GET("/seckill/activity/orders", api.AdminSeckillActivity.GetOrders)
 
-		//banner
+		//banner 后端接口
 		group.GET("/banner/list", api.Banner.GetList)
 		group.POST("/banner/create", api.Banner.Create)
 		group.POST("/banner/delete", api.Banner.Delete)
 		group.POST("/banner/stateEdit", api.Banner.StateEdit)
+		//banner 前段接口
+		group.GET("/banner/getFrontList", api.Banner.GetFrontList)
 	})
 	return s
 }

@@ -49,3 +49,10 @@ type BannerCreateReq struct {
 	CreatedAt    string `json:"createdAt"`
 	UpdatedAt    string `json:"updatedAt"`
 }
+
+// BannerFrontReq 前段展示
+type BannerFrontReq struct {
+	Image    string `json:"image"`
+	JumpType string `json:"jumpType"`
+	JumpUrl  string `json:"jumpUrl"`
+}

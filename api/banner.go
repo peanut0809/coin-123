@@ -78,3 +78,12 @@ func (c *banner) StateEdit(r *ghttp.Request) {
 		c.FailJsonCodeExit(r, err)
 	}
 }
+
+// GetFrontList 前段展示
+func (c *banner) GetFrontList(r *ghttp.Request) {
+	list := service.Banner.FrontList()
+	req := g.Map{
+		"list": list,
+	}
+	c.SusJsonExit(r, req)
+}
