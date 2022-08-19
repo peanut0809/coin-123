@@ -77,6 +77,9 @@ func InitRouter() *ghttp.Server {
 		group.POST("/activity/disable", api.AdminSubscribeActivity.Disable)
 		group.GET("/activity/sub/record", api.AdminSubscribeActivity.GetSubRecords)
 
+		//活动合集
+		group.POST("/activity/collection/create", api.ActivityCollection.Create)
+
 		//group.POST("/activity/sub/record", api.AdminSubscribeActivity.GetSubRecords)
 
 		//秒杀
