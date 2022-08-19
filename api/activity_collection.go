@@ -47,6 +47,7 @@ func (s *activityCollection) Create(r *ghttp.Request) {
 		s.FailJsonExit(r, "未选择营销活动")
 		return
 	}
+	req.IsShow = 1
 	req.PublisherId = s.GetPublisherId(r)
 	if req.Id == 0 {
 		err = service.ActivityCollection.Create(req)

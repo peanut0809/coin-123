@@ -23,6 +23,7 @@ type AdminActivityFull struct {
 	ActivityTypeString string `json:"activityTypeString"`
 	ActivityStatus     string `json:"activityStatus"`
 	ActivityStatusTxt  string `json:"activityStatusTxt"`
+	Cover              string `json:"cover"`
 }
 
 type AdminActivityList struct {

@@ -16,6 +16,17 @@ func (s *activity) Detail(r *ghttp.Request) {
 
 }
 
+func (s *activity) ListByClient(r *ghttp.Request) {
+	pageNum := r.GetQueryInt("pageNum", 1)
+	publisherId := s.GetPublisherId(r)
+	ret, err := service.Activity.List(pageNum, "", "", 0, "", "", publisherId)
+	if err != nil {
+		s.FailJsonExit(r, err.Error())
+		return
+	}
+	s.SusJsonExit(r, ret)
+}
+
 func (s *activity) List(r *ghttp.Request) {
 	pageNum := r.GetQueryInt("pageNum", 1)
 	startTime := r.GetQueryString("startTime")

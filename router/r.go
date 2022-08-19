@@ -67,6 +67,9 @@ func InitRouter() *ghttp.Server {
 		group.GET("/seckill/activity/order/list", api.SeckillActivity.GetOrderList)                  //订单列表
 		group.GET("/seckill/activity/order/detail", api.SeckillActivity.GetOrderDetail)              //订单详情
 
+		//最新上线
+		group.GET("/sass/activity/list", api.Activity.ListByClient)
+
 	})
 
 	s.Group("/admin", func(group *ghttp.RouterGroup) {

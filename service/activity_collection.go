@@ -13,10 +13,14 @@ type activityCollection struct {
 
 var ActivityCollection = new(activityCollection)
 
+func (s *activityCollection) List(publisherId string, pageNum int, createStartTime, createEndTime string) (ret model.AdminActivityCollectionDetail, err error) {
+	return
+}
+
 func (s *activityCollection) Detail(id int, publisherId string) (ret model.AdminActivityCollectionDetail, err error) {
 	var ac *model.ActivityCollection
 	err = g.DB().Model("activity_collection").Where("id = ? AND publisher_id = ?", id, publisherId).Scan(&ac)
-	if err == nil {
+	if err != nil {
 		return
 	}
 	if ac == nil {
@@ -25,7 +29,7 @@ func (s *activityCollection) Detail(id int, publisherId string) (ret model.Admin
 	}
 	ret.ActivityCollection = *ac
 	var acContent []model.ActivityCollectionContent
-	err = g.DB().Model("activity_collection_content").Where("activity_collection_id", id).Scan(acContent)
+	err = g.DB().Model("activity_collection_content").Where("activity_collection_id", id).Scan(&acContent)
 	if err != nil {
 		return
 	}

@@ -84,10 +84,12 @@ func (s *activity) List(pageNum int, startTime, endTime string, activityType int
 		if v.ActivityType == 3 {
 			item.SumNum = secKillAcMap[v.ActivityId].SumNum
 			item.Price = fmt.Sprintf("%.2f", float64(secKillAcMap[v.ActivityId].Price)/100)
+			item.Cover = secKillAcMap[v.ActivityId].CoverImgUrl
 			item.ActivityTypeString = "秒杀"
 		} else {
 			item.SumNum = subAcMap[v.ActivityId].SumNum
 			item.Price = fmt.Sprintf("%.2f", float64(subAcMap[v.ActivityId].Price)/100)
+			item.Cover = subAcMap[v.ActivityId].CoverImgUrl
 		}
 		if v.ActivityType == 1 {
 			item.ActivityTypeString = "优先购"
