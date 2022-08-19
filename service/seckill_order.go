@@ -44,7 +44,7 @@ func (s *seckillOrder) GetOrderList(pageNum int, userId string, status int, orde
 		return
 	}
 	list := make([]model.SeckillOrder, 0)
-	err = m.Page(pageNum, 20).Scan(&list)
+	err = m.Order("id DESC").Page(pageNum, 20).Scan(&list)
 	if err != nil {
 		return
 	}
