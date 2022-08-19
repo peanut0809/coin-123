@@ -67,6 +67,9 @@ func InitRouter() *ghttp.Server {
 		group.GET("/seckill/activity/order/list", api.SeckillActivity.GetOrderList)                  //订单列表
 		group.GET("/seckill/activity/order/detail", api.SeckillActivity.GetOrderDetail)              //订单详情
 
+		//最新上线
+		group.GET("/sass/activity/list", api.Activity.ListByClient)
+
 	})
 
 	s.Group("/admin", func(group *ghttp.RouterGroup) {
@@ -75,14 +78,19 @@ func InitRouter() *ghttp.Server {
 			r.SetCtxVar("publisherId", "TEST")
 			r.Middleware.Next()
 		})
-		group.POST("/activity/create", api.AdminSubscribeActivity.Create)
-		group.GET("/activity/list", api.AdminSubscribeActivity.List)
-		group.GET("/activity/detail", api.AdminSubscribeActivity.Detail)
-		group.POST("/activity/delete", api.AdminSubscribeActivity.Delete)
-		group.POST("/activity/disable", api.AdminSubscribeActivity.Disable)
-		group.GET("/activity/sub/record", api.AdminSubscribeActivity.GetSubRecords)
+		group.POST("/sub/activity/create", api.AdminSubscribeActivity.Create)
+		group.GET("/sub/activity/list", api.AdminSubscribeActivity.List)
+		group.GET("/sub/activity/detail", api.AdminSubscribeActivity.Detail)
+		group.POST("/sub/activity/delete", api.AdminSubscribeActivity.Delete)
+		group.POST("/sub/activity/disable", api.AdminSubscribeActivity.Disable)
+		group.GET("/sub/activity/record", api.AdminSubscribeActivity.GetSubRecords)
 
-		//group.POST("/activity/sub/record", api.AdminSubscribeActivity.GetSubRecords)
+		//活动
+		group.GET("/activity/list", api.Activity.List)
+
+		//活动合集
+		group.POST("/activity/collection/create", api.ActivityCollection.Create)
+		group.GET("/activity/collection/detail", api.ActivityCollection.Detail)
 
 		//秒杀
 		group.POST("/seckill/activity/create", api.AdminSeckillActivity.Create)

@@ -706,3 +706,13 @@ func (s *subscribeActivity) DoSubPayTimeOut() {
 	}
 	return
 }
+
+func (s *subscribeActivity) GetByIds(ids []int) (ret map[int]model.SubscribeActivity) {
+	ret = make(map[int]model.SubscribeActivity)
+	var as []model.SubscribeActivity
+	g.DB().Model("subscribe_activity").Where("id IN (?)", ids).Scan(&as)
+	for _, v := range as {
+		ret[v.Id] = v
+	}
+	return
+}
