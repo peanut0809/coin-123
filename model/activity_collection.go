@@ -20,5 +20,10 @@ type ActivityCollection struct {
 
 type CreateActivityCollectionReq struct {
 	ActivityCollection
-	Activities []ActivityCollectionContent `json:"activities"`
+	Activities []int `json:"activities"`
+}
+
+type AdminActivityCollectionDetail struct {
+	ActivityCollection
+	Activities []Activity `json:"activities"`
 }

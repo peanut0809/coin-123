@@ -13,12 +13,34 @@ type activityCollection struct {
 
 var ActivityCollection = new(activityCollection)
 
-func (s *activityCollection) Create(in model.CreateActivityCollectionReq) (err error) {
-	aids := make([]int, 0)
-	for _, v := range in.Activities {
-		aids = append(aids, v.Id)
+func (s *activityCollection) Detail(id int, publisherId string) (ret model.AdminActivityCollectionDetail, err error) {
+	var ac *model.ActivityCollection
+	err = g.DB().Model("activity_collection").Where("id = ? AND publisher_id = ?", id, publisherId).Scan(&ac)
+	if err == nil {
+		return
 	}
-	activits := Activity.GetByIds(aids)
+	if ac == nil {
+		err = fmt.Errorf("活动不存在")
+		return
+	}
+	ret.ActivityCollection = *ac
+	var acContent []model.ActivityCollectionContent
+	err = g.DB().Model("activity_collection_content").Where("activity_collection_id", id).Scan(acContent)
+	if err != nil {
+		return
+	}
+	activityIds := make([]int, 0)
+	for _, v := range acContent {
+		activityIds = append(activityIds, v.ActivityId)
+	}
+	if len(activityIds) != 0 {
+		ret.Activities = Activity.GetByIds(activityIds)
+	}
+	return
+}
+
+func (s *activityCollection) Create(in model.CreateActivityCollectionReq) (err error) {
+	activits := Activity.GetByIds(in.Activities)
 	var tx *gdb.TX
 	tx, err = g.DB().Begin()
 	if err != nil {
@@ -48,11 +70,7 @@ func (s *activityCollection) Create(in model.CreateActivityCollectionReq) (err e
 }
 
 func (s *activityCollection) Update(in model.CreateActivityCollectionReq) (err error) {
-	aids := make([]int, 0)
-	for _, v := range in.Activities {
-		aids = append(aids, v.Id)
-	}
-	activits := Activity.GetByIds(aids)
+	activits := Activity.GetByIds(in.Activities)
 	var tx *gdb.TX
 	tx, err = g.DB().Begin()
 	if err != nil {

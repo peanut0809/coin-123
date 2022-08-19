@@ -13,6 +13,21 @@ type activityCollection struct {
 
 var ActivityCollection = new(activityCollection)
 
+func (s *activityCollection) List(r *ghttp.Request) {
+
+}
+
+func (s *activityCollection) Detail(r *ghttp.Request) {
+	publisherId := s.GetPublisherId(r)
+	id := r.GetQueryInt("id")
+	ret, err := service.ActivityCollection.Detail(id, publisherId)
+	if err != nil {
+		s.FailJsonExit(r, err.Error())
+		return
+	}
+	s.SusJsonExit(r, ret)
+}
+
 func (s *activityCollection) Create(r *ghttp.Request) {
 	var req model.CreateActivityCollectionReq
 	err := r.Parse(&req)

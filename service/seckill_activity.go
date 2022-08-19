@@ -280,3 +280,13 @@ func (s *seckillActivity) GetSimpleDetail(aid int) (ret *model.SeckillActivity, 
 	}
 	return
 }
+
+func (s *seckillActivity) GetByIds(ids []int) (ret map[int]model.SeckillActivity) {
+	ret = make(map[int]model.SeckillActivity)
+	var as []model.SeckillActivity
+	g.DB().Model("seckill_activity").Where("id IN (?)", ids).Scan(&as)
+	for _, v := range as {
+		ret[v.Id] = v
+	}
+	return
+}
