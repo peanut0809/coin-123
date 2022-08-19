@@ -183,9 +183,12 @@ func (s *subscribeRecord) GetSimpleDetail(orderNo string) (ret *model.SubscribeR
 }
 
 //以订单维度查询认购记录
-func (s *subscribeRecord) GetListByOrder(userId string, orderNo string, pageNum int, status int, publisherId string) (ret model.SubscribeListByOrderRet, err error) {
+func (s *subscribeRecord) GetListByOrder(userId string, orderNo string, pageNum int, status int, publisherId string, activityType int) (ret model.SubscribeListByOrderRet, err error) {
 	var records []model.SubscribeRecord
 	m := g.DB().Model("subscribe_records").Where("user_id = ? AND award = 1 AND publisher_id = ?", userId, publisherId)
+	if activityType != 0 {
+		m = m.Where("activity_type = ?", activityType)
+	}
 	if status != -1 {
 		m = m.Where("pay_status = ?", status)
 	}
@@ -211,7 +214,7 @@ func (s *subscribeRecord) GetListByOrder(userId string, orderNo string, pageNum 
 		}
 		item := model.SubscribeListByOrderRetItem{
 			BuyNum:        v.AwardNum,
-			UnitPriceYuan: fmt.Sprintf("%.2f", float64(v.SumPrice)/float64(v.Award)/100),
+			UnitPriceYuan: fmt.Sprintf("%.2f", float64(v.SumPrice)/float64(v.AwardNum)/100),
 			SumPriceYuan:  fmt.Sprintf("%.2f", float64(v.SumPrice)/100),
 			SumPrice:      v.SumPrice,
 			OrderNo:       v.OrderNo,
@@ -231,7 +234,7 @@ func (s *subscribeRecord) GetListByOrder(userId string, orderNo string, pageNum 
 
 //创建支付订单
 func (s *subscribeRecord) CreateOrder(userId, clientIp, orderNo, successRedirectUrl, exitRedirectUrl, publisherId, appId string) (orderReq *provider.CreateOrderReq, err error) {
-	info, e := s.GetListByOrder(userId, orderNo, 1, 0, publisherId)
+	info, e := s.GetListByOrder(userId, orderNo, 1, 0, publisherId, 0)
 	if e != nil {
 		err = e
 		return
