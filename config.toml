@@ -3,7 +3,7 @@
     Address     = ":8126"
 [nacos]
     # 应用标识
-    AppName                 = "launchpad1"
+    AppName                 = "launchpad"
     # 运行模式
     Mode                    = "dev"
     # 配置文件类型
