@@ -13,8 +13,9 @@ type banner struct {
 var Banner = new(banner)
 
 // List 数据获取，条件筛选
-func (c *banner) List(params model.BannerReq) (total, page int, list []model.Banner, err error) {
-	db := g.DB().Model("banner")
+func (c *banner) List(publisherId string, params model.BannerReq) (total, page int, list []model.Banner, err error) {
+
+	db := g.DB().Model("banner").Where("publisher_id = ?", publisherId)
 	if params.CreatedStart != "" && params.CreatedEnd != "" {
 		db = db.Where("created_at >= ? and created_at <= ?", params.CreatedStart, params.CreatedEnd)
 	}
@@ -100,10 +101,26 @@ func (c *banner) StateEdit(id int) (err error) {
 	if list.State == 0 {
 		list.State = 1
 	} else if list.State == 1 {
-		list.State = 2
-	} else if list.State == 2 {
-		list.State = 1
+		list.State = 0
 	}
 	_, err = g.DB().Model("banner").Where("id = ?", id).Update(list)
+	return
+}
+
+// FrontList 前段展示
+func (c *banner) FrontList(publisherId string) (list []model.BannerFrontReq) {
+	err := g.DB().Model("banner").Where("state = 1").Where("publisher_id = ?", publisherId).Order("sort").Scan(&list)
+	if err != nil {
+		return
+	}
+	return
+}
+
+// RichText 前段展示
+func (c *banner) RichText(id int) (list model.BannerFrontReq) {
+	err := g.DB().Model("banner").Where("state = 1").Where("id = ?", id).Order("sort").Scan(&list)
+	if err != nil {
+		return
+	}
 	return
 }
