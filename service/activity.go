@@ -18,6 +18,7 @@ func (s *activity) GetByIds(ids []int) (ret []model.Activity) {
 }
 
 func (s *activity) List(pageNum int, startTime, endTime string, activityType int, status, searchVal, publisherId string) (ret model.AdminActivityList, err error) {
+
 	m := g.DB().Model("activity").Where("publisher_id = ?", publisherId)
 	if startTime != "" {
 		m = m.Where("start_time >= ?", startTime)
@@ -86,10 +87,12 @@ func (s *activity) List(pageNum int, startTime, endTime string, activityType int
 			item.Price = fmt.Sprintf("%.2f", float64(secKillAcMap[v.ActivityId].Price)/100)
 			item.Cover = secKillAcMap[v.ActivityId].CoverImgUrl
 			item.ActivityTypeString = "秒杀"
+			item.Alias = secKillAcMap[v.ActivityId].Alias
 		} else {
 			item.SumNum = subAcMap[v.ActivityId].SumNum
 			item.Price = fmt.Sprintf("%.2f", float64(subAcMap[v.ActivityId].Price)/100)
 			item.Cover = subAcMap[v.ActivityId].CoverImgUrl
+			item.Alias = subAcMap[v.ActivityId].Alias
 		}
 		if v.ActivityType == 1 {
 			item.ActivityTypeString = "优先购"
