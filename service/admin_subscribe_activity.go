@@ -17,7 +17,7 @@ type adminSubscribeActivity struct {
 
 var AdminSubscribeActivity = new(adminSubscribeActivity)
 
-func (s *adminSubscribeActivity) ListByPage(activityType int, publisherId string, pageNum int, createStartTime, createEndTime, activityStartTimeA, activityStartTimeB, status, activityEndTimeA, activityEndTimeB, searchVal string) (ret model.AdminListByPage, err error) {
+func (s *adminSubscribeActivity) ListByPage(activityType int, publisherId string, pageNum int, createStartTime, createEndTime, activityStartTimeA, activityStartTimeB, status, activityEndTimeA, activityEndTimeB, searchVal string, pageSize int) (ret model.AdminListByPage, err error) {
 	m := g.DB().Model("subscribe_activity").Where("publisher_id = ? AND activity_type = ?", publisherId, activityType)
 	if createStartTime != "" && createEndTime != "" {
 		m = m.Where("created_at >= ? and created_at <= ?", createStartTime, createEndTime)
@@ -49,7 +49,7 @@ func (s *adminSubscribeActivity) ListByPage(activityType int, publisherId string
 		return
 	}
 	list := make([]model.SubscribeActivity, 0)
-	err = m.Order("id DESC").Page(pageNum, 20).Scan(&list)
+	err = m.Order("id DESC").Page(pageNum, pageSize).Scan(&list)
 	if err != nil {
 		return
 	}

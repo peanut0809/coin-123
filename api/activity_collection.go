@@ -14,7 +14,20 @@ type activityCollection struct {
 var ActivityCollection = new(activityCollection)
 
 func (s *activityCollection) List(r *ghttp.Request) {
-
+	createStartTime := r.GetQueryString("createStartTime")
+	createEndTime := r.GetQueryString("createEndTime")
+	showStartTime := r.GetQueryString("showStartTime")
+	showEndTime := r.GetQueryString("showEndTime")
+	searchVal := r.GetQueryString("searchVal")
+	pageNum := r.GetQueryInt("pageNum", 1)
+	pageSize := r.GetQueryInt("pageSize", 20)
+	publisherId := s.GetPublisherId(r)
+	ret, err := service.ActivityCollection.List(publisherId, pageNum, createStartTime, createEndTime, showStartTime, showEndTime, searchVal, pageSize)
+	if err != nil {
+		s.FailJsonExit(r, err.Error())
+		return
+	}
+	s.SusJsonExit(r, ret)
 }
 
 func (s *activityCollection) Detail(r *ghttp.Request) {
@@ -47,7 +60,6 @@ func (s *activityCollection) Create(r *ghttp.Request) {
 		s.FailJsonExit(r, "未选择营销活动")
 		return
 	}
-	req.IsShow = 1
 	req.PublisherId = s.GetPublisherId(r)
 	if req.Id == 0 {
 		err = service.ActivityCollection.Create(req)

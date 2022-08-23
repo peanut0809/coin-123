@@ -18,7 +18,6 @@ func (s *activity) GetByIds(ids []int) (ret []model.Activity) {
 }
 
 func (s *activity) List(pageNum int, startTime, endTime string, activityType int, status, searchVal, publisherId string) (ret model.AdminActivityList, err error) {
-
 	m := g.DB().Model("activity").Where("publisher_id = ?", publisherId)
 	if startTime != "" {
 		m = m.Where("start_time >= ?", startTime)
