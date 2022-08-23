@@ -13,7 +13,38 @@ type activityCollection struct {
 
 var ActivityCollection = new(activityCollection)
 
-func (s *activityCollection) List(publisherId string, pageNum int, createStartTime, createEndTime string) (ret model.AdminActivityCollectionDetail, err error) {
+func (s *activityCollection) List(publisherId string, pageNum int, createStartTime, createEndTime string, showStartTime, showEndTime string, searchVal string, pageSize int) (ret model.AdminActivityCollectionList, err error) {
+	m := g.DB().Model("activity_collection").Where("publisher_id = ?", publisherId)
+	if createStartTime != "" && createEndTime != "" {
+		m = m.Where("created_at >= ? AND created_at <= ?", createStartTime, createEndTime)
+	}
+	if showStartTime != "" {
+		m = m.Where("show_start_time <= ?", showStartTime)
+	}
+	if showEndTime != "" {
+		m = m.Where("show_end_time >= ?", showEndTime)
+	}
+	if searchVal != "" {
+		m = m.Where("name like ?", "%"+searchVal+"%")
+	}
+	ret.Total, err = m.Count()
+	if err != nil {
+		return
+	}
+	if ret.Total == 0 {
+		return
+	}
+	as := make([]model.ActivityCollection, 0)
+	err = m.Order("id DESC").Page(pageNum, pageSize).Scan(&as)
+	if err != nil {
+		return
+	}
+	for _, v := range as {
+		item := model.ActivityCollectionFull{
+			ActivityCollection: v,
+		}
+		ret.List = append(ret.List, item)
+	}
 	return
 }
 

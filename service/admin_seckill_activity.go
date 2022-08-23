@@ -143,7 +143,7 @@ func (s *adminSecKillActivity) Disable(id int, disable int, publisherId string) 
 	return
 }
 
-func (s *adminSecKillActivity) List(publisherId string, pageNum int, createStartTime, createEndTime, activityStartTimeA, activityStartTimeB, status, activityEndTimeA, activityEndTimeB, searchVal string) (ret model.AdminSeckillActivityList, err error) {
+func (s *adminSecKillActivity) List(publisherId string, pageNum int, createStartTime, createEndTime, activityStartTimeA, activityStartTimeB, status, activityEndTimeA, activityEndTimeB, searchVal string, pageSize int) (ret model.AdminSeckillActivityList, err error) {
 	m := g.DB().Model("seckill_activity").Where("publisher_id = ?", publisherId)
 	if createStartTime != "" && createEndTime != "" {
 		m = m.Where("created_at >= ? and created_at <= ?", createStartTime, createEndTime)
@@ -175,7 +175,7 @@ func (s *adminSecKillActivity) List(publisherId string, pageNum int, createStart
 		return
 	}
 	var as []model.SeckillActivity
-	err = m.Order("id DESC").Page(pageNum, 20).Scan(&as)
+	err = m.Order("id DESC").Page(pageNum, pageSize).Scan(&as)
 	if err != nil {
 		return
 	}
