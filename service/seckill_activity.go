@@ -6,7 +6,6 @@ import (
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/os/gtime"
 	"github.com/gogf/gf/util/gconv"
-	"meta_launchpad/cache"
 	"meta_launchpad/model"
 	"meta_launchpad/provider"
 	"time"
@@ -104,23 +103,23 @@ func (s *seckillActivity) DoBuy(in model.DoBuyReq) {
 		})
 		return
 	}
-	gv, e := g.Redis().DoVar("GET", fmt.Sprintf(cache.SECKILL_DISCIPLINE, in.UserId))
-	if e != nil {
-		s.SetSubResult(model.DoSubResult{
-			Reason:  e.Error(),
-			Step:    "fail",
-			OrderNo: in.OrderNo,
-		})
-		return
-	}
-	if !gv.IsEmpty() {
-		s.SetSubResult(model.DoSubResult{
-			Reason:  "您已超时一次未支付订单，暂不能参与秒杀活动",
-			Step:    "fail",
-			OrderNo: in.OrderNo,
-		})
-		return
-	}
+	//gv, e := g.Redis().DoVar("GET", fmt.Sprintf(cache.SECKILL_DISCIPLINE, in.UserId))
+	//if e != nil {
+	//	s.SetSubResult(model.DoSubResult{
+	//		Reason:  e.Error(),
+	//		Step:    "fail",
+	//		OrderNo: in.OrderNo,
+	//	})
+	//	return
+	//}
+	//if !gv.IsEmpty() {
+	//	s.SetSubResult(model.DoSubResult{
+	//		Reason:  "您已超时一次未支付订单，暂不能参与秒杀活动",
+	//		Step:    "fail",
+	//		OrderNo: in.OrderNo,
+	//	})
+	//	return
+	//}
 	params := &map[string]interface{}{
 		"appId":      activityInfo.AppId,
 		"templateId": activityInfo.TemplateId,
