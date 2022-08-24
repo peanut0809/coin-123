@@ -13,6 +13,18 @@ type activityCollection struct {
 
 var ActivityCollection = new(activityCollection)
 
+func (s *activityCollection) ListByClient(r *ghttp.Request) {
+	pageNum := r.GetQueryInt("pageNum", 1)
+	pageSize := r.GetQueryInt("pageSize", 20)
+	publisherId := s.GetPublisherId(r)
+	ret, err := service.ActivityCollection.ListByClient(publisherId, pageNum, pageSize)
+	if err != nil {
+		s.FailJsonExit(r, err.Error())
+		return
+	}
+	s.SusJsonExit(r, ret)
+}
+
 func (s *activityCollection) List(r *ghttp.Request) {
 	createStartTime := r.GetQueryString("createStartTime")
 	createEndTime := r.GetQueryString("createEndTime")

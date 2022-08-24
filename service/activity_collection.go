@@ -6,12 +6,48 @@ import (
 	"github.com/gogf/gf/database/gdb"
 	"github.com/gogf/gf/frame/g"
 	"meta_launchpad/model"
+	"time"
 )
 
 type activityCollection struct {
 }
 
 var ActivityCollection = new(activityCollection)
+
+func (s *activityCollection) ListByClient(publisherId string, pageNum int, pageSize int) (ret model.ClientActivityCollectionList, err error) {
+	m := g.DB().Model("activity_collection").Where("publisher_id = ? AND NOW() >= show_start_time AND NOW() <= show_end_time", publisherId)
+	ret.Total, err = m.Count()
+	if err != nil {
+		return
+	}
+	if ret.Total == 0 {
+		return
+	}
+	as := make([]model.ActivityCollection, 0)
+	err = m.Order("start_time").Page(pageNum, pageSize).Scan(&as)
+	if err != nil {
+		return
+	}
+	now := time.Now()
+	for _, v := range as {
+		item := model.ActivityCollectionFull{
+			ActivityCollection: v,
+			Status:             0,
+			StatusTxt:          "活动未开始",
+		}
+		if now.Unix() >= item.StartTime.Unix() && now.Unix() <= item.EndTime.Unix() {
+			item.Status = 1
+			item.StatusTxt = "活动进行中"
+		} else {
+			if now.Unix() > item.EndTime.Unix() {
+				item.Status = 2
+				item.StatusTxt = "活动已结束"
+			}
+		}
+		ret.List = append(ret.List, item)
+	}
+	return
+}
 
 func (s *activityCollection) List(publisherId string, pageNum int, createStartTime, createEndTime string, showStartTime, showEndTime string, searchVal string, pageSize int) (ret model.AdminActivityCollectionList, err error) {
 	m := g.DB().Model("activity_collection").Where("publisher_id = ?", publisherId)

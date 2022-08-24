@@ -69,6 +69,8 @@ func InitRouter() *ghttp.Server {
 
 		//最新上线
 		group.GET("/sass/activity/list", api.Activity.ListByClient)
+		//精选
+		group.GET("/sass/activity/collection/list", api.ActivityCollection.ListByClient)
 
 	})
 
