@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"github.com/gogf/gf/database/gdb"
@@ -13,6 +14,25 @@ type activityCollection struct {
 }
 
 var ActivityCollection = new(activityCollection)
+
+func (s *activityCollection) Delete(id int, publisherId string) (err error) {
+	err = g.DB().Transaction(context.Background(), func(ctx context.Context, tx *gdb.TX) error {
+		r, e := tx.Exec("DELETE FROM activity_collection WHERE id = ? AND publisher_id = ?", id, publisherId)
+		if e != nil {
+			return e
+		}
+		affectedNum, _ := r.RowsAffected()
+		if affectedNum != 1 {
+			return fmt.Errorf("删除失败")
+		}
+		_, e = tx.Exec("DELETE FROM activity_collection_content WHERE activity_collection_id = ?", id)
+		if e != nil {
+			return e
+		}
+		return nil
+	})
+	return
+}
 
 func (s *activityCollection) DetailByClient(publisherId string, pageNum int, pageSize int) (ret model.ClientActivityCollectionList, err error) {
 	m := g.DB().Model("activity_collection").Where("publisher_id = ? AND NOW() >= show_start_time AND NOW() <= show_end_time", publisherId)
