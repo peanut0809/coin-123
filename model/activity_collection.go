@@ -45,3 +45,12 @@ type ClientActivityCollectionList struct {
 	Total int                      `json:"total"`
 	List  []ActivityCollectionFull `json:"list"`
 }
+
+type ClientActivityCollectionDetailAc struct {
+	Cover string `json:"cover"`
+}
+
+type ClientActivityCollectionDetail struct {
+	ActivityCollectionFull
+	List []AdminActivityFull `json:"list"`
+}

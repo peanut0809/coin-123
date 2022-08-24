@@ -17,12 +17,55 @@ func (s *activityCollection) ListByClient(r *ghttp.Request) {
 	pageNum := r.GetQueryInt("pageNum", 1)
 	pageSize := r.GetQueryInt("pageSize", 20)
 	publisherId := s.GetPublisherId(r)
-	ret, err := service.ActivityCollection.ListByClient(publisherId, pageNum, pageSize)
+	if publisherId == "" {
+		publisherId = r.GetQueryString("publisherId")
+	}
+	if publisherId == "" {
+		s.FailJsonExit(r, "缺少发行商ID")
+		return
+	}
+
+	ret, err := service.ActivityCollection.ListByClient(0, publisherId, pageNum, pageSize)
 	if err != nil {
 		s.FailJsonExit(r, err.Error())
 		return
 	}
 	s.SusJsonExit(r, ret)
+}
+
+func (s *activityCollection) ListByDetail(r *ghttp.Request) {
+	id := r.GetQueryInt("id")
+	publisherId := s.GetPublisherId(r)
+	if publisherId == "" {
+		publisherId = r.GetQueryString("publisherId")
+	}
+	if publisherId == "" {
+		s.FailJsonExit(r, "缺少发行商ID")
+		return
+	}
+	ret, err := service.ActivityCollection.ListByClient(id, publisherId, 1, 1)
+	if err != nil {
+		s.FailJsonExit(r, err.Error())
+		return
+	}
+	if len(ret.List) == 0 {
+		s.FailJsonExit(r, "活动不存在")
+		return
+	}
+	ids, e := service.ActivityCollectionContent.GetActivityIds(ret.List[0].Id)
+	if e != nil {
+		s.FailJsonExit(r, e.Error())
+		return
+	}
+	listInfo, e := service.Activity.List(ids, 1, 100, "", "", 0, "", "", publisherId)
+	if e != nil {
+		s.FailJsonExit(r, e.Error())
+		return
+	}
+	response := model.ClientActivityCollectionDetail{}
+	response.ActivityCollectionFull = ret.List[0]
+	response.List = listInfo.List
+	s.SusJsonExit(r, response)
 }
 
 func (s *activityCollection) List(r *ghttp.Request) {

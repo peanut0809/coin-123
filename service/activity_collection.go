@@ -14,7 +14,7 @@ type activityCollection struct {
 
 var ActivityCollection = new(activityCollection)
 
-func (s *activityCollection) ListByClient(publisherId string, pageNum int, pageSize int) (ret model.ClientActivityCollectionList, err error) {
+func (s *activityCollection) DetailByClient(publisherId string, pageNum int, pageSize int) (ret model.ClientActivityCollectionList, err error) {
 	m := g.DB().Model("activity_collection").Where("publisher_id = ? AND NOW() >= show_start_time AND NOW() <= show_end_time", publisherId)
 	ret.Total, err = m.Count()
 	if err != nil {
@@ -22,6 +22,44 @@ func (s *activityCollection) ListByClient(publisherId string, pageNum int, pageS
 	}
 	if ret.Total == 0 {
 		return
+	}
+	as := make([]model.ActivityCollection, 0)
+	err = m.Order("start_time").Page(pageNum, pageSize).Scan(&as)
+	if err != nil {
+		return
+	}
+	now := time.Now()
+	for _, v := range as {
+		item := model.ActivityCollectionFull{
+			ActivityCollection: v,
+			Status:             0,
+			StatusTxt:          "活动未开始",
+		}
+		if now.Unix() >= item.StartTime.Unix() && now.Unix() <= item.EndTime.Unix() {
+			item.Status = 1
+			item.StatusTxt = "活动进行中"
+		} else {
+			if now.Unix() > item.EndTime.Unix() {
+				item.Status = 2
+				item.StatusTxt = "活动已结束"
+			}
+		}
+		ret.List = append(ret.List, item)
+	}
+	return
+}
+
+func (s *activityCollection) ListByClient(id int, publisherId string, pageNum int, pageSize int) (ret model.ClientActivityCollectionList, err error) {
+	m := g.DB().Model("activity_collection").Where("publisher_id = ? AND NOW() >= show_start_time AND NOW() <= show_end_time", publisherId)
+	ret.Total, err = m.Count()
+	if err != nil {
+		return
+	}
+	if ret.Total == 0 {
+		return
+	}
+	if id != 0 {
+		m = m.Where("id = ?", id)
 	}
 	as := make([]model.ActivityCollection, 0)
 	err = m.Order("start_time").Page(pageNum, pageSize).Scan(&as)

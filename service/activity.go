@@ -17,13 +17,16 @@ func (s *activity) GetByIds(ids []int) (ret []model.Activity) {
 	return
 }
 
-func (s *activity) List(pageNum int, startTime, endTime string, activityType int, status, searchVal, publisherId string) (ret model.AdminActivityList, err error) {
+func (s *activity) List(activityIds []int, pageNum int, pageSize int, startTime, endTime string, activityType int, status, searchVal, publisherId string) (ret model.AdminActivityList, err error) {
 	m := g.DB().Model("activity").Where("publisher_id = ?", publisherId)
 	if startTime != "" {
 		m = m.Where("start_time >= ?", startTime)
 	}
 	if endTime != "" {
 		m = m.Where("end_time <= ?", endTime)
+	}
+	if len(activityIds) != 0 {
+		m = m.Where("id IN (?)", activityIds)
 	}
 	if activityType != 0 {
 		m = m.Where("activity_type = ?", activityType)
@@ -49,7 +52,7 @@ func (s *activity) List(pageNum int, startTime, endTime string, activityType int
 		return
 	}
 	var as []model.Activity
-	err = m.Order("id DESC").Page(pageNum, 20).Scan(&as)
+	err = m.Order("id DESC").Page(pageNum, pageSize).Scan(&as)
 	if err != nil {
 		return
 	}

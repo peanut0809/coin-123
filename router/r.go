@@ -34,6 +34,13 @@ func InitRouter() *ghttp.Server {
 		group.GET("/banner/getFrontList", api.Banner.GetFrontList)
 		group.GET("/banner/getRichText", api.Banner.GetRichText)
 
+		//最新上线
+		group.GET("/sass/activity/list", api.Activity.ListByClient)
+		//活动合集
+		group.GET("/sass/activity/collection/list", api.ActivityCollection.ListByClient)
+		//活动合集详情
+		group.GET("/sass/activity/collection/detail", api.ActivityCollection.ListByDetail)
+
 		group.GET("/temp/del", func(r *ghttp.Request) {
 			//检查超时行为
 			userId := r.GetQueryString("userId")
@@ -66,11 +73,6 @@ func InitRouter() *ghttp.Server {
 		group.GET("/seckill/activity/order/create/result", api.SeckillActivity.GetCreateOrderResult) //获取下单结果
 		group.GET("/seckill/activity/order/list", api.SeckillActivity.GetOrderList)                  //订单列表
 		group.GET("/seckill/activity/order/detail", api.SeckillActivity.GetOrderDetail)              //订单详情
-
-		//最新上线
-		group.GET("/sass/activity/list", api.Activity.ListByClient)
-		//精选
-		group.GET("/sass/activity/collection/list", api.ActivityCollection.ListByClient)
 
 	})
 
