@@ -14,6 +14,8 @@ type ActivityCollection struct {
 	Sort          int         `orm:"sort" json:"sort"`                     // 排序
 	ShowStartTime *gtime.Time `orm:"show_start_time" json:"showStartTime"` // 展示开始时间
 	ShowEndTime   *gtime.Time `orm:"show_end_time" json:"showEndTime"`     // 展示结束时间
+	StartTime     *gtime.Time `orm:"start_time" json:"startTime"`          //开始时间
+	EndTime       *gtime.Time `orm:"end_time" json:"endTime"`              //结束时间
 	CreatedAt     *gtime.Time `orm:"created_at"json:"createdAt"`           // 新建时间
 	UpdatedAt     *gtime.Time `orm:"updated_at"json:"updatedAt"`           // 更新时间
 }
@@ -30,9 +32,16 @@ type AdminActivityCollectionDetail struct {
 
 type ActivityCollectionFull struct {
 	ActivityCollection
+	Status    int    `json:"status"`
+	StatusTxt string `json:"statusTxt"`
 }
 
 type AdminActivityCollectionList struct {
+	Total int                      `json:"total"`
+	List  []ActivityCollectionFull `json:"list"`
+}
+
+type ClientActivityCollectionList struct {
 	Total int                      `json:"total"`
 	List  []ActivityCollectionFull `json:"list"`
 }
