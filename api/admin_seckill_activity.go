@@ -100,8 +100,9 @@ func (s *adminSeckillActivity) List(r *ghttp.Request) {
 	activityEndTimeB := r.GetQueryString("activityEndTimeB")
 	searchVal := r.GetQueryString("searchVal")
 	pageNum := r.GetQueryInt("pageNum", 1)
+	pageSize := r.GetQueryInt("pageSize", 20)
 	publisherId := s.GetPublisherId(r)
-	ret, err := service.AdminSecKillActivity.List(publisherId, pageNum, createStartTime, createEndTime, activityStartTimeA, activityStartTimeB, status, activityEndTimeA, activityEndTimeB, searchVal)
+	ret, err := service.AdminSecKillActivity.List(publisherId, pageNum, createStartTime, createEndTime, activityStartTimeA, activityStartTimeB, status, activityEndTimeA, activityEndTimeB, searchVal, pageSize)
 	if err != nil {
 		s.FailJsonExit(r, err.Error())
 		return

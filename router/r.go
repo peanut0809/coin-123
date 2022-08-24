@@ -34,6 +34,13 @@ func InitRouter() *ghttp.Server {
 		group.GET("/banner/getFrontList", api.Banner.GetFrontList)
 		group.GET("/banner/getRichText", api.Banner.GetRichText)
 
+		//最新上线
+		group.GET("/sass/activity/list", api.Activity.ListByClient)
+		//活动合集
+		group.GET("/sass/activity/collection/list", api.ActivityCollection.ListByClient)
+		//活动合集详情
+		group.GET("/sass/activity/collection/detail", api.ActivityCollection.ListByDetail)
+
 		group.GET("/temp/del", func(r *ghttp.Request) {
 			//检查超时行为
 			userId := r.GetQueryString("userId")
@@ -70,15 +77,25 @@ func InitRouter() *ghttp.Server {
 	})
 
 	s.Group("/admin", func(group *ghttp.RouterGroup) {
-		group.Middleware(api.GetPublisherByToken)
-		group.POST("/activity/create", api.AdminSubscribeActivity.Create)
-		group.GET("/activity/list", api.AdminSubscribeActivity.List)
-		group.GET("/activity/detail", api.AdminSubscribeActivity.Detail)
-		group.POST("/activity/delete", api.AdminSubscribeActivity.Delete)
-		group.POST("/activity/disable", api.AdminSubscribeActivity.Disable)
-		group.GET("/activity/sub/record", api.AdminSubscribeActivity.GetSubRecords)
+		group.Middleware(func(r *ghttp.Request) {
+			//测试临时写个发行商
+			r.SetCtxVar("publisherId", "TEST")
+			r.Middleware.Next()
+		})
+		group.POST("/sub/activity/create", api.AdminSubscribeActivity.Create)
+		group.GET("/sub/activity/list", api.AdminSubscribeActivity.List)
+		group.GET("/sub/activity/detail", api.AdminSubscribeActivity.Detail)
+		group.POST("/sub/activity/delete", api.AdminSubscribeActivity.Delete)
+		group.POST("/sub/activity/disable", api.AdminSubscribeActivity.Disable)
+		group.GET("/sub/activity/record", api.AdminSubscribeActivity.GetSubRecords)
 
-		//group.POST("/activity/sub/record", api.AdminSubscribeActivity.GetSubRecords)
+		//活动
+		group.GET("/activity/list", api.Activity.List)
+
+		//活动合集
+		group.POST("/activity/collection/create", api.ActivityCollection.Create)
+		group.GET("/activity/collection/detail", api.ActivityCollection.Detail)
+		group.GET("/activity/collection/list", api.ActivityCollection.List)
 
 		//秒杀
 		group.POST("/seckill/activity/create", api.AdminSeckillActivity.Create)
