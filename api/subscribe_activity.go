@@ -27,13 +27,21 @@ var SubscribeActivity = new(subscribeActivity)
 //}
 
 func (s *subscribeActivity) GetSubscribeActivityDetail(r *ghttp.Request) {
+	publisherId := s.GetPublisherId(r)
+	if publisherId == "" {
+		publisherId = r.GetQueryString("publisherId")
+	}
+	if publisherId == "" {
+		s.FailJsonExit(r, "缺少发行商")
+		return
+	}
 	userId := s.GetUserId(r)
 	alias := r.GetQueryString("alias")
 	if alias == "" {
 		s.FailJsonExit(r, "参数错误")
 		return
 	}
-	ret, err := service.SubscribeActivity.GetDetail(alias, userId)
+	ret, err := service.SubscribeActivity.GetDetail(alias, userId, publisherId)
 	if err != nil {
 		s.FailJsonExit(r, err.Error())
 		return
