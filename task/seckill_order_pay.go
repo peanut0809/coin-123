@@ -78,6 +78,7 @@ func RunSeckillOrderPayTask() {
 						"userId":     orderInfo[0].UserId,
 						"optType":    "LAUNCHPAD",
 						"optRemark":  "元初发射台秒杀发放资产",
+						"nfrTime":    activityInfo.NfrSec,
 					})
 					if err != nil {
 						g.Log().Errorf("RunSubLaunchpadPayTask err:%v 重试次数：%d", err, i)

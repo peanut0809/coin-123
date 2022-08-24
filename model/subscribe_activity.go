@@ -40,6 +40,7 @@ type SubscribeActivity struct {
 	AwardMethod       int         `orm:"award_method" json:"awardMethod"`
 	AwardCompleteTime *gtime.Time `orm:"award_complete_time" json:"awardCompleteTime"`
 	Disable           int         `orm:"disable" json:"disable"`
+	NfrSec            int         `orm:"nfr_sec" json:"nfrSec"`
 	CreatedAt         *gtime.Time `orm:"created_at" json:"createdAt"` // 新建时间
 	UpdatedAt         *gtime.Time `orm:"updated_at" json:"updatedAt"` // 更新时间
 }
@@ -69,6 +70,15 @@ type SubscribeActivityFull struct {
 	Award         int                         `json:"award"`     //是否中签
 	PayStatus     int                         `json:"payStatus"` //是否已付款
 	Steps         []SubscribeActivityFullStep `json:"steps"`
+
+	AssetCateString string      `json:"assetCateString"`
+	AssetTotal      int         `json:"assetTotal"`
+	AssetCreateAt   *gtime.Time `json:"assetCreateAt"`
+	AssetDetailImg  string      `json:"assetDetailImg"`
+	NfrDay          int         `json:"nfrDay"`
+	ChainName       string      `json:"chainName"`
+	ChainAddr       string      `json:"chainAddr"`
+	ChainType       int         `json:"chainType"`
 }
 
 type SubscribeActivityFullStep struct {
