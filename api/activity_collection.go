@@ -96,6 +96,17 @@ func (s *activityCollection) Detail(r *ghttp.Request) {
 	s.SusJsonExit(r, ret)
 }
 
+func (s *activityCollection) Delete(r *ghttp.Request) {
+	publisherId := s.GetPublisherId(r)
+	id := r.GetInt("id")
+	err := service.ActivityCollection.Delete(id, publisherId)
+	if err != nil {
+		s.FailJsonExit(r, err.Error())
+		return
+	}
+	s.SusJsonExit(r)
+}
+
 func (s *activityCollection) Create(r *ghttp.Request) {
 	var req model.CreateActivityCollectionReq
 	err := r.Parse(&req)
