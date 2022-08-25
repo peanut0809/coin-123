@@ -29,7 +29,7 @@ func (c *banner) List(publisherId string, params model.BannerReq) (total, page i
 		db = db.Where("state = ?", params.State)
 	}
 	if params.Name != "" {
-		db = db.Where("`name` like ?", "%"+params.Name+"%")
+		db = db.Where("`name` like ? or id = ?", "%"+params.Name+"%", params.Name)
 	}
 	total, err = db.Count()
 	if err != nil {
