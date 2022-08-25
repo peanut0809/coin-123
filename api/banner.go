@@ -78,6 +78,7 @@ func (c *banner) StateEdit(r *ghttp.Request) {
 	if err != nil {
 		c.FailJsonCodeExit(r, err)
 	}
+	c.SusJsonExit(r, "状态修改成功")
 }
 
 // GetFrontList 前段展示
