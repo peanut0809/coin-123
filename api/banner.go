@@ -73,7 +73,8 @@ func (c *banner) Delete(r *ghttp.Request) {
 func (c *banner) StateEdit(r *ghttp.Request) {
 
 	id := r.GetInt("id")
-	err := service.Banner.StateEdit(id)
+	state := r.GetInt("state")
+	err := service.Banner.StateEdit(id, state)
 	if err != nil {
 		c.FailJsonCodeExit(r, err)
 	}
