@@ -91,19 +91,8 @@ func (c *banner) Delete(id int) (state string, err error) {
 }
 
 // StateEdit 状态修改
-func (c *banner) StateEdit(id int) (err error) {
-	var list model.Banner
-	err = g.DB().Model("banner").Where("id = ?", id).Scan(&list)
-	if err != nil {
-		return
-	}
-
-	if list.State == 0 {
-		list.State = 1
-	} else if list.State == 1 {
-		list.State = 0
-	}
-	_, err = g.DB().Model("banner").Where("id = ?", id).Update(list)
+func (c *banner) StateEdit(id int, state int) (err error) {
+	_, err = g.DB().Model("banner").Where("id = ?", id).Data(g.Map{"state": state}).Update()
 	return
 }
 
