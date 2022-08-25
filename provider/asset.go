@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/gogf/gf/frame/g"
+	"github.com/gogf/gf/os/gtime"
 	"github.com/gogf/gf/util/gconv"
 )
 
@@ -69,13 +70,14 @@ func (s *asset) GetAssetDetail(appId string, tokenId string) (ret assetDetailRet
 }
 
 type GetMateDataByAksRet struct {
-	No        int    `json:"no"`
-	Total     int    `json:"total"`
-	AssetName string `json:"assetName"`
-	AssetPic  string `json:"assetPic"`
-	Icon      string `json:"icon"`
-	AppId     string `json:"appId"`
-	TokenId   string `json:"tokenId"`
+	No         int         `json:"no"`
+	Total      int         `json:"total"`
+	AssetName  string      `json:"assetName"`
+	AssetPic   string      `json:"assetPic"`
+	Icon       string      `json:"icon"`
+	AppId      string      `json:"appId"`
+	TokenId    string      `json:"tokenId"`
+	CreateTime *gtime.Time `json:"createTime"`
 }
 
 func (s *asset) GetMateDataByAks(appIds []string, tokenIds []string) (ret []GetMateDataByAksRet, retMap map[string]GetMateDataByAksRet, err error) {

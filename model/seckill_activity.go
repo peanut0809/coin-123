@@ -8,6 +8,7 @@ type SeckillActivity struct {
 	Id                int         `orm:"id,primary" json:"id"` // 活动iD
 	Alias             string      `orm:"alias" json:"alias"`   // 别名
 	Disable           int         `orm:"disable" json:"disable"`
+	NfrSec            int         `orm:"nfr_sec" json:"nfrSec"`
 	PublisherId       string      `orm:"publisher_id" json:"publisherId"`
 	ActivityStartTime *gtime.Time `orm:"activity_start_time" json:"activityStartTime"` // 活动开始时间
 	ActivityEndTime   *gtime.Time `orm:"activity_end_time" json:"activityEndTime"`     //活动结束时间
@@ -33,6 +34,15 @@ type SeckillActivityFull struct {
 	LastSec   int64  `json:"lastSec"`
 	Status    int    `json:"status"`
 	PriceYuan string `json:"priceYuan"`
+
+	AssetCateString string      `json:"assetCateString"`
+	AssetTotal      int         `json:"assetTotal"`
+	AssetCreateAt   *gtime.Time `json:"assetCreateAt"`
+	AssetDetailImg  string      `json:"assetDetailImg"`
+	NfrDay          int         `json:"nfrDay"`
+	ChainName       string      `json:"chainName"`
+	ChainAddr       string      `json:"chainAddr"`
+	ChainType       int         `json:"chainType"`
 }
 
 const SeckillActivityStatus_Wait_Start = 0

@@ -92,6 +92,7 @@ func InitRouter() *ghttp.Server {
 		group.POST("/activity/collection/create", api.ActivityCollection.Create)
 		group.GET("/activity/collection/detail", api.ActivityCollection.Detail)
 		group.GET("/activity/collection/list", api.ActivityCollection.List)
+		group.POST("/activity/collection/delete", api.ActivityCollection.Delete)
 
 		//秒杀
 		group.POST("/seckill/activity/create", api.AdminSeckillActivity.Create)
