@@ -92,6 +92,10 @@ func (s *adminSecKillActivity) Update(in model.SeckillActivity) (err error) {
 		"activity_intro":      in.ActivityIntro,
 		"activity_start_time": in.ActivityStartTime,
 		"activity_end_time":   in.ActivityEndTime,
+		"asset_type":          in.AssetType,
+		"asset_type2":         in.AssetType2,
+		"asset_type3":         in.AssetType3,
+		"nfr_sec":             in.NfrSec,
 	}
 	_, err = g.DB().Model("seckill_activity").Data(updateMap).Where("id = ? AND publisher_id = ?", in.Id, in.PublisherId).Update()
 	if err != nil {
