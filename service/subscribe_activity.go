@@ -133,7 +133,7 @@ func (s *subscribeActivity) GetDetail(alias, userId, publisherId string) (ret mo
 	ret.Status = s.GetActivityStatusV2(*as, userId)
 	ret.ActivityType = as.ActivityType
 	ret.AssetIntro = as.AssetIntro
-	ret.ActivityIntro = as.AssetIntro
+	ret.ActivityIntro = as.ActivityIntro
 	ret.SubSumPeople = as.SubSumPeople
 	ret.SubSum = as.SubSum
 	ret.Steps = append(ret.Steps, model.SubscribeActivityFullStep{
