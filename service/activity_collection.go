@@ -163,7 +163,64 @@ func (s *activityCollection) Detail(id int, publisherId string) (ret model.Admin
 		activityIds = append(activityIds, v.ActivityId)
 	}
 	if len(activityIds) != 0 {
-		ret.Activities = Activity.GetByIds(activityIds)
+		as := Activity.GetByIds(activityIds)
+
+		subIds := make([]int, 0)
+		secKillIds := make([]int, 0)
+		for _, v := range as {
+			if v.ActivityType == 3 {
+				secKillIds = append(secKillIds, v.ActivityId)
+			} else {
+				subIds = append(subIds, v.ActivityId)
+			}
+		}
+		var (
+			subAcMap     map[int]model.SubscribeActivity
+			secKillAcMap map[int]model.SeckillActivity
+		)
+		if len(subIds) != 0 {
+			subAcMap = SubscribeActivity.GetByIds(subIds)
+		}
+		if len(secKillIds) != 0 {
+			secKillAcMap = SeckillActivity.GetByIds(secKillIds)
+		}
+
+		for _, v := range as {
+			item := model.AdminActivityCollectionDetailActivity{
+				Activity:       v,
+				SumNum:         0,
+				PriceYuan:      "",
+				ActivityType:   "",
+				ActivityStatus: "",
+			}
+			n := time.Now()
+			if v.StartTime.Unix() > n.Unix() {
+				item.ActivityStatus = "未开始"
+			}
+			if n.Unix() > v.StartTime.Unix() && n.Unix() < v.EndTime.Unix() {
+				item.ActivityStatus = "进行中"
+			}
+			if n.Unix() > v.EndTime.Unix() {
+				item.ActivityStatus = "已结束"
+			}
+			if v.ActivityType == 1 {
+				item.ActivityType = "优先购"
+				item.SumNum = subAcMap[v.ActivityId].SumNum
+				item.PriceYuan = fmt.Sprintf("%.2f", float64(subAcMap[v.ActivityId].Price)/100)
+			}
+			if v.ActivityType == 2 {
+				item.ActivityType = "普通购"
+				item.SumNum = subAcMap[v.ActivityId].SumNum
+				item.PriceYuan = fmt.Sprintf("%.2f", float64(subAcMap[v.ActivityId].Price)/100)
+			}
+			if v.ActivityType == 3 {
+				item.ActivityType = "秒杀"
+				item.SumNum = secKillAcMap[v.ActivityId].SumNum
+				item.PriceYuan = fmt.Sprintf("%.2f", float64(secKillAcMap[v.ActivityId].Price)/100)
+			}
+			ret.Activities = append(ret.Activities, item)
+		}
+
 	}
 	return
 }

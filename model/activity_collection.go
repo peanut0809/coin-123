@@ -25,9 +25,17 @@ type CreateActivityCollectionReq struct {
 	Activities []int `json:"activities"`
 }
 
+type AdminActivityCollectionDetailActivity struct {
+	Activity
+	SumNum         int    `json:"sumNum"`
+	PriceYuan      string `json:"priceYuan"`
+	ActivityType   string `json:"activityType"`
+	ActivityStatus string `json:"activityStatus"`
+}
+
 type AdminActivityCollectionDetail struct {
 	ActivityCollection
-	Activities []Activity `json:"activities"`
+	Activities []AdminActivityCollectionDetailActivity `json:"activities"`
 }
 
 type ActivityCollectionFull struct {
