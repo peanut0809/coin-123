@@ -8,6 +8,7 @@ import (
 	"meta_launchpad/router"
 	_ "meta_launchpad/rpc"
 	"meta_launchpad/task"
+	"time"
 )
 
 func main() {
@@ -18,6 +19,15 @@ func main() {
 			g.Log().Info("配置文件发生了更新！\n", configStr)
 			gcfg.SetContent(configStr)
 
+			go func() {
+				time.Sleep(time.Second * 3)
+				go task.RunSubTask()
+				go task.RunSubPayTask()
+				go task.RunSubLaunchpadPayTask()
+				go task.RunSeckillOrderTask()
+				go task.RunSeckillOrderPayTask()
+			}()
+
 			//err := service.Sms.SendSms("13720009841", "ecgDjLtq", "aIIbedlG", "4HZdAzLt", map[string]string{
 			//	"goods": "中华网数藏印象·故宫·神秘",
 			//	"time":  "04:05",
@@ -26,14 +36,11 @@ func main() {
 		},
 	})
 
-	go task.RunSubTask()
-	go task.RunSubPayTask()
 	go task.RunLuckyDrawTask()
-	go task.RunSubLaunchpadPayTask()
+
 	go task.CheckSubPayTimeout()
 
-	go task.RunSeckillOrderTask()
 	go task.CheckSeckillOrderTimeoutTask()
-	go task.RunSeckillOrderPayTask()
+
 	s.Run()
 }
