@@ -107,6 +107,10 @@ func InitRouter() *ghttp.Server {
 		group.POST("/banner/create", api.Banner.Create)
 		group.POST("/banner/delete", api.Banner.Delete)
 		group.POST("/banner/stateEdit", api.Banner.StateEdit)
+
+		// 后台首页接口
+		group.GET("/frontPage/transactionSlip", api.FrontPage.TransactionSlip) // 交易数，交易总数
+		group.GET("/frontPage/volumeOfTrade", api.FrontPage.VolumeOfTrade)     // 交易总额
 	})
 	return s
 }
