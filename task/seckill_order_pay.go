@@ -8,6 +8,7 @@ import (
 	"github.com/gogf/gf/util/gconv"
 	"meta_launchpad/provider"
 	"meta_launchpad/service"
+	"strings"
 	"time"
 )
 
@@ -80,6 +81,10 @@ func RunSeckillOrderPayTask() {
 						"optRemark":  "元初发射台秒杀发放资产",
 					})
 					if err != nil {
+						if strings.Contains(err.Error(), "timeout") {
+							publishSuccess = true
+							break
+						}
 						g.Log().Errorf("RunSubLaunchpadPayTask err:%v 重试次数：%d", err, i)
 						time.Sleep(time.Second)
 						continue
