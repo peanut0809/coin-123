@@ -35,19 +35,19 @@ type BannerReq struct {
 
 // BannerCreateReq 新增、修改
 type BannerCreateReq struct {
-	Id           int    `json:"id"`
-	PublisherId  string `json:"publisher_id"`
-	Name         string `json:"name"`
-	Remarks      string `json:"remarks"`
-	Image        string `json:"image"`
-	JumpType     int    `json:"jumpType"`
-	JumpUrl      string `json:"jumpUrl"`
-	Sort         int    `json:"sort"`
-	TimingState  int    `json:"timingState"`
-	GoodsOnTime  string `json:"goodsOnTime"`
-	GoodsOffTime string `json:"goodsOffTime"`
-	CreatedAt    string `json:"createdAt"`
-	UpdatedAt    string `json:"updatedAt"`
+	Id           int         `json:"id"`
+	PublisherId  string      `json:"publisher_id"`
+	Name         string      `json:"name"`
+	Remarks      string      `json:"remarks"`
+	Image        string      `json:"image"`
+	JumpType     int         `json:"jumpType"`
+	JumpUrl      string      `json:"jumpUrl"`
+	Sort         int         `json:"sort"`
+	TimingState  int         `json:"timingState"`
+	GoodsOnTime  *gtime.Time `json:"goodsOnTime"`
+	GoodsOffTime *gtime.Time `json:"goodsOffTime"`
+	CreatedAt    string      `json:"createdAt"`
+	UpdatedAt    string      `json:"updatedAt"`
 }
 
 // BannerFrontReq 前段展示
