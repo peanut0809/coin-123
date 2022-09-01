@@ -328,15 +328,15 @@ func (s *subscribeActivity) DoSubVerify(in model.DoSubReq) (oneTicketInfo model.
 		return
 	}
 	//检查超时行为
-	gv, e := g.Redis().DoVar("GET", fmt.Sprintf(cache.SUB_PAY_TIMEOUT, in.UserId, as.ActivityType))
-	if e != nil {
-		err = e
-		return
-	}
-	if !gv.IsEmpty() {
-		err = fmt.Errorf("已超时%s次未付款，资格已被取消", gv.String())
-		return
-	}
+	//gv, e := g.Redis().DoVar("GET", fmt.Sprintf(cache.SUB_PAY_TIMEOUT, in.UserId, as.ActivityType))
+	//if e != nil {
+	//	err = e
+	//	return
+	//}
+	//if !gv.IsEmpty() {
+	//	err = fmt.Errorf("已超时%s次未付款，资格已被取消", gv.String())
+	//	return
+	//}
 	activityInfo = as
 	for _, v := range ticketInfo {
 		if v.Type == in.Type {
