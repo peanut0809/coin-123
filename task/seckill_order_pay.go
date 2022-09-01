@@ -9,7 +9,6 @@ import (
 	"meta_launchpad/provider"
 	"meta_launchpad/service"
 	"strings"
-	"time"
 )
 
 func RunSeckillOrderPayTask() {
@@ -71,27 +70,22 @@ func RunSeckillOrderPayTask() {
 				}
 				//发放资产
 				publishSuccess := false
-				for i := 0; i < 3; i++ {
-					err = provider.Asset.PublishAssetWithTemplateId(&map[string]interface{}{
-						"appId":      activityInfo.AppId,
-						"templateId": activityInfo.TemplateId,
-						"num":        orderInfo[0].Num,
-						"userId":     orderInfo[0].UserId,
-						"optType":    "LAUNCHPAD",
-						"optRemark":  "元初发射台秒杀发放资产",
-					})
-					if err != nil {
-						if strings.Contains(err.Error(), "timeout") {
-							publishSuccess = true
-							break
-						}
-						g.Log().Errorf("RunSubLaunchpadPayTask err:%v 重试次数：%d", err, i)
-						time.Sleep(time.Second)
-						continue
-					} else {
+				err = provider.Asset.PublishAssetWithTemplateId(&map[string]interface{}{
+					"appId":      activityInfo.AppId,
+					"templateId": activityInfo.TemplateId,
+					"num":        orderInfo[0].Num,
+					"userId":     orderInfo[0].UserId,
+					"optType":    "LAUNCHPAD",
+					"optRemark":  "元初发射台秒杀发放资产",
+				})
+				if err != nil {
+					if strings.Contains(err.Error(), "timeout") {
 						publishSuccess = true
-						break
+					} else {
+						g.Log().Errorf("RunSubLaunchpadPayTask err:%v", err)
 					}
+				} else {
+					publishSuccess = true
 				}
 				//更新发送资产的状态
 				if publishSuccess {
