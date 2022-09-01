@@ -21,7 +21,7 @@ var SeckillActivity = new(seckillActivity)
 func (s *seckillActivity) GetValidDetail(alias, publisherId string) (ret model.SeckillActivityFull, err error) {
 	var as *model.SeckillActivity
 	now := time.Now()
-	err = g.DB().Model("seckill_activity").Where("alias = ? AND start_time < ?", alias, now).Scan(&as)
+	err = g.DB().Model("seckill_activity").Where("alias = ?", alias).Scan(&as)
 	if err != nil {
 		return
 	}
