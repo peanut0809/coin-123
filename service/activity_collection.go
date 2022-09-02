@@ -119,7 +119,7 @@ func (s *activityCollection) List(publisherId string, pageNum int, createStartTi
 		m = m.Where("show_end_time >= ?", showEndTime)
 	}
 	if searchVal != "" {
-		m = m.Where("name like ?", "%"+searchVal+"%")
+		m = m.Where("(name like ? OR id = ?)", "%"+searchVal+"%", searchVal)
 	}
 	ret.Total, err = m.Count()
 	if err != nil {
