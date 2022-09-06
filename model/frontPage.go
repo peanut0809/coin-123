@@ -6,6 +6,11 @@ type TransactionSlip struct {
 }
 
 type Trade struct {
-	Count     string `json:"count"`
+	Count     int    `json:"count"`
 	CreatedAt string `json:"createdAt"`
+}
+
+type Price struct {
+	Price     float64 `json:"price"`
+	CreatedAt string  `json:"createdAt"`
 }
