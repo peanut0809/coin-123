@@ -85,3 +85,14 @@ func (s *developer) GetPublishInfo(publisherId string) (ret MwdAppsPublisher, er
 	}
 	return
 }
+
+func (s *developer) GetPublisherByIds(publisherId []string) (ret map[string]MwdAppsPublisher, err error) {
+	params := &map[string]interface{}{
+		"publisherIds": publisherId,
+	}
+	err = utils.SendJsonRpcScan(context.Background(), "developer", "Publisher.GetPublisherByIds", params, &ret)
+	if err != nil {
+		return
+	}
+	return
+}

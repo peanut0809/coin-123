@@ -12,8 +12,16 @@ type activity struct {
 
 var Activity = new(activity)
 
-func (s *activity) Detail(r *ghttp.Request) {
-
+func (s *activity) ListBySearch(r *ghttp.Request) {
+	pageNum := r.GetInt("pageNum", 1)
+	pageSize := r.GetInt("pageSize", 20)
+	searchVal := r.GetString("searchVal")
+	ret, err := service.Activity.List(nil, pageNum, pageSize, "", "", 0, "", searchVal, "")
+	if err != nil {
+		s.FailJsonExit(r, err.Error())
+		return
+	}
+	s.SusJsonExit(r, ret)
 }
 
 func (s *activity) ListByClient(r *ghttp.Request) {

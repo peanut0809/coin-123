@@ -36,6 +36,8 @@ func InitRouter() *ghttp.Server {
 
 		//最新上线
 		group.GET("/sass/activity/list", api.Activity.ListByClient)
+		//市场搜索
+		group.POST("/sass/activity/search", api.Activity.ListBySearch)
 		//活动合集
 		group.GET("/sass/activity/collection/list", api.ActivityCollection.ListByClient)
 		//活动合集详情
