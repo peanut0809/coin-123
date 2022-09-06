@@ -2,7 +2,7 @@ package model
 
 type TransactionSlip struct {
 	Name  string `json:"name"`
-	Count int    `json:"count"`
+	Value int    `json:"value"`
 }
 
 type Trade struct {

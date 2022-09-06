@@ -14,7 +14,7 @@ type frontPage struct {
 var FrontPage = new(frontPage)
 
 func (c *frontPage) TransactionSlip(publisherId string) (transactionSlip []model.TransactionSlip, sum model.TransactionSlip) {
-	sql := fmt.Sprintf("SELECT '优先购' `name`,COUNT(1) count FROM subscribe_records WHERE pay_status = 1 AND activity_type = 1 AND publisher_id = '%s' UNION SELECT '普通购' `name`,COUNT(1) count FROM subscribe_records WHERE pay_status = 1 AND activity_type = 2 AND publisher_id = '%s' UNION SELECT '秒杀购', COUNT(1) FROM seckill_orders WHERE `status` = 2 AND publisher_id = '%s' ", publisherId, publisherId, publisherId)
+	sql := fmt.Sprintf("SELECT '优先购' `name`,COUNT(1) value FROM subscribe_records WHERE pay_status = 1 AND activity_type = 1 AND publisher_id = '%s' UNION SELECT '普通购' `name`,COUNT(1) count FROM subscribe_records WHERE pay_status = 1 AND activity_type = 2 AND publisher_id = '%s' UNION SELECT '秒杀购', COUNT(1) FROM seckill_orders WHERE `status` = 2 AND publisher_id = '%s' ", publisherId, publisherId, publisherId)
 	db := g.DB()
 	err := db.GetScan(&transactionSlip, sql)
 	if err != nil {
@@ -22,15 +22,17 @@ func (c *frontPage) TransactionSlip(publisherId string) (transactionSlip []model
 	}
 	var count int
 	for _, i := range transactionSlip {
-		count += i.Count
+		count += i.Value
 	}
 	sum.Name = "总单数"
-	sum.Count = count
+	sum.Value = count
 	return
 }
 
 // VolumeOfTrade 支付数，人数
-func (c *frontPage) VolumeOfTrade(publisherId string, day int) (dealNum []model.Trade, payment []model.Trade) {
+func (c *frontPage) VolumeOfTrade(publisherId string, day int) (dealTime, paymentTime []string, dealCount, paymentCount []int) {
+	var dealNum []model.Trade
+	var payment []model.Trade
 	t := time.Now()
 	nowTime := t.AddDate(0, 0, 0).Format("2006-01-02 15:04:05")
 	var sectionTime string
@@ -46,7 +48,7 @@ func (c *frontPage) VolumeOfTrade(publisherId string, day int) (dealNum []model.
 		num = 90
 	}
 	// 成交笔数
-	sql := "SELECT t0.date,IFNULL(t1.count,0) count FROM (SELECT @cdate := DATE_ADD(@cdate, INTERVAL + 1 DAY) date FROM (SELECT @cdate := DATE_ADD('" + sectionTime + "', INTERVAL - 1 DAY) date FROM subscribe_records) l) t0 LEFT JOIN (SELECT DATE_ADD(DATE_FORMAT(created_at,'%Y-%m-%d'), INTERVAL 0 DAY) created_at ,COUNT(1) count "
+	sql := "SELECT t0.date created_at,IFNULL(t1.count,0) count FROM (SELECT @cdate := DATE_ADD(@cdate, INTERVAL + 1 DAY) date FROM (SELECT @cdate := DATE_ADD('" + sectionTime + "', INTERVAL - 1 DAY) date FROM subscribe_records) l) t0 LEFT JOIN (SELECT DATE_ADD(DATE_FORMAT(created_at,'%Y-%m-%d'), INTERVAL 0 DAY) created_at ,COUNT(1) count "
 	sql += fmt.Sprintf("FROM subscribe_records WHERE pay_status = 1 AND created_at BETWEEN '%s' AND '%s' AND publisher_id = '%s'", sectionTime, nowTime, publisherId)
 	sql += " GROUP BY DATE_FORMAT(created_at,'%Y-%m-%d') UNION SELECT DATE_FORMAT(created_at,'%Y-%m-%d') created_at ,COUNT(1) count FROM seckill_orders "
 	sql += fmt.Sprintf("WHERE `status` = 2 AND created_at BETWEEN '%s' AND '%s' AND publisher_id = '%s' ", sectionTime, nowTime, publisherId)
@@ -56,13 +58,21 @@ func (c *frontPage) VolumeOfTrade(publisherId string, day int) (dealNum []model.
 	if err != nil {
 		return
 	}
+	for _, i := range dealNum {
+		dealTime = append(dealTime, i.CreatedAt)
+		dealCount = append(dealCount, i.Count)
+	}
 
 	// 支付人数
-	paySql := "SELECT t0.date,IFNULL(t1.count,0) count FROM (SELECT @cdate := DATE_ADD(@cdate, INTERVAL + 1 DAY) date FROM (SELECT @cdate := DATE_ADD('" + sectionTime + "', INTERVAL - 1 DAY) date FROM subscribe_records) l) t0 LEFT JOIN ( SELECT DATE_FORMAT(created_at,'%Y-%m-%d') created_at,COUNT(1) count"
+	paySql := "SELECT t0.date created_at,IFNULL(t1.count,0) count FROM (SELECT @cdate := DATE_ADD(@cdate, INTERVAL + 1 DAY) date FROM (SELECT @cdate := DATE_ADD('" + sectionTime + "', INTERVAL - 1 DAY) date FROM subscribe_records) l) t0 LEFT JOIN ( SELECT DATE_FORMAT(created_at,'%Y-%m-%d') created_at,COUNT(1) count"
 	paySql += fmt.Sprintf(" from (SELECT user_id,created_at FROM subscribe_records WHERE pay_status = 1 AND created_at BETWEEN '%s' AND '%s' AND publisher_id = '%s' GROUP BY user_id UNION SELECT user_id,created_at FROM seckill_orders WHERE `status` = 2 AND created_at BETWEEN '%s' AND '%s' AND publisher_id = '%s' GROUP BY user_id) l", sectionTime, nowTime, publisherId, sectionTime, nowTime, publisherId)
 	paySql += " GROUP BY DATE_FORMAT(created_at,'%Y-%m-%d')"
 	paySql += fmt.Sprintf(") t1 on t0.date = t1.created_at ORDER BY t0.date LIMIT %d", num)
 	err = g.DB().GetScan(&payment, paySql)
+	for _, i := range payment {
+		paymentTime = append(paymentTime, i.CreatedAt)
+		paymentCount = append(paymentCount, i.Count)
+	}
 	if err != nil {
 		return
 	}
@@ -106,7 +116,8 @@ func (c *frontPage) Payers(publisherId string) (count int, float float64, err er
 }
 
 // Turnover 成交额
-func (c *frontPage) Turnover(publisherId string) (price []model.Price, float float64, count float64, err error) {
+func (c *frontPage) Turnover(publisherId string) (priceFloat []float64, priceTime []string, float float64, count float64, err error) {
+	var price []model.Price
 	t := time.Now()
 	nowTime := t.AddDate(0, 0, 0).Format("2006-01-02 15:04:05")
 	sectionTime := t.AddDate(0, 0, -6).Format("2006-01-02")
@@ -119,6 +130,10 @@ func (c *frontPage) Turnover(publisherId string) (price []model.Price, float flo
 	err = g.DB().GetScan(&price, sql)
 	if err != nil {
 		return
+	}
+	for _, i := range price {
+		priceFloat = append(priceFloat, i.Price)
+		priceTime = append(priceTime, i.CreatedAt)
 	}
 
 	float = c.percentage("SELECT sum(price)/100 count FROM (SELECT sum(sum_price) price,count(1) count FROM subscribe_records WHERE pay_status = 1 AND created_at BETWEEN '%s' AND '%s' AND publisher_id = '%s' UNION SELECT sum(price) price,count(1) FROM seckill_orders WHERE `status` = 2 AND created_at BETWEEN '%s' AND '%s' AND publisher_id = '%s' ) l", publisherId)

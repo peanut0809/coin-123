@@ -23,13 +23,20 @@ func (c *frontPage) TransactionSlip(r *ghttp.Request) {
 	c.SusJsonExit(r, req)
 }
 
+// VolumeOfTrade 近期支付数
 func (c *frontPage) VolumeOfTrade(r *ghttp.Request) {
 	publisherId := c.GetPublisherId(r)
 	day := r.GetInt("day")
-	dealNum, payment := service.FrontPage.VolumeOfTrade(publisherId, day)
+	dealTime, paymentTime, dealCount, paymentCount := service.FrontPage.VolumeOfTrade(publisherId, day)
 	req := g.Map{
-		"dealNum": dealNum,
-		"payment": payment,
+		"dealNum": g.Map{
+			"dealTime":  dealTime,
+			"dealCount": dealCount,
+		},
+		"payment": g.Map{
+			"paymentTime":  paymentTime,
+			"paymentCount": paymentCount,
+		},
 	}
 	c.SusJsonExit(r, req)
 }
@@ -62,12 +69,15 @@ func (c *frontPage) Payers(r *ghttp.Request) {
 
 func (c *frontPage) Turnover(r *ghttp.Request) {
 	publisherId := c.GetPublisherId(r)
-	price, float, count, err := service.FrontPage.Turnover(publisherId)
+	priceFloat, priceTime, float, count, err := service.FrontPage.Turnover(publisherId)
 	if err != nil {
 		return
 	}
 	req := g.Map{
-		"list":  price,
+		"list": g.Map{
+			"priceFloat": priceFloat,
+			"priceTime":  priceTime,
+		},
 		"float": float,
 		"count": count,
 	}
