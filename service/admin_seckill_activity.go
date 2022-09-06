@@ -31,7 +31,7 @@ func (s *adminSecKillActivity) GetOrders(pageNum int, pageSize int, publisherId 
 		m = m.Where("real_fee >= ? AND real_fee <= ?", priceMin, priceMax)
 	}
 	if payStatus != 0 {
-		m = m.Where("pay_status = ?", payStatus)
+		m = m.Where("status = ?", payStatus)
 	}
 	if searchVal != "" {
 		m = m.Where("(aid = ? OR order_no = ? OR name LIKE ?)", searchVal, searchVal, "%"+searchVal+"%")
