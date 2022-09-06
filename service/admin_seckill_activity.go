@@ -65,7 +65,7 @@ func (s *adminSecKillActivity) GetOrders(pageNum int, pageSize int, publisherId 
 		if v.Status == 1 {
 			item.StatusTxt = "待支付"
 		}
-		if v.Status == 1 {
+		if v.Status == 2 {
 			item.StatusTxt = "已支付"
 		}
 		if v.Status == 3 {
