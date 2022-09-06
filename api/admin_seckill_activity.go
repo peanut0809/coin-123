@@ -127,6 +127,7 @@ func (s *adminSeckillActivity) Delete(r *ghttp.Request) {
 
 func (s *adminSeckillActivity) GetOrders(r *ghttp.Request) {
 	pageNum := r.GetQueryInt("pageNum", 1)
+	pageSize := r.GetQueryInt("pageSize", 1)
 	createdAtStart := r.GetQueryString("createdAtStart")
 	createdAtEnd := r.GetQueryString("createdAtEnd")
 	priceMinStr := r.GetQueryString("priceMinStr")
@@ -140,7 +141,7 @@ func (s *adminSeckillActivity) GetOrders(r *ghttp.Request) {
 	priceMaxStrValue = priceMaxStrValue.Mul(decimal.NewFromInt(100))
 	priceMaxInt := priceMaxStrValue.IntPart()
 	publisherId := s.GetPublisherId(r)
-	ret, err := service.AdminSecKillActivity.GetOrders(pageNum, publisherId, createdAtStart, createdAtEnd, int(priceMinInt), int(priceMaxInt), payStatus, searchVal)
+	ret, err := service.AdminSecKillActivity.GetOrders(pageNum, pageSize, publisherId, createdAtStart, createdAtEnd, int(priceMinInt), int(priceMaxInt), payStatus, searchVal)
 	if err != nil {
 		s.FailJsonExit(r, err.Error())
 		return
