@@ -357,7 +357,7 @@ func (s *adminSubscribeActivity) Disable(id int, disable int, publisherId string
 	return
 }
 
-func (s *adminSubscribeActivity) GetSubRecords(activityType int, pageNum int, publisherId string, createdAtStart, createdAtEnd string, priceMin int, priceMax int, award int, payStatus int, searchVal string) (ret model.AdminSubscribeRecordByPage, err error) {
+func (s *adminSubscribeActivity) GetSubRecords(activityType int, pageNum, pageSize int, publisherId string, createdAtStart, createdAtEnd string, priceMin int, priceMax int, award int, payStatus int, searchVal string) (ret model.AdminSubscribeRecordByPage, err error) {
 	m := g.DB().Model("subscribe_records").Where("publisher_id = ? AND activity_type = ?", publisherId, activityType)
 	if createdAtStart != "" && createdAtEnd != "" {
 		m = m.Where("created_at >= ? AND created_at <= ?", createdAtStart, createdAtEnd)
@@ -382,7 +382,7 @@ func (s *adminSubscribeActivity) GetSubRecords(activityType int, pageNum int, pu
 		return
 	}
 	var list []model.SubscribeRecord
-	err = m.Order("id DESC").Page(pageNum, 20).Scan(&list)
+	err = m.Order("id DESC").Page(pageNum, pageSize).Scan(&list)
 	if err != nil {
 		return
 	}
