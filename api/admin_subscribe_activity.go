@@ -140,6 +140,7 @@ func (s *adminSubscribeActivity) Delete(r *ghttp.Request) {
 
 func (s *adminSubscribeActivity) GetSubRecords(r *ghttp.Request) {
 	pageNum := r.GetQueryInt("pageNum", 1)
+	pageSize := r.GetQueryInt("pageSize", 1)
 	createdAtStart := r.GetQueryString("createdAtStart")
 	createdAtEnd := r.GetQueryString("createdAtEnd")
 	priceMinStr := r.GetQueryString("priceMinStr")
@@ -155,7 +156,7 @@ func (s *adminSubscribeActivity) GetSubRecords(r *ghttp.Request) {
 	priceMaxStrValue = priceMaxStrValue.Mul(decimal.NewFromInt(100))
 	priceMaxInt := priceMaxStrValue.IntPart()
 	publisherId := s.GetPublisherId(r)
-	ret, err := service.AdminSubscribeActivity.GetSubRecords(activityType, pageNum, publisherId, createdAtStart, createdAtEnd, int(priceMinInt), int(priceMaxInt), award, payStatus, searchVal)
+	ret, err := service.AdminSubscribeActivity.GetSubRecords(activityType, pageNum, pageSize, publisherId, createdAtStart, createdAtEnd, int(priceMinInt), int(priceMaxInt), award, payStatus, searchVal)
 	if err != nil {
 		s.FailJsonExit(r, err.Error())
 		return
