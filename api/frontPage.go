@@ -25,9 +25,11 @@ func (c *frontPage) TransactionSlip(r *ghttp.Request) {
 
 func (c *frontPage) VolumeOfTrade(r *ghttp.Request) {
 	publisherId := c.GetPublisherId(r)
-	count := service.FrontPage.VolumeOfTrade(publisherId)
+	day := r.GetInt("day")
+	dealNum, payment := service.FrontPage.VolumeOfTrade(publisherId, day)
 	req := g.Map{
-		"list": count,
+		"dealNum": dealNum,
+		"payment": payment,
 	}
 	c.SusJsonExit(r, req)
 }
