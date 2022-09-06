@@ -5,6 +5,7 @@ import (
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/os/gtime"
 	"meta_launchpad/model"
+	"meta_launchpad/provider"
 )
 
 type activity struct {
@@ -18,7 +19,10 @@ func (s *activity) GetByIds(ids []int) (ret []model.Activity) {
 }
 
 func (s *activity) List(activityIds []int, pageNum int, pageSize int, startTime, endTime string, activityType int, status, searchVal, publisherId string) (ret model.AdminActivityList, err error) {
-	m := g.DB().Model("activity").Where("publisher_id = ?", publisherId)
+	m := g.DB().Model("activity")
+	if publisherId != "" {
+		m = m.Where("publisher_id = ?", publisherId)
+	}
 	if startTime != "" {
 		m = m.Where("start_time >= ?", startTime)
 	}
@@ -75,7 +79,9 @@ func (s *activity) List(activityIds []int, pageNum int, pageSize int, startTime,
 	if len(secKillIds) != 0 {
 		secKillAcMap = SeckillActivity.GetByIds(secKillIds)
 	}
+	publisherIds := make([]string, 0)
 	for _, v := range as {
+		publisherIds = append(publisherIds, v.PublisherId)
 		item := model.AdminActivityFull{
 			Activity:           v,
 			SumNum:             0,
@@ -115,6 +121,13 @@ func (s *activity) List(activityIds []int, pageNum int, pageSize int, startTime,
 			item.ActivityStatusTxt = "已结束"
 		}
 		ret.List = append(ret.List, item)
+	}
+	if publisherId == "" {
+		publisherInfoMap, _ := provider.Developer.GetPublisherByIds(publisherIds)
+		for i := range ret.List {
+			ret.List[i].PublisherName = publisherInfoMap[ret.List[i].PublisherId].Name
+			ret.List[i].PublisherIcon = publisherInfoMap[ret.List[i].PublisherId].Icon
+		}
 	}
 	return
 }
