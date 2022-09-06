@@ -119,7 +119,7 @@ func (s *activityCollection) List(publisherId string, pageNum int, createStartTi
 		m = m.Where("show_end_time >= ?", showEndTime)
 	}
 	if searchVal != "" {
-		m = m.Where("name like ?", "%"+searchVal+"%")
+		m = m.Where("(name like ? OR id = ?)", "%"+searchVal+"%", searchVal)
 	}
 	ret.Total, err = m.Count()
 	if err != nil {
@@ -262,8 +262,8 @@ func (s *activityCollection) Update(in model.CreateActivityCollectionReq) (err e
 	if err != nil {
 		return
 	}
-	var r sql.Result
-	r, err = tx.Model("activity_collection").FieldsEx("updated_at").Data(g.Map{
+	//var r sql.Result
+	_, err = tx.Model("activity_collection").FieldsEx("updated_at").Data(g.Map{
 		"name":            in.Name,
 		"remark":          in.Remark,
 		"intro":           in.Intro,
@@ -276,12 +276,12 @@ func (s *activityCollection) Update(in model.CreateActivityCollectionReq) (err e
 		tx.Rollback()
 		return
 	}
-	affectedNum, _ := r.RowsAffected()
-	if affectedNum != 1 {
-		err = fmt.Errorf("更新失败")
-		tx.Rollback()
-		return
-	}
+	//affectedNum, _ := r.RowsAffected()
+	//if affectedNum != 1 {
+	//	err = fmt.Errorf("更新失败")
+	//	tx.Rollback()
+	//	return
+	//}
 	_, err = tx.Model("activity_collection_content").Where("activity_collection_id", in.Id).Delete()
 	if err != nil {
 		tx.Rollback()

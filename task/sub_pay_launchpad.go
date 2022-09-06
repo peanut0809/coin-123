@@ -7,7 +7,7 @@ import (
 	"github.com/gogf/gf/util/gconv"
 	"meta_launchpad/provider"
 	"meta_launchpad/service"
-	"time"
+	"strings"
 )
 
 type Extra struct {
@@ -61,25 +61,24 @@ func RunSubLaunchpadPayTask() {
 						} else {
 							//发送资产到背包,重试三次
 							publishSuccess := false
-							for i := 0; i < 3; i++ {
-								err = provider.Asset.PublishAssetWithTemplateId(&map[string]interface{}{
-									"appId":      activityInfo.AppId,
-									"templateId": activityInfo.TemplateId,
-									"num":        subRecord.AwardNum,
-									"userId":     subRecord.UserId,
-									"optType":    "LAUNCHPAD",
-									"optRemark":  "元初发射台发放资产",
-									"nfrTime":    activityInfo.NfrSec,
-								})
-								if err != nil {
-									g.Log().Errorf("RunSubLaunchpadPayTask err:%v 重试次数：%d", err, i)
-									time.Sleep(time.Second)
-									continue
-								} else {
+
+							err = provider.Asset.PublishAssetWithTemplateId(&map[string]interface{}{
+								"appId":      activityInfo.AppId,
+								"templateId": activityInfo.TemplateId,
+								"num":        subRecord.AwardNum,
+								"userId":     subRecord.UserId,
+								"optType":    "LAUNCHPAD",
+								"optRemark":  "元初发射台发放资产",
+								"nfrTime":    activityInfo.NfrSec,
+							})
+							if err != nil {
+								if strings.Contains(err.Error(), "timeout") {
 									publishSuccess = true
-									break
 								}
+							} else {
+								publishSuccess = true
 							}
+
 							//更新发送资产的状态
 							if publishSuccess {
 								err = service.SubscribeRecord.UpdatePublishAsset(extra.OrderNo)

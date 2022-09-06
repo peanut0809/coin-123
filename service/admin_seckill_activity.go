@@ -22,7 +22,7 @@ func (s *adminSecKillActivity) Create(in model.SeckillActivity) (err error) {
 	return
 }
 
-func (s *adminSecKillActivity) GetOrders(pageNum int, publisherId string, createdAtStart, createdAtEnd string, priceMin int, priceMax int, payStatus int, searchVal string) (ret model.AdminSeckillOrderByPage, err error) {
+func (s *adminSecKillActivity) GetOrders(pageNum int, pageSize int, publisherId string, createdAtStart, createdAtEnd string, priceMin int, priceMax int, payStatus int, searchVal string) (ret model.AdminSeckillOrderByPage, err error) {
 	m := g.DB().Model("seckill_orders").Where("publisher_id = ?", publisherId)
 	if createdAtStart != "" && createdAtEnd != "" {
 		m = m.Where("created_at >= ? AND created_at <= ?", createdAtStart, createdAtEnd)
@@ -44,7 +44,7 @@ func (s *adminSecKillActivity) GetOrders(pageNum int, publisherId string, create
 		return
 	}
 	var list []model.SeckillOrder
-	err = m.Order("id DESC").Page(pageNum, 20).Scan(&list)
+	err = m.Order("id DESC").Page(pageNum, pageSize).Scan(&list)
 	if err != nil {
 		return
 	}
