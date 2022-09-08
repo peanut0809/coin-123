@@ -178,7 +178,11 @@ func (c *frontPage) percentage(sql, publisherId string) (float float64) {
 	if err != nil {
 		return
 	}
-	addPercentage := (percentage.Count - percentage2.Count) / percentage2.Count * 100
-	float, _ = strconv.ParseFloat(fmt.Sprintf("%.1f", addPercentage), 1)
+	if percentage2.Count != 0 {
+		addPercentage := (percentage.Count - percentage2.Count) / percentage2.Count * 100
+		float, _ = strconv.ParseFloat(fmt.Sprintf("%.1f", addPercentage), 1)
+	} else {
+		float = 100
+	}
 	return
 }
