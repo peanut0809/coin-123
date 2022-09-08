@@ -86,6 +86,7 @@ func (c *frontPage) TransactionsNum(publisherId string) (count int, float float6
 	if err != nil {
 		return
 	}
+	defer rows.Close()
 	for rows.Next() {
 		err = rows.Scan(&count)
 		if err != nil {
@@ -104,6 +105,7 @@ func (c *frontPage) Payers(publisherId string) (count int, float float64, err er
 	if err != nil {
 		return
 	}
+	defer rows.Close()
 	for rows.Next() {
 		err = rows.Scan(&count)
 		if err != nil {
@@ -143,6 +145,7 @@ func (c *frontPage) Turnover(publisherId string) (priceFloat []float64, priceTim
 	if err != nil {
 		return
 	}
+	defer query.Close()
 	for query.Next() {
 		err = query.Scan(&count)
 		if err != nil {
