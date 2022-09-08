@@ -34,6 +34,9 @@ func GetPublisherByToken(r *ghttp.Request) {
 	} else if s.Code == 404 {
 		library.FailJsonCodeExit(r, gerror.NewCode(gcode.New(s.Code, "token无效", nil)))
 	}
+	if s.PublisherId == "" {
+		library.FailJsonCodeExit(r, gerror.NewCode(gcode.New(s.Code, "发行商错误", nil)))
+	}
 	r.SetCtxVar("publisherId", s.PublisherId)
 	r.Middleware.Next()
 }
