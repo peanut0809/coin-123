@@ -111,11 +111,11 @@ func InitRouter() *ghttp.Server {
 		group.POST("/banner/stateEdit", api.Banner.StateEdit)
 
 		// 后台首页接口
-		//group.GET("/frontPage/transactionSlip", api.FrontPage.TransactionSlip) // 交易数，交易总数
-		//group.GET("/frontPage/volumeOfTrade", api.FrontPage.VolumeOfTrade)     // 近期支付数
-		//group.GET("/frontPage/transactionsNum", api.FrontPage.TransactionsNum) // 支付笔数
-		//group.GET("/frontPage/payers", api.FrontPage.Payers)                   // 支付人数
-		//group.GET("/frontPage/turnover", api.FrontPage.Turnover)               // 交易额
+		group.GET("/frontPage/transactionSlip", api.FrontPage.TransactionSlip) // 交易数，交易总数
+		group.GET("/frontPage/volumeOfTrade", api.FrontPage.VolumeOfTrade)     // 近期支付数
+		group.GET("/frontPage/transactionsNum", api.FrontPage.TransactionsNum) // 支付笔数
+		group.GET("/frontPage/payers", api.FrontPage.Payers)                   // 支付人数
+		group.GET("/frontPage/turnover", api.FrontPage.Turnover)               // 交易额
 	})
 	return s
 }
