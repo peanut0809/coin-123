@@ -37,7 +37,7 @@ func SendRpc(addr, rpcName string, params interface{}) {
 func main() {
 	fmt.Println(11122)
 	//	time.Sleep(time.Second * 3)
-	addr := "127.0.0.1:18126"
+	addr := "39.107.72.102:18124"
 	//addr := "39.107.72.102:18121"
 
 	//params := &map[string]interface{}{
@@ -81,10 +81,15 @@ func main() {
 	//}
 	//SendRpc(addr, "Asset.GetMateDataByAks", params)
 
+	//params := &map[string]interface{}{
+	//	"ids": []int{89},
+	//}
+	//SendRpc(addr, "Launchpad.GetDetailByIds", params)
+
 	params := &map[string]interface{}{
-		"ids": []int{89},
+		"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVVUlEIjoiNzMxY2I4OTktZDk3Zi00YjAxLTljZDEtZGYyZDY5ZmY4YTk0IiwiSUQiOjY3LCJVc2VybmFtZSI6InNhc3NfMDIiLCJOaWNrTmFtZSI6InNhc3NfMDIiLCJBdXRob3JpdHlJZCI6IjEwMCIsIkJ1ZmZlclRpbWUiOjg2NDAwLCJleHAiOjE2NjMyMjQxMDcsImlzcyI6InFtUGx1cyIsIm5iZiI6MTY2MjYxODMwNywiUHVibGlzaGVySWQiOiJTQVNTXzAyIn0.6TfOUOsEXpWUGI2_RpTuKPsth7fn6nlevWFLEiRqa_A",
 	}
-	SendRpc(addr, "Launchpad.GetDetailByIds", params)
+	SendRpc(addr, "Publisher.GetPublisherByToken", params)
 
 	//params := &map[string]interface{}{
 	//	"appId":   "testAppId",
