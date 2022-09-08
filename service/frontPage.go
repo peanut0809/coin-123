@@ -140,7 +140,7 @@ func (c *frontPage) Turnover(publisherId string) (priceFloat []float64, priceTim
 
 	float = c.percentage("SELECT sum(price)/100 count FROM (SELECT sum(sum_price) price,count(1) count FROM subscribe_records WHERE pay_status = 1 AND created_at BETWEEN '%s' AND '%s' AND publisher_id = '%s' UNION SELECT sum(price) price,count(1) FROM seckill_orders WHERE `status` = 2 AND created_at BETWEEN '%s' AND '%s' AND publisher_id = '%s' ) l", publisherId)
 
-	countSql := fmt.Sprintf("SELECT sum(price)/100 FROM (SELECT sum(sum_price) price,count(1) count FROM subscribe_records WHERE pay_status = 1 AND publisher_id = '%s' UNION SELECT sum(price) price,count(1) FROM seckill_orders WHERE `status` = 2 AND publisher_id = '%s' ) l", publisherId, publisherId)
+	countSql := fmt.Sprintf("SELECT IFNULL(sum(price)/100,0) count FROM (SELECT sum(sum_price) price,count(1) count FROM subscribe_records WHERE pay_status = 1 AND publisher_id = '%s' UNION SELECT sum(price) price,count(1) FROM seckill_orders WHERE `status` = 2 AND publisher_id = '%s' ) l", publisherId, publisherId)
 	query, err := g.DB().Query(countSql)
 	if err != nil {
 		return
