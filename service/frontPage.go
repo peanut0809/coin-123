@@ -94,13 +94,13 @@ func (c *frontPage) TransactionsNum(publisherId string) (count int, float float6
 			return
 		}
 	}
-	float = c.percentage("SELECT count(1) count FROM (SELECT COUNT(1) count FROM subscribe_records WHERE pay_status = 1 AND created_at BETWEEN '%s' AND '%s' AND publisher_id = '%s' UNION SELECT COUNT(1) count FROM seckill_orders WHERE `status` = 2 AND created_at BETWEEN '%s' AND '%s' AND publisher_id = '%s') t", publisherId)
+	float = c.percentage("SELECT count(1) count FROM (SELECT sum_price FROM subscribe_records WHERE pay_status = 1 AND created_at BETWEEN '%s' AND '%s' AND publisher_id = '%s' UNION SELECT price FROM seckill_orders WHERE `status` = 2 AND created_at BETWEEN '%s' AND '%s' AND publisher_id = '%s') t", publisherId)
 	return
 }
 
 // Payers 支付人数
 func (c *frontPage) Payers(publisherId string) (count int, float float64, err error) {
-	sql := fmt.Sprintf("SELECT COUNT(1) count from (SELECT user_id,created_at FROM subscribe_records WHERE pay_status = 1 AND publisher_id = '%s' GROUP BY user_id UNION SELECT user_id,created_at FROM seckill_orders WHERE `status` = 1 AND publisher_id = '%s' GROUP BY user_id) l", publisherId, publisherId)
+	sql := fmt.Sprintf("SELECT COUNT(1) count from (SELECT user_id,created_at FROM subscribe_records WHERE pay_status = 1 AND publisher_id = '%s' GROUP BY user_id UNION SELECT user_id,created_at FROM seckill_orders WHERE `status` = 2 AND publisher_id = '%s' GROUP BY user_id) l", publisherId, publisherId)
 	rows, err := g.DB().Query(sql)
 	if err != nil {
 		return
@@ -113,7 +113,7 @@ func (c *frontPage) Payers(publisherId string) (count int, float float64, err er
 			return
 		}
 	}
-	float = c.percentage("SELECT COUNT(1) count from (SELECT user_id,created_at FROM subscribe_records WHERE pay_status = 1 AND created_at BETWEEN '%s' AND '%s' AND publisher_id = '%s' GROUP BY user_id UNION SELECT user_id,created_at FROM seckill_orders WHERE `status` = 1 AND created_at BETWEEN '%s' AND '%s' AND publisher_id = '%s' GROUP BY user_id) t", publisherId)
+	float = c.percentage("SELECT COUNT(1) count from (SELECT user_id,created_at FROM subscribe_records WHERE pay_status = 1 AND created_at BETWEEN '%s' AND '%s' AND publisher_id = '%s' GROUP BY user_id UNION SELECT user_id,created_at FROM seckill_orders WHERE `status` = 2 AND created_at BETWEEN '%s' AND '%s' AND publisher_id = '%s' GROUP BY user_id) t", publisherId)
 	return
 }
 
