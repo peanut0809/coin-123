@@ -82,7 +82,7 @@ func (s *activityCollection) ListByClient(id int, publisherId string, pageNum in
 		m = m.Where("id = ?", id)
 	}
 	as := make([]model.ActivityCollection, 0)
-	err = m.Order("start_time").Page(pageNum, pageSize).Scan(&as)
+	err = m.Order("sort").Page(pageNum, pageSize).Scan(&as)
 	if err != nil {
 		return
 	}
