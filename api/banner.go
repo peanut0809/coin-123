@@ -85,6 +85,9 @@ func (c *banner) StateEdit(r *ghttp.Request) {
 func (c *banner) GetFrontList(r *ghttp.Request) {
 	//publisherId := c.GetPublisherId(r)
 	publisherId := r.GetString("publisherId")
+	if publisherId == "" {
+		c.FailJsonExit(r, "发行商ID不能为空")
+	}
 	list := service.Banner.FrontList(publisherId)
 	req := g.Map{
 		"list": list,
@@ -96,6 +99,9 @@ func (c *banner) GetFrontList(r *ghttp.Request) {
 func (c *banner) GetRichText(r *ghttp.Request) {
 	//publisherId := c.GetPublisherId(r)
 	id := r.GetInt("id")
+	if id == 0 {
+		c.FailJsonExit(r, "id不能为空")
+	}
 	list := service.Banner.RichText(id)
 	c.SusJsonExit(r, list.JumpUrl)
 }
