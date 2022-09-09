@@ -52,7 +52,7 @@ func (s *activityCollection) ListByDetail(r *ghttp.Request) {
 		s.FailJsonExit(r, "活动不存在")
 		return
 	}
-	ids, e := service.ActivityCollectionContent.GetActivityIds(ret.List[0].Id)
+	ids, e := service.ActivityCollectionContent.GetActivityIds(id)
 	if e != nil {
 		s.FailJsonExit(r, e.Error())
 		return
