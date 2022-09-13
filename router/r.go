@@ -30,6 +30,19 @@ func InitRouter() *ghttp.Server {
 		group.GET("/seckill/activity/detail", api.SeckillActivity.GetDetail) //活动详情
 		group.GET("/activity/award/record", api.SubscribeActivity.GetActivityAwardRecord)
 		group.GET("/activity/detail", api.SubscribeActivity.GetSubscribeActivityDetail)
+		//banner
+		group.GET("/banner/getFrontList", api.Banner.GetFrontList)
+		group.GET("/banner/getRichText", api.Banner.GetRichText)
+
+		//最新上线
+		group.GET("/sass/activity/list", api.Activity.ListByClient)
+		//市场搜索
+		group.POST("/sass/activity/search", api.Activity.ListBySearch)
+		//活动合集
+		group.GET("/sass/activity/collection/list", api.ActivityCollection.ListByClient)
+		//活动合集详情
+		group.GET("/sass/activity/collection/detail", api.ActivityCollection.ListByDetail)
+
 		group.GET("/temp/del", func(r *ghttp.Request) {
 			//检查超时行为
 			userId := r.GetQueryString("userId")
@@ -62,15 +75,47 @@ func InitRouter() *ghttp.Server {
 		group.GET("/seckill/activity/order/create/result", api.SeckillActivity.GetCreateOrderResult) //获取下单结果
 		group.GET("/seckill/activity/order/list", api.SeckillActivity.GetOrderList)                  //订单列表
 		group.GET("/seckill/activity/order/detail", api.SeckillActivity.GetOrderDetail)              //订单详情
+
 	})
 
 	s.Group("/admin", func(group *ghttp.RouterGroup) {
-		group.Middleware(func(r *ghttp.Request) {
-			//测试临时写个发行商
-			r.SetCtxVar("publisherId", "TEST")
-			r.Middleware.Next()
-		})
-		group.POST("/activity/create", api.AdminSubscribeActivity.Create)
+		group.Middleware(api.GetPublisherByToken)
+		group.POST("/sub/activity/create", api.AdminSubscribeActivity.Create)
+		group.GET("/sub/activity/list", api.AdminSubscribeActivity.List)
+		group.GET("/sub/activity/detail", api.AdminSubscribeActivity.Detail)
+		group.POST("/sub/activity/delete", api.AdminSubscribeActivity.Delete)
+		group.POST("/sub/activity/disable", api.AdminSubscribeActivity.Disable)
+		group.GET("/sub/activity/record", api.AdminSubscribeActivity.GetSubRecords)
+
+		//活动
+		group.GET("/activity/list", api.Activity.List)
+
+		//活动合集
+		group.POST("/activity/collection/create", api.ActivityCollection.Create)
+		group.GET("/activity/collection/detail", api.ActivityCollection.Detail)
+		group.GET("/activity/collection/list", api.ActivityCollection.List)
+		group.POST("/activity/collection/delete", api.ActivityCollection.Delete)
+
+		//秒杀
+		group.POST("/seckill/activity/create", api.AdminSeckillActivity.Create)
+		group.GET("/seckill/activity/detail", api.AdminSeckillActivity.Detail)
+		group.POST("/seckill/activity/disable", api.AdminSeckillActivity.Disable)
+		group.GET("/seckill/activity/list", api.AdminSeckillActivity.List)
+		group.POST("/seckill/activity/delete", api.AdminSeckillActivity.Delete)
+		group.GET("/seckill/activity/orders", api.AdminSeckillActivity.GetOrders)
+
+		//banner 后端接口
+		group.GET("/banner/list", api.Banner.GetList)
+		group.POST("/banner/create", api.Banner.Create)
+		group.POST("/banner/delete", api.Banner.Delete)
+		group.POST("/banner/stateEdit", api.Banner.StateEdit)
+
+		// 后台首页接口
+		group.GET("/frontPage/transactionSlip", api.FrontPage.TransactionSlip) // 交易数，交易总数
+		group.GET("/frontPage/volumeOfTrade", api.FrontPage.VolumeOfTrade)     // 近期支付数
+		group.GET("/frontPage/transactionsNum", api.FrontPage.TransactionsNum) // 支付笔数
+		group.GET("/frontPage/payers", api.FrontPage.Payers)                   // 支付人数
+		group.GET("/frontPage/turnover", api.FrontPage.Turnover)               // 交易额
 	})
 	return s
 }

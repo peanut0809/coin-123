@@ -18,8 +18,16 @@ type seckillActivity struct {
 var SeckillActivity = new(seckillActivity)
 
 func (s *seckillActivity) GetDetail(r *ghttp.Request) {
+	publisherId := s.GetPublisherId(r)
+	if publisherId == "" {
+		publisherId = r.GetQueryString("publisherId")
+	}
+	if publisherId == "" {
+		s.FailJsonExit(r, "缺少发行商参数")
+		return
+	}
 	alias := r.GetQueryString("alias")
-	ret, err := service.SeckillActivity.GetValidDetail(alias)
+	ret, err := service.SeckillActivity.GetValidDetail(alias, publisherId)
 	if err != nil {
 		s.FailJsonExit(r, err.Error())
 		return

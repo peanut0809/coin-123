@@ -81,12 +81,9 @@ func RunSeckillOrderPayTask() {
 				if err != nil {
 					if strings.Contains(err.Error(), "timeout") {
 						publishSuccess = true
-					} else {
-						g.Log().Errorf("RunSubLaunchpadPayTask err:%v", err)
 					}
-				} else {
-					publishSuccess = true
 				}
+
 				//更新发送资产的状态
 				if publishSuccess {
 					_, e = g.DB().Exec("UPDATE seckill_orders SET publish_status = 1 WHERE order_no = ?", data.AppOrderNo)

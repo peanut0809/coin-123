@@ -18,10 +18,10 @@ type seckillActivity struct {
 
 var SeckillActivity = new(seckillActivity)
 
-func (s *seckillActivity) GetValidDetail(alias string) (ret model.SeckillActivityFull, err error) {
+func (s *seckillActivity) GetValidDetail(alias, publisherId string) (ret model.SeckillActivityFull, err error) {
 	var as *model.SeckillActivity
 	now := time.Now()
-	err = g.DB().Model("seckill_activity").Where("alias = ? AND start_time < ?", alias, now).Scan(&as)
+	err = g.DB().Model("seckill_activity").Where("alias = ?", alias).Scan(&as)
 	if err != nil {
 		return
 	}
@@ -41,17 +41,38 @@ func (s *seckillActivity) GetValidDetail(alias string) (ret model.SeckillActivit
 		}
 	}
 	ret.PriceYuan = fmt.Sprintf("%.2f", float64(ret.Price)/100)
-	//params := &map[string]interface{}{
-	//	"appId":      as.AppId,
-	//	"templateId": as.TemplateId,
-	//}
-	//assetInfo, e := provider.Asset.GetMateDataByAm(params)
-	//if e != nil {
-	//	err = e
-	//	return
-	//}
-	//ret.AssetName = assetInfo.AssetName
-	//ret.AssetPic = assetInfo.AssetPic
+
+	//获取应用信息
+	appInfo, _ := provider.Developer.GetAppInfo(as.AppId)
+	ret.AssetCateString = appInfo.Data.CnName
+	//获取资产分类
+	templateInfo, _ := provider.Developer.GetAssetsTemplate(as.AppId, as.TemplateId)
+	for _, v := range templateInfo.CateList {
+		ret.AssetCateString += fmt.Sprintf("-%s", v.CnName)
+	}
+	assetDetail, e := provider.Asset.GetMateDataByAm(&map[string]interface{}{
+		"appId":      as.AppId,
+		"templateId": as.TemplateId,
+	})
+	if e != nil {
+		g.Log().Errorf("资产详情错误：%v", e)
+		err = fmt.Errorf("获取资产信息失败")
+		return
+	}
+	publisherInfo, e := provider.Developer.GetPublishInfo(publisherId)
+	if e != nil {
+		g.Log().Errorf("发行商异常：%v，%s", e, publisherId)
+		err = fmt.Errorf("获取发行商失败")
+		return
+	}
+
+	ret.ChainName = publisherInfo.ChainName
+	ret.ChainAddr = publisherInfo.ChainAddr
+	ret.ChainType = publisherInfo.ChainType
+	ret.AssetTotal = assetDetail.Total
+	ret.AssetCreateAt = assetDetail.CreateTime
+	ret.AssetDetailImg = templateInfo.DetailImg
+	ret.NfrDay = as.NfrSec / 3600 / 24
 	return
 }
 
@@ -86,10 +107,18 @@ func (s *seckillActivity) GetSubResult(orderNo string) (ret model.DoSubResult, e
 }
 
 func (s *seckillActivity) DoBuy(in model.DoBuyReq) {
-	activityInfo, e := s.GetValidDetail(in.Alias)
+	activityInfo, e := s.GetValidDetail(in.Alias, in.PublisherId)
 	if e != nil {
 		s.SetSubResult(model.DoSubResult{
 			Reason:  e.Error(),
+			Step:    "fail",
+			OrderNo: in.OrderNo,
+		})
+		return
+	}
+	if activityInfo.Disable == 1 {
+		s.SetSubResult(model.DoSubResult{
+			Reason:  "活动已禁用",
 			Step:    "fail",
 			OrderNo: in.OrderNo,
 		})
@@ -191,6 +220,7 @@ func (s *seckillActivity) DoBuy(in model.DoBuyReq) {
 		Icon:        assetInfo.Icon,
 		Status:      1,
 		Price:       activityInfo.Price,
+		PublisherId: in.PublisherId,
 		PayExpireAt: gtime.Now().Add(time.Minute * 10),
 	}
 	e = SeckillOrder.Create(tx, interOrder)
@@ -275,6 +305,16 @@ func (s *seckillActivity) GetSimpleDetail(aid int) (ret *model.SeckillActivity, 
 	if ret == nil {
 		err = fmt.Errorf("活动不存在")
 		return
+	}
+	return
+}
+
+func (s *seckillActivity) GetByIds(ids []int) (ret map[int]model.SeckillActivity) {
+	ret = make(map[int]model.SeckillActivity)
+	var as []model.SeckillActivity
+	g.DB().Model("seckill_activity").Where("id IN (?)", ids).Scan(&as)
+	for _, v := range as {
+		ret[v.Id] = v
 	}
 	return
 }

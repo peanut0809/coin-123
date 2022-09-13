@@ -119,7 +119,7 @@ func (s *subscribeActivity) GetListSimple(ids []int) (ret []model.SubscribeActiv
 	return
 }
 
-func (s *subscribeActivity) GetDetail(alias, userId string) (ret model.SubscribeActivityFull, err error) {
+func (s *subscribeActivity) GetDetail(alias, userId, publisherId string) (ret model.SubscribeActivityFull, err error) {
 	as, e := s.GetValidDetail(alias)
 	if e != nil {
 		err = e
@@ -133,18 +133,9 @@ func (s *subscribeActivity) GetDetail(alias, userId string) (ret model.Subscribe
 	ret.Status = s.GetActivityStatusV2(*as, userId)
 	ret.ActivityType = as.ActivityType
 	ret.AssetIntro = as.AssetIntro
-	ret.ActivityIntro = as.AssetIntro
+	ret.ActivityIntro = as.ActivityIntro
 	ret.SubSumPeople = as.SubSumPeople
 	ret.SubSum = as.SubSum
-
-	//if ret.Subed {
-	//	ret.Award = record.Award
-	//	ret.PayStatus = record.PayStatus
-	//}
-	now := gtime.Now()
-	if now.Unix() >= as.ActivityStartTime.Unix() && now.Unix() < as.ActivityEndTime.Unix() {
-
-	}
 	ret.Steps = append(ret.Steps, model.SubscribeActivityFullStep{
 		Txt:     "开放抽签",
 		TimeStr: as.ActivityStartTime.Layout("01-02 15:04"),
@@ -161,6 +152,38 @@ func (s *subscribeActivity) GetDetail(alias, userId string) (ret model.Subscribe
 		Txt:     "付款截止",
 		TimeStr: as.PayEndTime.Layout("01-02 15:04"),
 	})
+
+	//获取应用信息
+	appInfo, _ := provider.Developer.GetAppInfo(as.AppId)
+	ret.AssetCateString = appInfo.Data.CnName
+	//获取资产分类
+	templateInfo, _ := provider.Developer.GetAssetsTemplate(as.AppId, as.TemplateId)
+	for _, v := range templateInfo.CateList {
+		ret.AssetCateString += fmt.Sprintf("-%s", v.CnName)
+	}
+	assetDetail, e := provider.Asset.GetMateDataByAm(&map[string]interface{}{
+		"appId":      as.AppId,
+		"templateId": as.TemplateId,
+	})
+	if e != nil {
+		g.Log().Errorf("资产详情错误：%v", e)
+		err = fmt.Errorf("获取资产信息失败")
+		return
+	}
+	publisherInfo, e := provider.Developer.GetPublishInfo(publisherId)
+	if e != nil {
+		g.Log().Errorf("发行商异常：%v，%s", e, publisherId)
+		err = fmt.Errorf("获取发行商失败")
+		return
+	}
+
+	ret.ChainName = publisherInfo.ChainName
+	ret.ChainAddr = publisherInfo.ChainAddr
+	ret.ChainType = publisherInfo.ChainType
+	ret.AssetTotal = assetDetail.Total
+	ret.AssetCreateAt = assetDetail.CreateTime
+	ret.AssetDetailImg = templateInfo.DetailImg
+	ret.NfrDay = as.NfrSec / 3600 / 24
 	return
 }
 
@@ -295,21 +318,25 @@ func (s *subscribeActivity) DoSubVerify(in model.DoSubReq) (oneTicketInfo model.
 		err = e
 		return
 	}
+	if as.Disable == 1 {
+		err = fmt.Errorf("活动已被禁用")
+		return
+	}
 	now := time.Now()
 	if !(now.Unix() > as.ActivityStartTime.Unix() && now.Unix() < as.ActivityEndTime.Unix()) {
 		err = fmt.Errorf("认购时间已结束")
 		return
 	}
 	//检查超时行为
-	gv, e := g.Redis().DoVar("GET", fmt.Sprintf(cache.SUB_PAY_TIMEOUT, in.UserId, as.ActivityType))
-	if e != nil {
-		err = e
-		return
-	}
-	if !gv.IsEmpty() {
-		err = fmt.Errorf("已超时%s次未付款，资格已被取消", gv.String())
-		return
-	}
+	//gv, e := g.Redis().DoVar("GET", fmt.Sprintf(cache.SUB_PAY_TIMEOUT, in.UserId, as.ActivityType))
+	//if e != nil {
+	//	err = e
+	//	return
+	//}
+	//if !gv.IsEmpty() {
+	//	err = fmt.Errorf("已超时%s次未付款，资格已被取消", gv.String())
+	//	return
+	//}
 	activityInfo = as
 	for _, v := range ticketInfo {
 		if v.Type == in.Type {
@@ -703,6 +730,16 @@ func (s *subscribeActivity) DoSubPayTimeOut() {
 		} else {
 			g.Redis().Do("SET", k, num, "ex", 3600*24*90)
 		}
+	}
+	return
+}
+
+func (s *subscribeActivity) GetByIds(ids []int) (ret map[int]model.SubscribeActivity) {
+	ret = make(map[int]model.SubscribeActivity)
+	var as []model.SubscribeActivity
+	g.DB().Model("subscribe_activity").Where("id IN (?)", ids).Scan(&as)
+	for _, v := range as {
+		ret[v.Id] = v
 	}
 	return
 }
