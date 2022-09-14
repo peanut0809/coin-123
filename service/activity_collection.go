@@ -113,10 +113,10 @@ func (s *activityCollection) List(publisherId string, pageNum int, createStartTi
 		m = m.Where("created_at >= ? AND created_at <= ?", createStartTime, createEndTime)
 	}
 	if showStartTime != "" {
-		m = m.Where("show_start_time <= ?", showStartTime)
+		m = m.Where("show_start_time >= ?", showStartTime)
 	}
 	if showEndTime != "" {
-		m = m.Where("show_end_time >= ?", showEndTime)
+		m = m.Where("show_end_time <= ?", showEndTime)
 	}
 	if searchVal != "" {
 		m = m.Where("(name like ? OR id = ?)", "%"+searchVal+"%", searchVal)
