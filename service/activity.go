@@ -18,8 +18,11 @@ func (s *activity) GetByIds(ids []int) (ret []model.Activity) {
 	return
 }
 
-func (s *activity) List(activityIds []int, pageNum int, pageSize int, startTime, endTime string, activityType int, status, searchVal, publisherId string) (ret model.AdminActivityList, err error) {
+func (s *activity) List(activityIds []int, pageNum int, pageSize int, startTime, endTime string, activityType int, status, searchVal, publisherId string, disable int) (ret model.AdminActivityList, err error) {
 	m := g.DB().Model("activity")
+	if disable != -1 {
+		m = m.Where("disable = ?", disable)
+	}
 	if publisherId != "" {
 		m = m.Where("publisher_id = ?", publisherId)
 	}

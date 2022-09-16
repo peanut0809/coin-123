@@ -16,7 +16,7 @@ func (s *activity) ListBySearch(r *ghttp.Request) {
 	pageNum := r.GetInt("pageNum", 1)
 	pageSize := r.GetInt("pageSize", 20)
 	searchVal := r.GetString("searchVal")
-	ret, err := service.Activity.List(nil, pageNum, pageSize, "", "", 0, "", searchVal, "")
+	ret, err := service.Activity.List(nil, pageNum, pageSize, "", "", 0, "", searchVal, "", 0)
 	if err != nil {
 		s.FailJsonExit(r, err.Error())
 		return
@@ -35,7 +35,7 @@ func (s *activity) ListByClient(r *ghttp.Request) {
 		s.FailJsonExit(r, "缺少发行商ID")
 		return
 	}
-	ret, err := service.Activity.List(nil, pageNum, pageSize, "", "", 0, "", "", publisherId)
+	ret, err := service.Activity.List(nil, pageNum, pageSize, "", "", 0, "", "", publisherId, 0)
 	if err != nil {
 		s.FailJsonExit(r, err.Error())
 		return
@@ -52,7 +52,7 @@ func (s *activity) List(r *ghttp.Request) {
 	activityType := r.GetQueryInt("activityType")
 	publisherId := s.GetPublisherId(r)
 	searchVal := r.GetQueryString("searchVal")
-	ret, err := service.Activity.List(nil, pageNum, pageSize, startTime, endTime, activityType, status, searchVal, publisherId)
+	ret, err := service.Activity.List(nil, pageNum, pageSize, startTime, endTime, activityType, status, searchVal, publisherId, -1)
 	if err != nil {
 		s.FailJsonExit(r, err.Error())
 		return
