@@ -27,6 +27,7 @@ func (s *activity) ListBySearch(r *ghttp.Request) {
 func (s *activity) ListByClient(r *ghttp.Request) {
 	pageNum := r.GetQueryInt("pageNum", 1)
 	pageSize := r.GetQueryInt("pageSize", 20)
+	searchVal := r.GetQueryString("searchVal")
 	publisherId := s.GetPublisherId(r)
 	if publisherId == "" {
 		publisherId = r.GetQueryString("publisherId")
@@ -35,7 +36,7 @@ func (s *activity) ListByClient(r *ghttp.Request) {
 		s.FailJsonExit(r, "缺少发行商ID")
 		return
 	}
-	ret, err := service.Activity.List(nil, pageNum, pageSize, "", "", 0, "", "", publisherId, 0)
+	ret, err := service.Activity.List(nil, pageNum, pageSize, "", "", 0, "", searchVal, publisherId, 0)
 	if err != nil {
 		s.FailJsonExit(r, err.Error())
 		return
