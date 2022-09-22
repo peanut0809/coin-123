@@ -76,7 +76,7 @@ func InitRouter() *ghttp.Server {
 		group.GET("/seckill/activity/order/list", api.SeckillActivity.GetOrderList)                  //订单列表
 		group.GET("/seckill/activity/order/detail", api.SeckillActivity.GetOrderDetail)              //订单详情
 
-		// 后台首页接口
+		// 免费版后台首页接口
 		group.GET("/frontPage/freeTransactionSlip", api.FrontPage.FreeTransactionSlip) // 交易数，交易总数
 		group.GET("/frontPage/freeVolumeOfTrade", api.FrontPage.FreeVolumeOfTrade)     // 近期支付数
 		group.GET("/frontPage/freeTransactionsNum", api.FrontPage.FreeTransactionsNum) // 支付笔数
