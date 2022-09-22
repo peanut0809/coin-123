@@ -190,7 +190,7 @@ func (c *frontPage) percentage(sql, publisherId string) (float float64) {
 // 免费版
 
 func (c *frontPage) FreeTransactionSlip(userId string) (transactionSlip []model.TransactionSlip, sum model.TransactionSlip) {
-	sql := fmt.Sprintf("SELECT '优先购' `name`,COUNT(1) value FROM subscribe_records WHERE pay_status = 1 AND activity_type = 1 AND publisher_id = '%s' UNION SELECT '普通购' `name`,COUNT(1) count FROM subscribe_records WHERE pay_status = 1 AND activity_type = 2 AND publisher_id = '%s' UNION SELECT '秒杀购', COUNT(1) FROM seckill_orders WHERE `status` = 2 AND publisher_id = '%s' ", userId, userId, userId)
+	sql := fmt.Sprintf("SELECT '优先购' `name`,COUNT(1) value FROM subscribe_records WHERE pay_status = 1 AND activity_type = 1 AND app_id = '%s' UNION SELECT '普通购' `name`,COUNT(1) count FROM subscribe_records WHERE pay_status = 1 AND activity_type = 2 AND app_id = '%s' UNION SELECT '秒杀购', COUNT(1) FROM seckill_orders WHERE `status` = 2 AND app_id = '%s' ", userId, userId, userId)
 	db := g.DB()
 	err := db.GetScan(&transactionSlip, sql)
 	if err != nil {
@@ -225,9 +225,9 @@ func (c *frontPage) FreeVolumeOfTrade(userId string, day int) (dealTime, payment
 	}
 	// 成交笔数
 	sql := "SELECT t0.date created_at,IFNULL(t1.count,0) count FROM (SELECT @cdate := DATE_ADD(@cdate, INTERVAL + 1 DAY) date FROM (SELECT @cdate := DATE_ADD('" + sectionTime + "', INTERVAL - 1 DAY) date FROM subscribe_records) l) t0 LEFT JOIN (SELECT DATE_ADD(DATE_FORMAT(created_at,'%Y-%m-%d'), INTERVAL 0 DAY) created_at ,COUNT(1) count "
-	sql += fmt.Sprintf("FROM subscribe_records WHERE pay_status = 1 AND created_at BETWEEN '%s' AND '%s' AND publisher_id = '%s'", sectionTime, nowTime, userId)
+	sql += fmt.Sprintf("FROM subscribe_records WHERE pay_status = 1 AND created_at BETWEEN '%s' AND '%s' AND app_id = '%s'", sectionTime, nowTime, userId)
 	sql += " GROUP BY DATE_FORMAT(created_at,'%Y-%m-%d') UNION SELECT DATE_FORMAT(created_at,'%Y-%m-%d') created_at ,COUNT(1) count FROM seckill_orders "
-	sql += fmt.Sprintf("WHERE `status` = 2 AND created_at BETWEEN '%s' AND '%s' AND publisher_id = '%s' ", sectionTime, nowTime, userId)
+	sql += fmt.Sprintf("WHERE `status` = 2 AND created_at BETWEEN '%s' AND '%s' AND app_id = '%s' ", sectionTime, nowTime, userId)
 	sql += " GROUP BY DATE_FORMAT(created_at,'%Y-%m-%d')) t1 on t0.date = t1.created_at ORDER BY t0.date"
 	sql += fmt.Sprintf(" LIMIT %d", num)
 	err := g.DB().GetScan(&dealNum, sql)
@@ -241,7 +241,7 @@ func (c *frontPage) FreeVolumeOfTrade(userId string, day int) (dealTime, payment
 
 	// 支付人数
 	paySql := "SELECT t0.date created_at,IFNULL(t1.count,0) count FROM (SELECT @cdate := DATE_ADD(@cdate, INTERVAL + 1 DAY) date FROM (SELECT @cdate := DATE_ADD('" + sectionTime + "', INTERVAL - 1 DAY) date FROM subscribe_records) l) t0 LEFT JOIN ( SELECT DATE_FORMAT(created_at,'%Y-%m-%d') created_at,COUNT(1) count"
-	paySql += fmt.Sprintf(" from (SELECT user_id,created_at FROM subscribe_records WHERE pay_status = 1 AND created_at BETWEEN '%s' AND '%s' AND publisher_id = '%s' GROUP BY user_id UNION SELECT user_id,created_at FROM seckill_orders WHERE `status` = 2 AND created_at BETWEEN '%s' AND '%s' AND publisher_id = '%s' GROUP BY user_id) l", sectionTime, nowTime, userId, sectionTime, nowTime, userId)
+	paySql += fmt.Sprintf(" from (SELECT user_id,created_at FROM subscribe_records WHERE pay_status = 1 AND created_at BETWEEN '%s' AND '%s' AND app_id = '%s' GROUP BY user_id UNION SELECT user_id,created_at FROM seckill_orders WHERE `status` = 2 AND created_at BETWEEN '%s' AND '%s' AND app_id = '%s' GROUP BY user_id) l", sectionTime, nowTime, userId, sectionTime, nowTime, userId)
 	paySql += " GROUP BY DATE_FORMAT(created_at,'%Y-%m-%d')"
 	paySql += fmt.Sprintf(") t1 on t0.date = t1.created_at ORDER BY t0.date LIMIT %d", num)
 	err = g.DB().GetScan(&payment, paySql)
@@ -257,7 +257,7 @@ func (c *frontPage) FreeVolumeOfTrade(userId string, day int) (dealTime, payment
 
 // FreeTransactionsNum 支付笔数
 func (c *frontPage) FreeTransactionsNum(userId string) (count int, float float64, err error) {
-	sql := fmt.Sprintf("SELECT count(1) FROM (SELECT user_id,created_at FROM subscribe_records WHERE pay_status = 1 AND publisher_id = '%s' UNION SELECT user_id,created_at FROM seckill_orders WHERE `status` = 2 AND publisher_id = '%s' ) t", userId, userId)
+	sql := fmt.Sprintf("SELECT count(1) FROM (SELECT user_id,created_at FROM subscribe_records WHERE pay_status = 1 AND app_id = '%s' UNION SELECT user_id,created_at FROM seckill_orders WHERE `status` = 2 AND app_id = '%s' ) t", userId, userId)
 	rows, err := g.DB().Query(sql)
 	if err != nil {
 		return
@@ -270,13 +270,13 @@ func (c *frontPage) FreeTransactionsNum(userId string) (count int, float float64
 			return
 		}
 	}
-	float = c.percentage("SELECT count(1) count FROM (SELECT sum_price FROM subscribe_records WHERE pay_status = 1 AND created_at BETWEEN '%s' AND '%s' AND publisher_id = '%s' UNION SELECT price FROM seckill_orders WHERE `status` = 2 AND created_at BETWEEN '%s' AND '%s' AND publisher_id = '%s') t", userId)
+	float = c.percentage("SELECT count(1) count FROM (SELECT sum_price FROM subscribe_records WHERE pay_status = 1 AND created_at BETWEEN '%s' AND '%s' AND app_id = '%s' UNION SELECT price FROM seckill_orders WHERE `status` = 2 AND created_at BETWEEN '%s' AND '%s' AND app_id = '%s') t", userId)
 	return
 }
 
 // FreePayers 支付人数
 func (c *frontPage) FreePayers(userId string) (count int, float float64, err error) {
-	sql := fmt.Sprintf("SELECT COUNT(1) count from (SELECT user_id,created_at FROM subscribe_records WHERE pay_status = 1 AND publisher_id = '%s' GROUP BY user_id UNION SELECT user_id,created_at FROM seckill_orders WHERE `status` = 2 AND publisher_id = '%s' GROUP BY user_id) l", userId, userId)
+	sql := fmt.Sprintf("SELECT COUNT(1) count from (SELECT user_id,created_at FROM subscribe_records WHERE pay_status = 1 AND app_id = '%s' GROUP BY user_id UNION SELECT user_id,created_at FROM seckill_orders WHERE `status` = 2 AND app_id = '%s' GROUP BY user_id) l", userId, userId)
 	rows, err := g.DB().Query(sql)
 	if err != nil {
 		return
@@ -289,7 +289,7 @@ func (c *frontPage) FreePayers(userId string) (count int, float float64, err err
 			return
 		}
 	}
-	float = c.percentage("SELECT COUNT(1) count from (SELECT user_id,created_at FROM subscribe_records WHERE pay_status = 1 AND created_at BETWEEN '%s' AND '%s' AND publisher_id = '%s' GROUP BY user_id UNION SELECT user_id,created_at FROM seckill_orders WHERE `status` = 2 AND created_at BETWEEN '%s' AND '%s' AND publisher_id = '%s' GROUP BY user_id) t", userId)
+	float = c.percentage("SELECT COUNT(1) count from (SELECT user_id,created_at FROM subscribe_records WHERE pay_status = 1 AND created_at BETWEEN '%s' AND '%s' AND app_id = '%s' GROUP BY user_id UNION SELECT user_id,created_at FROM seckill_orders WHERE `status` = 2 AND created_at BETWEEN '%s' AND '%s' AND app_id = '%s' GROUP BY user_id) t", userId)
 	return
 }
 
@@ -301,9 +301,9 @@ func (c *frontPage) FreeTurnover(userId string) (priceFloat []float64, priceTime
 	sectionTime := t.AddDate(0, 0, -6).Format("2006-01-02")
 	sql := fmt.Sprintf("SELECT t0.date created_at,t1.price/100 price FROM (SELECT @cdate := DATE_ADD(@cdate, INTERVAL + 1 DAY) date FROM (SELECT @cdate := DATE_ADD('%s', INTERVAL - 1 DAY) date FROM subscribe_records) l) t0 LEFT JOIN (", sectionTime)
 	sql += "SELECT DATE_FORMAT(created_at,'%Y-%m-%d') created_at,sum(sum_price) price FROM subscribe_records WHERE pay_status = 1 "
-	sql += fmt.Sprintf("AND created_at BETWEEN '%s' AND '%s' AND publisher_id = '%s' ", sectionTime, nowTime, userId)
+	sql += fmt.Sprintf("AND created_at BETWEEN '%s' AND '%s' AND app_id = '%s' ", sectionTime, nowTime, userId)
 	sql += "GROUP BY DATE_FORMAT(created_at,'%Y-%m-%d') UNION SELECT DATE_FORMAT(created_at,'%Y-%m-%d'),sum(price) price FROM seckill_orders WHERE `status` = 2 "
-	sql += fmt.Sprintf("AND created_at BETWEEN '%s' AND '%s' AND publisher_id = '%s' ", sectionTime, nowTime, userId)
+	sql += fmt.Sprintf("AND created_at BETWEEN '%s' AND '%s' AND app_id = '%s' ", sectionTime, nowTime, userId)
 	sql += "GROUP BY DATE_FORMAT(created_at,'%Y-%m-%d')) t1 ON t0.date=t1.created_at ORDER BY t0.date LIMIT 7"
 	err = g.DB().GetScan(&price, sql)
 	if err != nil {
@@ -314,9 +314,9 @@ func (c *frontPage) FreeTurnover(userId string) (priceFloat []float64, priceTime
 		priceTime = append(priceTime, i.CreatedAt)
 	}
 
-	float = c.percentage("SELECT sum(price)/100 count FROM (SELECT sum(sum_price) price,count(1) count FROM subscribe_records WHERE pay_status = 1 AND created_at BETWEEN '%s' AND '%s' AND publisher_id = '%s' UNION SELECT sum(price) price,count(1) FROM seckill_orders WHERE `status` = 2 AND created_at BETWEEN '%s' AND '%s' AND publisher_id = '%s' ) l", userId)
+	float = c.percentage("SELECT sum(price)/100 count FROM (SELECT sum(sum_price) price,count(1) count FROM subscribe_records WHERE pay_status = 1 AND created_at BETWEEN '%s' AND '%s' AND app_id = '%s' UNION SELECT sum(price) price,count(1) FROM seckill_orders WHERE `status` = 2 AND created_at BETWEEN '%s' AND '%s' AND app_id = '%s' ) l", userId)
 
-	countSql := fmt.Sprintf("SELECT IFNULL(sum(price)/100,0) count FROM (SELECT sum(sum_price) price,count(1) count FROM subscribe_records WHERE pay_status = 1 AND publisher_id = '%s' UNION SELECT sum(price) price,count(1) FROM seckill_orders WHERE `status` = 2 AND publisher_id = '%s' ) l", userId, userId)
+	countSql := fmt.Sprintf("SELECT IFNULL(sum(price)/100,0) count FROM (SELECT sum(sum_price) price,count(1) count FROM subscribe_records WHERE pay_status = 1 AND app_id = '%s' UNION SELECT sum(price) price,count(1) FROM seckill_orders WHERE `status` = 2 AND app_id = '%s' ) l", userId, userId)
 	query, err := g.DB().Query(countSql)
 	if err != nil {
 		return
