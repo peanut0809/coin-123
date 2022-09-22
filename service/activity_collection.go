@@ -71,6 +71,9 @@ func (s *activityCollection) DetailByClient(publisherId string, pageNum int, pag
 
 func (s *activityCollection) ListByClient(id int, publisherId string, pageNum int, pageSize int) (ret model.ClientActivityCollectionList, err error) {
 	m := g.DB().Model("activity_collection").Where("publisher_id = ? AND NOW() >= show_start_time AND NOW() <= show_end_time", publisherId)
+	if id != 0 {
+		m = m.Where("id = ?", id)
+	}
 	ret.Total, err = m.Count()
 	if err != nil {
 		return
@@ -78,11 +81,8 @@ func (s *activityCollection) ListByClient(id int, publisherId string, pageNum in
 	if ret.Total == 0 {
 		return
 	}
-	if id != 0 {
-		m = m.Where("id = ?", id)
-	}
 	as := make([]model.ActivityCollection, 0)
-	err = m.Order("start_time").Page(pageNum, pageSize).Scan(&as)
+	err = m.Order("sort").Page(pageNum, pageSize).Scan(&as)
 	if err != nil {
 		return
 	}
@@ -113,10 +113,10 @@ func (s *activityCollection) List(publisherId string, pageNum int, createStartTi
 		m = m.Where("created_at >= ? AND created_at <= ?", createStartTime, createEndTime)
 	}
 	if showStartTime != "" {
-		m = m.Where("show_start_time <= ?", showStartTime)
+		m = m.Where("show_start_time >= ?", showStartTime)
 	}
 	if showEndTime != "" {
-		m = m.Where("show_end_time >= ?", showEndTime)
+		m = m.Where("show_end_time <= ?", showEndTime)
 	}
 	if searchVal != "" {
 		m = m.Where("(name like ? OR id = ?)", "%"+searchVal+"%", searchVal)
