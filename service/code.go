@@ -11,6 +11,8 @@ import (
 var SmsConfig = map[string]string{
 	"ZHW":  "ecgDjLtq",
 	"YTWC": "GrGf1LPR",
+	"ABS":  "V5s8bp5m",
+	"YCJY": "dU4LPWDI",
 }
 
 type sms struct {

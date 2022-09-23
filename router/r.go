@@ -111,6 +111,11 @@ func InitRouter() *ghttp.Server {
 		group.POST("/seckill/activity/delete", api.AdminSeckillActivity.Delete)
 		group.GET("/seckill/activity/orders", api.AdminSeckillActivity.GetOrders)
 
+		//空投
+		group.POST("/drop/do", api.Drop.Create)
+		group.GET("/drop/record/list", api.Drop.GetRecordList)
+		group.GET("/drop/record/detail/list", api.Drop.GetDetailRecordList)
+
 		//banner 后端接口
 		group.GET("/banner/list", api.Banner.GetList)
 		group.POST("/banner/create", api.Banner.Create)

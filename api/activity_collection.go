@@ -59,7 +59,7 @@ func (s *activityCollection) ListByDetail(r *ghttp.Request) {
 	}
 	var listInfo model.AdminActivityList
 	if len(ids) != 0 {
-		listInfo, e = service.Activity.List(ids, 1, 100, "", "", 0, "", "", publisherId)
+		listInfo, e = service.Activity.List(ids, 1, 100, "", "", 0, "", "", publisherId, 0)
 		if e != nil {
 			s.FailJsonExit(r, e.Error())
 			return
