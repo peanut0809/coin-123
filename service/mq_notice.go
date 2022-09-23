@@ -28,6 +28,7 @@ func NoticeWallet(in NoticeWalletReq) {
 		g.Log().Errorf("NoticeWallet err:%v，data:%+v", err, in)
 		return
 	}
+	defer mqClient.Close()
 	err = mqClient.Publish(in)
 	if err != nil {
 		g.Log().Errorf("NoticeWallet err:%v，data:%+v", err, in)

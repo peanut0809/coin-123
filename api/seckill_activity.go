@@ -87,6 +87,7 @@ func (s *seckillActivity) CreateOrder(r *ghttp.Request) {
 		s.FailJsonExit(r, err.Error())
 		return
 	}
+	defer mqClient.Close()
 	err = mqClient.Publish(req)
 	if err != nil {
 		s.FailJsonExit(r, err.Error())
