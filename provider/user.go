@@ -151,3 +151,12 @@ func (s *user) YJTransfer(params *map[string]interface{}) (err error) {
 	}
 	return
 }
+
+func (s *user) GetUserInfoByPhone(params *map[string]interface{}) (ret map[string]GetUserInfoRet, err error) {
+	err = utils.SendJsonRpcScan(context.Background(), "ucenter", "Users.GetUserInfoByPhone", params, &ret)
+	if err != nil {
+		g.Log().Errorf("GetUserInfoByPhone err:%v", err)
+		return
+	}
+	return
+}

@@ -115,3 +115,29 @@ func (s *asset) GetMateDataByAm(params *map[string]interface{}) (ret GetMateData
 	}
 	return
 }
+
+type GetMateDataByTplsItem struct {
+	AssetName string `orm:"asset_name" json:"assetName"` // 资产名称
+}
+
+func (s *asset) GetMateDataByTpls(params *map[string]interface{}) (ret map[string]GetMateDataByTplsItem, err error) {
+	err = utils.SendJsonRpcScan(context.Background(), "asset", "Asset.GetMateDataByTpls", params, &ret)
+	if err != nil {
+		g.Log().Errorf("GetMateDataByTpls err:%v", err)
+		return
+	}
+	return
+}
+
+type GetCanUsedAssetsByTemplateRet struct {
+	TokenId string `json:"tokenId"` // tokenId
+}
+
+func (s *asset) GetCanUsedAssetsByTemplate(params *map[string]interface{}) (ret []GetCanUsedAssetsByTemplateRet, err error) {
+	err = utils.SendJsonRpcScan(context.Background(), "asset", "Asset.GetCanUsedAssetsByTemplate", params, &ret)
+	if err != nil {
+		g.Log().Errorf("GetCanUsedAssetsByTemplate err:%v", err)
+		return
+	}
+	return
+}

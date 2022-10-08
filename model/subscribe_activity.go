@@ -77,6 +77,7 @@ type SubscribeActivityFull struct {
 	AssetDetailImg  string      `json:"assetDetailImg"`
 	NfrDay          int         `json:"nfrDay"`
 	ChainName       string      `json:"chainName"`
+	AssetPic        string      `json:"assetPic"`
 	ChainAddr       string      `json:"chainAddr"`
 	ChainType       int         `json:"chainType"`
 }

@@ -45,8 +45,9 @@ func (s *developer) GetAssetsTemplate(appId string, templateId string) (ret Temp
 type AppServerDetail struct {
 	Code int `json:"code"`
 	Data struct {
-		AppId  string `json:"appId"`
-		CnName string `json:"cnName"`
+		AppId       string `json:"appId"`
+		CnName      string `json:"cnName"`
+		PublisherId string `json:"publisherId"`
 	} `json:"data"`
 }
 
