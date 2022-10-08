@@ -39,6 +39,7 @@ type SeckillActivityFull struct {
 	AssetTotal      int         `json:"assetTotal"`
 	AssetCreateAt   *gtime.Time `json:"assetCreateAt"`
 	AssetDetailImg  string      `json:"assetDetailImg"`
+	AssetPic        string      `json:"assetPic"`
 	NfrDay          int         `json:"nfrDay"`
 	ChainName       string      `json:"chainName"`
 	ChainAddr       string      `json:"chainAddr"`

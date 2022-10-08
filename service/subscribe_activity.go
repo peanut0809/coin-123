@@ -176,7 +176,7 @@ func (s *subscribeActivity) GetDetail(alias, userId, publisherId string) (ret mo
 		err = fmt.Errorf("获取发行商失败")
 		return
 	}
-
+	ret.AssetPic = assetDetail.AssetPic
 	ret.ChainName = publisherInfo.ChainName
 	ret.ChainAddr = publisherInfo.ChainAddr
 	ret.ChainType = publisherInfo.ChainType
