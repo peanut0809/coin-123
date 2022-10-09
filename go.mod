@@ -10,6 +10,7 @@ require (
 	github.com/parnurzeal/gorequest v0.2.16
 	github.com/shopspring/decimal v1.3.1
 	github.com/smallnest/rpcx v1.7.4
+	github.com/xuri/excelize/v2 v2.6.0
 )
 
 require (
@@ -84,6 +85,7 @@ require (
 	github.com/mitchellh/mapstructure v1.4.3 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
+	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/mojocn/base64Captcha v1.3.1 // indirect
 	github.com/nacos-group/nacos-sdk-go v1.0.6 // indirect
 	github.com/nxadm/tail v1.4.8 // indirect
@@ -93,6 +95,8 @@ require (
 	github.com/philhofer/fwd v1.1.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/qiniu/go-sdk/v7 v7.11.0 // indirect
+	github.com/richardlehane/mscfb v1.0.4 // indirect
+	github.com/richardlehane/msoleps v1.0.1 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/rpcxio/libkv v0.5.1-0.20210420120011-1fceaedca8a5 // indirect
 	github.com/rs/cors v1.8.2 // indirect
@@ -112,6 +116,8 @@ require (
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	github.com/w3liu/go-common v0.0.0-20210108072342-826b2f3582be // indirect
 	github.com/xtaci/kcp-go v5.4.20+incompatible // indirect
+	github.com/xuri/efp v0.0.0-20220407160117-ad0f7a785be8 // indirect
+	github.com/xuri/nfp v0.0.0-20220409054826-5e722a1d9e22 // indirect
 	go.opentelemetry.io/otel v1.6.3 // indirect
 	go.opentelemetry.io/otel/trace v1.6.3 // indirect
 	go.uber.org/atomic v1.6.0 // indirect
