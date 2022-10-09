@@ -87,8 +87,15 @@ func (s *drop) Create(r *ghttp.Request) {
 			s.FailJsonExit(r, "文件读取错误")
 			return
 		}
-		for _, v := range rows {
-			req.PhoneArr = append(req.PhoneArr, strings.TrimSpace(v[0]))
+		for dx, v := range rows {
+			if dx == 0 {
+				continue
+			}
+			p := strings.TrimSpace(v[0])
+			if p == "" {
+				continue
+			}
+			req.PhoneArr = append(req.PhoneArr, p)
 		}
 	}
 	if len(req.PhoneArr) <= 0 {
