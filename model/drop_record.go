@@ -20,7 +20,8 @@ type DropRecord struct {
 
 type DropRecordReq struct {
 	DropRecord
-	PhoneArr []string `json:"phoneArr"`
+	PhoneArr  []string `json:"phoneArr"`
+	ExcelFile string   `json:"excelFile"`
 }
 
 type DropRecordFull struct {

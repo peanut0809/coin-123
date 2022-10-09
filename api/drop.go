@@ -3,9 +3,12 @@ package api
 import (
 	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/api"
 	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/utils"
+	"bytes"
 	"fmt"
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/net/ghttp"
+	"github.com/parnurzeal/gorequest"
+	"github.com/xuri/excelize/v2"
 	"meta_launchpad/model"
 	"meta_launchpad/provider"
 	"meta_launchpad/service"
@@ -51,7 +54,7 @@ func (s *drop) Create(r *ghttp.Request) {
 		s.FailJsonExit(r, err.Error())
 		return
 	}
-	if req.Name == "" || len(req.PhoneArr) == 0 || req.AppId == "" || req.TemplateId == "" || req.Num <= 0 || req.NfrSec < 0 {
+	if req.Name == "" || req.AppId == "" || req.TemplateId == "" || req.Num <= 0 || req.NfrSec < 0 {
 		s.FailJsonExit(r, "参数错误")
 		return
 	}
@@ -64,6 +67,31 @@ func (s *drop) Create(r *ghttp.Request) {
 		s.FailJsonExit(r, "无权操作")
 		return
 	}
+	if len(req.PhoneArr) == 0 {
+		if req.ExcelFile == "" {
+			s.FailJsonExit(r, "参数错误")
+			return
+		}
+		_, bs, errs := gorequest.New().Get(req.ExcelFile).EndBytes()
+		if len(errs) != 0 {
+			s.FailJsonExit(r, "文件地址错误")
+			return
+		}
+		f, e := excelize.OpenReader(bytes.NewReader(bs))
+		if e != nil {
+			s.FailJsonExit(r, "文件读取错误")
+			return
+		}
+		rows, e := f.GetRows("Sheet1")
+		if e != nil {
+			s.FailJsonExit(r, "文件读取错误")
+			return
+		}
+		for _, v := range rows {
+			req.PhoneArr = append(req.PhoneArr, strings.TrimSpace(v[0]))
+		}
+	}
+
 	phoneMap := make(map[string]int)
 	for _, v := range req.PhoneArr {
 		phoneMap[v] = 1
@@ -72,8 +100,8 @@ func (s *drop) Create(r *ghttp.Request) {
 		s.FailJsonExit(r, "手机号重复")
 		return
 	}
-	if len(req.PhoneArr) > 10 {
-		s.FailJsonExit(r, "手机号不能超过10个")
+	if len(req.PhoneArr) > 5000 {
+		s.FailJsonExit(r, "手机号不能超过5000个")
 		return
 	}
 	if req.Num > 10 {
