@@ -91,7 +91,10 @@ func (s *drop) Create(r *ghttp.Request) {
 			req.PhoneArr = append(req.PhoneArr, strings.TrimSpace(v[0]))
 		}
 	}
-
+	if len(req.PhoneArr) <= 0 {
+		s.FailJsonExit(r, "缺少手机号")
+		return
+	}
 	phoneMap := make(map[string]int)
 	for _, v := range req.PhoneArr {
 		phoneMap[v] = 1
