@@ -121,6 +121,9 @@ func InitRouter() *ghttp.Server {
 		group.GET("/frontPage/transactionsNum", api.FrontPage.TransactionsNum) // 支付笔数
 		group.GET("/frontPage/payers", api.FrontPage.Payers)                   // 支付人数
 		group.GET("/frontPage/turnover", api.FrontPage.Turnover)               // 交易额
+
+		//合成
+		group.POST("/synthetic/create", api.Synthetic.Create)
 	})
 	return s
 }
