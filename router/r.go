@@ -76,6 +76,9 @@ func InitRouter() *ghttp.Server {
 		group.GET("/seckill/activity/order/list", api.SeckillActivity.GetOrderList)                  //订单列表
 		group.GET("/seckill/activity/order/detail", api.SeckillActivity.GetOrderDetail)              //订单详情
 
+		//合成
+		group.GET("/synthetic/list", api.Synthetic.ClientList)
+		group.GET("/synthetic/detail", api.Synthetic.ClientDetail)
 	})
 
 	s.Group("/admin", func(group *ghttp.RouterGroup) {
@@ -124,6 +127,9 @@ func InitRouter() *ghttp.Server {
 
 		//合成
 		group.POST("/synthetic/create", api.Synthetic.Create)
+		group.GET("/synthetic/list", api.Synthetic.List)
+		group.GET("/synthetic/detail", api.Synthetic.Detail)
+		group.POST("/synthetic/open", api.Synthetic.Open)
 	})
 	return s
 }
