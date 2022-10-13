@@ -117,9 +117,27 @@ func (s *synthetic) Open(id int, open int) (ret model.SyntheticActivity, err err
 	return
 }
 
+func (s *synthetic) Delete(id int) (ret model.SyntheticActivity, err error) {
+	rcount, _ := g.DB().Model("synthetic_record").Where("aid = ?", id).Count()
+	if rcount != 0 {
+		err = fmt.Errorf("活动已被用户合成，不能删除")
+		return
+	}
+	m := g.DB().Model("synthetic_activity")
+	_, err = m.Where("id", id).Delete()
+	if err != nil {
+		return
+	}
+	return
+}
+
 func (s *synthetic) Update(in model.SyntheticActivity) (err error) {
 	//有人合成就不能修改
-
+	rcount, _ := g.DB().Model("synthetic_record").Where("aid = ?", in.Id).Count()
+	if rcount != 0 {
+		err = fmt.Errorf("活动已被用户合成，不能修改")
+		return
+	}
 	m := g.DB().Model("synthetic_activity")
 	_, err = m.Data(g.Map{
 		"name":        in.Name,

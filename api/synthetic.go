@@ -107,6 +107,17 @@ func (s *synthetic) Open(r *ghttp.Request) {
 	return
 }
 
+func (s *synthetic) Delete(r *ghttp.Request) {
+	id := r.GetInt("id")
+	ret, err := service.Synthetic.Delete(id)
+	if err != nil {
+		s.FailJsonExit(r, err.Error())
+		return
+	}
+	s.SusJsonExit(r, ret)
+	return
+}
+
 func (s *synthetic) ClientDetail(r *ghttp.Request) {
 	id := r.GetInt("id")
 	ret, err := service.Synthetic.ClientDetail(id)
