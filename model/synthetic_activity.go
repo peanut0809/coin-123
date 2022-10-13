@@ -2,6 +2,20 @@ package model
 
 import "github.com/gogf/gf/os/gtime"
 
+type SyntheticActivityDetail struct {
+	SyntheticActivity
+	ConditionArr    []ConditionItem `json:"conditionArr"`
+	AssetCateString string          `json:"assetCateString"`
+	AssetTotal      int             `json:"assetTotal"`
+	AssetCreateAt   *gtime.Time     `json:"assetCreateAt"`
+	AssetDetailImg  string          `json:"assetDetailImg"`
+	AssetPic        string          `json:"assetPic"`
+	AssetName       string          `json:"assetName"`
+	ChainName       string          `json:"chainName"`
+	ChainAddr       string          `json:"chainAddr"`
+	ChainType       int             `json:"chainType"`
+}
+
 type SyntheticActivity struct {
 	Id          int         `orm:"id" json:"id"`
 	PublisherId string      `orm:"publisher_id" json:"publisherId"`
@@ -17,6 +31,7 @@ type SyntheticActivity struct {
 	StartTime   *gtime.Time `orm:"start_time" json:"startTime"`
 	EndTime     *gtime.Time `orm:"end_time" json:"endTime"`
 	Condition   *string     `orm:"condition" json:"condition"`
+	Open        int         `orm:"open" json:"open"`
 	CreatedAt   *gtime.Time `orm:"created_at" json:"createdAt"`
 	UpdatedAt   *gtime.Time `orm:"updated_at" json:"updatedAt"`
 }
@@ -26,9 +41,20 @@ type ConditionItem struct {
 	AssetType  string `json:"assetType"`
 	TemplateId string `json:"templateId"`
 	Num        int    `json:"num"`
+	Cover      string `json:"cover"`
 }
 
 type SyntheticActivityReq struct {
 	SyntheticActivity
 	ConditionArr []ConditionItem `json:"conditionArr"`
+}
+
+type SyntheticActivityFull struct {
+	SyntheticActivity
+	StatusTxt string `json:"statusTxt"`
+}
+
+type SyntheticActivityList struct {
+	Total int                     `json:"total"`
+	List  []SyntheticActivityFull `json:"list"`
 }

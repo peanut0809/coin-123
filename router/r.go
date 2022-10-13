@@ -83,6 +83,9 @@ func InitRouter() *ghttp.Server {
 		group.GET("/frontPage/freePayers", api.FrontPage.FreePayers)                   // 支付人数
 		group.GET("/frontPage/freeTurnover", api.FrontPage.FreeTurnover)               // 交易额
 
+		//合成
+		group.GET("/synthetic/list", api.Synthetic.ClientList)
+		group.GET("/synthetic/detail", api.Synthetic.ClientDetail)
 	})
 
 	s.Group("/admin", func(group *ghttp.RouterGroup) {
@@ -131,6 +134,9 @@ func InitRouter() *ghttp.Server {
 
 		//合成
 		group.POST("/synthetic/create", api.Synthetic.Create)
+		group.GET("/synthetic/list", api.Synthetic.List)
+		group.GET("/synthetic/detail", api.Synthetic.Detail)
+		group.POST("/synthetic/open", api.Synthetic.Open)
 	})
 	return s
 }
