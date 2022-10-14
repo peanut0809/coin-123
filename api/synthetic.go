@@ -137,6 +137,33 @@ func (s *synthetic) GetDoSyntheticResult(r *ghttp.Request) {
 	s.SusJsonExit(r, ret)
 }
 
+func (s *synthetic) GetRecordDetail(r *ghttp.Request) {
+	orderNo := r.GetQueryString("orderNo")
+	ret, err := service.Synthetic.GetRecordList(1, 1, s.GetPublisherId(r), s.GetUserId(r), orderNo)
+	if err != nil {
+		s.FailJsonExit(r, err.Error())
+		return
+	}
+	if len(ret.List) == 0 {
+		s.FailJsonExit(r, "记录不存在")
+		return
+	}
+	s.SusJsonExit(r, ret.List[0])
+}
+
+func (s *synthetic) GetRecordList(r *ghttp.Request) {
+	pageNum := r.GetQueryInt("pageNum", 1)
+	pageSize := r.GetQueryInt("pageSize", 20)
+	userId := s.GetUserId(r)
+	publisherId := s.GetPublisherId(r)
+	ret, err := service.Synthetic.GetRecordList(pageNum, pageSize, publisherId, userId, "")
+	if err != nil {
+		s.FailJsonExit(r, err.Error())
+		return
+	}
+	s.SusJsonExit(r, ret)
+}
+
 func (s *synthetic) DoSynthetic(r *ghttp.Request) {
 	var req model.SyntheticReq
 	err := r.Parse(&req)
@@ -146,6 +173,7 @@ func (s *synthetic) DoSynthetic(r *ghttp.Request) {
 	}
 	req.UserId = s.GetUserId(r)
 	req.OrderNo = utils.Generate()
+	req.PublisherId = s.GetPublisherId(r)
 	queueName := "synthetic.do"
 	mqClient, err := client.GetQueue(client.QueueConfig{
 		QueueName:  queueName,

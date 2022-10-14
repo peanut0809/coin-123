@@ -65,6 +65,7 @@ type SyntheticReq struct {
 	UserId       string          `json:"userId"`
 	Aid          int             `json:"aid"`
 	OrderNo      string          `json:"orderNo"`
+	PublisherId  string          `json:"publisherId"`
 	ConditionArr []ConditionItem `json:"conditionArr"`
 }
 

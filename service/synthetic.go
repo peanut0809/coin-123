@@ -238,6 +238,25 @@ func (s *synthetic) CreateRecord(in model.SyntheticRecord) (err error) {
 	return
 }
 
+func (s *synthetic) GetRecordList(pageNum, pageSize int, publisherId string, userId string, orderNo string) (ret model.SyntheticRecordList, err error) {
+	m := g.DB().Model("synthetic_record").Where("user_id = ? AND publisher_id = ?", userId, publisherId)
+	if orderNo != "" {
+		m = m.Where("order_no = ?", orderNo)
+	}
+	ret.Total, err = m.Count()
+	if err != nil {
+		return
+	}
+	if ret.Total == 0 {
+		return
+	}
+	err = m.Order("id DESC").Page(pageNum, pageSize).Scan(&ret.List)
+	if err != nil {
+		return
+	}
+	return
+}
+
 func (s *synthetic) Synthetic(in model.SyntheticReq) {
 	ainfo, err := s.ClientDetail(in.Aid)
 	if err != nil {
@@ -338,6 +357,8 @@ func (s *synthetic) Synthetic(in model.SyntheticReq) {
 	record.Aid = in.Aid
 	record.InData = gconv.String(in.ConditionArr)
 	record.OutData = gconv.String(assets)
+	record.UserId = in.UserId
+	record.PublisherId = in.PublisherId
 	err = s.CreateRecord(record)
 	if err != nil {
 		s.SetResult(model.SyntheticRet{
