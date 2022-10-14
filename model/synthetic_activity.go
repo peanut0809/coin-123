@@ -40,8 +40,10 @@ type ConditionItem struct {
 	AppId      string `json:"appId"`
 	AssetType  string `json:"assetType"`
 	TemplateId string `json:"templateId"`
+	Name       string `json:"name"`
 	Num        int    `json:"num"`
 	Cover      string `json:"cover"`
+	TokenId    string `json:"tokenId,omitempty"`
 }
 
 type SyntheticActivityReq struct {
@@ -57,4 +59,17 @@ type SyntheticActivityFull struct {
 type SyntheticActivityList struct {
 	Total int                     `json:"total"`
 	List  []SyntheticActivityFull `json:"list"`
+}
+
+type SyntheticReq struct {
+	UserId       string          `json:"userId"`
+	Aid          int             `json:"aid"`
+	OrderNo      string          `json:"orderNo"`
+	ConditionArr []ConditionItem `json:"conditionArr"`
+}
+
+type SyntheticRet struct {
+	Step    string `json:"step"`
+	OrderNo string `json:"orderNo"`
+	Reason  string `json:"reason"`
 }

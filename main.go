@@ -27,6 +27,7 @@ func main() {
 				go task.RunSeckillOrderTask()
 				go task.RunSeckillOrderPayTask()
 				go task.DropTask()
+				go task.RunSyntheticTask()
 			}()
 
 			//err := service.Sms.SendSms("13720009841", "ecgDjLtq", "aIIbedlG", "4HZdAzLt", map[string]string{

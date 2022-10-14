@@ -109,3 +109,46 @@ func (s *knapsack) FrozenAsset(userId string, appId string, tokenId string, isFr
 	}
 	return
 }
+
+type GetListByTemplateRet struct {
+	List []struct {
+		Id       int    `json:"id"`
+		AppId    string `json:"appId"`
+		TokenId  string `json:"tokenId"`
+		Metadata struct {
+			TemplateId string `json:"templateId"`
+		} `json:"metadata"`
+	} `json:"list"`
+}
+
+func (s *knapsack) GetListByTemplate(userId, appId, templateId string) (ret GetListByTemplateRet, err error) {
+	params := &map[string]interface{}{
+		"userId":      userId,
+		"appIds":      []string{appId},
+		"templateIds": []string{templateId},
+		"pageNum":     1,
+		"pageSize":    10000,
+	}
+	result, e := utils.SendJsonRpc(context.Background(), "knapsack", "AssetKnapsack.GetListByTemplate", params)
+	if e != nil {
+		err = e
+		return
+	}
+	err = json.Unmarshal([]byte(gconv.String(result)), &ret)
+	if err != nil {
+		return
+	}
+	return
+}
+
+func (s *knapsack) DeleteByIds(ids []int, optType string, optRemark string) (err error) {
+	params := &map[string]interface{}{
+		"ids": ids,
+		"opt": g.Map{"optType": optType, "optRemark": optRemark},
+	}
+	_, err = utils.SendJsonRpc(context.Background(), "knapsack", "AssetKnapsack.DeleteByIds", params)
+	if err != nil {
+		return
+	}
+	return
+}
