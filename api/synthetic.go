@@ -139,7 +139,8 @@ func (s *synthetic) GetDoSyntheticResult(r *ghttp.Request) {
 
 func (s *synthetic) GetRecordDetail(r *ghttp.Request) {
 	orderNo := r.GetQueryString("orderNo")
-	ret, err := service.Synthetic.GetRecordList(1, 1, s.GetPublisherId(r), s.GetUserId(r), orderNo)
+	aid := r.GetQueryInt("aid")
+	ret, err := service.Synthetic.GetRecordList(1, 1, s.GetPublisherId(r), s.GetUserId(r), orderNo, aid)
 	if err != nil {
 		s.FailJsonExit(r, err.Error())
 		return
@@ -151,12 +152,27 @@ func (s *synthetic) GetRecordDetail(r *ghttp.Request) {
 	s.SusJsonExit(r, ret.List[0])
 }
 
+func (s *synthetic) GetSyntheticRecord(r *ghttp.Request) {
+	pageNum := r.GetQueryInt("pageNum", 1)
+	pageSize := r.GetQueryInt("pageSize", 20)
+	userId := r.GetQueryString("userId")
+	aid := r.GetQueryInt("aid")
+	publisherId := s.GetPublisherId(r)
+	ret, err := service.Synthetic.GetRecordList(pageNum, pageSize, publisherId, userId, "", aid)
+	if err != nil {
+		s.FailJsonExit(r, err.Error())
+		return
+	}
+	s.SusJsonExit(r, ret)
+}
+
 func (s *synthetic) GetRecordList(r *ghttp.Request) {
 	pageNum := r.GetQueryInt("pageNum", 1)
 	pageSize := r.GetQueryInt("pageSize", 20)
 	userId := s.GetUserId(r)
 	publisherId := s.GetPublisherId(r)
-	ret, err := service.Synthetic.GetRecordList(pageNum, pageSize, publisherId, userId, "")
+	aid := r.GetQueryInt("aid")
+	ret, err := service.Synthetic.GetRecordList(pageNum, pageSize, publisherId, userId, "", aid)
 	if err != nil {
 		s.FailJsonExit(r, err.Error())
 		return
