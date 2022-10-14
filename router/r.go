@@ -88,6 +88,8 @@ func InitRouter() *ghttp.Server {
 		group.GET("/synthetic/detail", api.Synthetic.ClientDetail)
 		group.POST("/synthetic/do", api.Synthetic.DoSynthetic)
 		group.GET("/synthetic/do/result", api.Synthetic.GetDoSyntheticResult)
+		group.GET("/synthetic/record/list", api.Synthetic.GetRecordList)
+		group.GET("/synthetic/record/detail", api.Synthetic.GetRecordDetail)
 	})
 
 	s.Group("/admin", func(group *ghttp.RouterGroup) {
