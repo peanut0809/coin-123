@@ -277,20 +277,21 @@ func (s *synthetic) Synthetic(in model.SyntheticReq) {
 		return
 	}
 	inMap := make(map[string]int)
-	onwer, _ := provider.KnapsackService.GetListByTemplate(in.UserId, ainfo.AppId, ainfo.TemplateId)
+	cMap := make(map[string]int)
 	knIds := make([]int, 0)
-	for _, v := range onwer.List {
-		for _, j := range in.ConditionArr {
-			if v.AppId == j.AppId && v.TokenId == j.TokenId {
-				inMap[v.Metadata.TemplateId]++
-				knIds = append(knIds, v.Id)
+	for _, vv := range ainfo.ConditionArr {
+		onwer, _ := provider.KnapsackService.GetListByTemplate(in.UserId, vv.AppId, vv.TemplateId)
+		for _, v := range onwer.List {
+			for _, j := range in.ConditionArr {
+				if v.AppId == j.AppId && v.TokenId == j.TokenId {
+					inMap[v.Metadata.TemplateId]++
+					knIds = append(knIds, v.Id)
+				}
 			}
 		}
+		cMap[vv.TemplateId] = vv.Num
 	}
-	cMap := make(map[string]int)
-	for _, v := range ainfo.ConditionArr {
-		cMap[v.TemplateId] = v.Num
-	}
+	fmt.Println(cMap, inMap)
 	for templateId, num := range cMap {
 		if inMap[templateId] != num {
 			s.SetResult(model.SyntheticRet{
