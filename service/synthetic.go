@@ -238,8 +238,17 @@ func (s *synthetic) CreateRecord(in model.SyntheticRecord) (err error) {
 	return
 }
 
-func (s *synthetic) GetRecordList(pageNum, pageSize int, publisherId string, userId string, orderNo string) (ret model.SyntheticRecordList, err error) {
-	m := g.DB().Model("synthetic_record").Where("user_id = ? AND publisher_id = ?", userId, publisherId)
+func (s *synthetic) GetRecordList(pageNum, pageSize int, publisherId string, userId string, orderNo string, aid int) (ret model.SyntheticRecordList, err error) {
+	m := g.DB().Model("synthetic_record")
+	if aid != 0 {
+		m = m.Where("aid = ?", aid)
+	}
+	if publisherId != "" {
+		m = m.Where("publisher_id = ?", publisherId)
+	}
+	if userId != "" {
+		m = m.Where("user_id = ?", userId)
+	}
 	if orderNo != "" {
 		m = m.Where("order_no = ?", orderNo)
 	}

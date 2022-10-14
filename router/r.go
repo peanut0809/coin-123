@@ -142,6 +142,7 @@ func InitRouter() *ghttp.Server {
 		group.GET("/synthetic/detail", api.Synthetic.Detail)
 		group.POST("/synthetic/open", api.Synthetic.Open)
 		group.POST("/synthetic/delete", api.Synthetic.Delete)
+		group.GET("/synthetic/record", api.Synthetic.GetSyntheticRecord)
 	})
 	return s
 }
