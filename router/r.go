@@ -79,6 +79,8 @@ func InitRouter() *ghttp.Server {
 		//合成
 		group.GET("/synthetic/list", api.Synthetic.ClientList)
 		group.GET("/synthetic/detail", api.Synthetic.ClientDetail)
+		group.POST("/synthetic/do", api.Synthetic.DoSynthetic)
+		group.GET("/synthetic/do/result", api.Synthetic.GetDoSyntheticResult)
 	})
 
 	s.Group("/admin", func(group *ghttp.RouterGroup) {

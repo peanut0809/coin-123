@@ -1,11 +1,15 @@
 package service
 
 import (
+	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/utils"
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/gogf/gf/frame/g"
+	"github.com/gogf/gf/util/gconv"
 	"meta_launchpad/model"
 	"meta_launchpad/provider"
+	"strings"
 	"time"
 )
 
@@ -70,6 +74,7 @@ func (s *synthetic) ClientDetail(id int) (ret model.SyntheticActivityDetail, err
 	})
 	for k, v := range ret.ConditionArr {
 		ret.ConditionArr[k].Cover = tamplateInfos[v.AppId+v.TemplateId].Icon
+		ret.ConditionArr[k].Name = tamplateInfos[v.AppId+v.TemplateId].AssetName
 	}
 
 	//获取应用信息
@@ -211,4 +216,140 @@ func (s *synthetic) List(publisherId string, pageNum, pageSize int, startTimeBeg
 		}
 	}
 	return
+}
+
+func (s *synthetic) SetResult(in model.SyntheticRet) {
+	key := fmt.Sprintf("synthetic:%s", in.OrderNo)
+	g.Redis().Do("SET", key, gconv.String(in), "ex", 7200)
+	return
+}
+
+func (s *synthetic) GetResult(orderNo string) (ret model.SyntheticRet) {
+	key := fmt.Sprintf("synthetic:%s", orderNo)
+	gv, _ := g.Redis().DoVar("GET", key)
+	if gv != nil && !gv.IsEmpty() {
+		gv.Scan(&ret)
+	}
+	return
+}
+
+func (s *synthetic) CreateRecord(in model.SyntheticRecord) (err error) {
+	_, err = g.DB().Model("synthetic_record").Insert(&in)
+	return
+}
+
+func (s *synthetic) Synthetic(in model.SyntheticReq) {
+	ainfo, err := s.ClientDetail(in.Aid)
+	if err != nil {
+		s.SetResult(model.SyntheticRet{
+			Step:    "fail",
+			OrderNo: in.OrderNo,
+			Reason:  err.Error(),
+		})
+		return
+	}
+	inMap := make(map[string]int)
+	onwer, _ := provider.KnapsackService.GetListByTemplate(in.UserId, ainfo.AppId, ainfo.TemplateId)
+	knIds := make([]int, 0)
+	for _, v := range onwer.List {
+		for _, j := range in.ConditionArr {
+			if v.AppId == j.AppId && v.TokenId == j.TokenId {
+				inMap[v.Metadata.TemplateId]++
+				knIds = append(knIds, v.Id)
+			}
+		}
+	}
+	cMap := make(map[string]int)
+	for _, v := range ainfo.ConditionArr {
+		cMap[v.TemplateId] = v.Num
+	}
+	for templateId, num := range cMap {
+		if inMap[templateId] != num {
+			s.SetResult(model.SyntheticRet{
+				Step:    "fail",
+				OrderNo: in.OrderNo,
+				Reason:  "合成条件不符合",
+			})
+			return
+		}
+	}
+	err = provider.KnapsackService.DeleteByIds(knIds, "SAAS_HC", "SAAS合成")
+	if err != nil {
+		s.SetResult(model.SyntheticRet{
+			Step:    "fail",
+			OrderNo: in.OrderNo,
+			Reason:  err.Error(),
+		})
+		return
+	}
+
+	assets, e := provider.Asset.GetCanUsedAssetsByTemplate(&map[string]interface{}{
+		"appId":      ainfo.AppId,
+		"templateId": ainfo.TemplateId,
+		"num":        ainfo.OutNum,
+	})
+	if e != nil && !strings.Contains(err.Error(), "timeout") {
+		s.SetResult(model.SyntheticRet{
+			Step:    "fail",
+			OrderNo: in.OrderNo,
+			Reason:  err.Error(),
+		})
+		return
+	}
+	if len(assets) == 0 {
+		s.SetResult(model.SyntheticRet{
+			Step:    "fail",
+			OrderNo: in.OrderNo,
+			Reason:  "库存不足",
+		})
+		return
+	}
+	list := make([]map[string]interface{}, 0)
+	for _, v := range assets {
+		item := make(map[string]interface{})
+		item["userId"] = in.UserId
+		item["appId"] = ainfo.AppId
+		item["tokenId"] = v.TokenId
+		list = append(list, item)
+	}
+	params := &map[string]interface{}{
+		"list": list,
+		"opt":  map[string]interface{}{"optUserId": in.UserId, "optType": "SAAS_HC_" + in.OrderNo, "optRemark": "SAAS合成发放资产"},
+	}
+	_, err = utils.SendJsonRpc(context.Background(), "knapsack", "AssetKnapsack.Add", params)
+	if err != nil && !strings.Contains(err.Error(), "timeout") {
+		s.SetResult(model.SyntheticRet{
+			Step:    "fail",
+			OrderNo: in.OrderNo,
+			Reason:  err.Error(),
+		})
+		return
+	}
+
+	tplInfo, _ := provider.Asset.GetMateDataByTpls(&map[string]interface{}{
+		"appIds":      []string{ainfo.AppId},
+		"templateIds": []string{ainfo.TemplateId},
+	})
+	var record model.SyntheticRecord
+	record.OrderNo = in.OrderNo
+	record.AssetName = tplInfo[ainfo.AppId+ainfo.TemplateId].AssetName
+	record.AssetIcon = tplInfo[ainfo.AppId+ainfo.TemplateId].Icon
+	record.AssetPic = tplInfo[ainfo.AppId+ainfo.TemplateId].AssetPic
+	record.Aid = in.Aid
+	record.InData = gconv.String(in.ConditionArr)
+	record.OutData = gconv.String(assets)
+	err = s.CreateRecord(record)
+	if err != nil {
+		s.SetResult(model.SyntheticRet{
+			Step:    "fail",
+			OrderNo: in.OrderNo,
+			Reason:  err.Error(),
+		})
+		return
+	}
+	s.SetResult(model.SyntheticRet{
+		Step:    "success",
+		OrderNo: in.OrderNo,
+		Reason:  "合成成功",
+	})
 }

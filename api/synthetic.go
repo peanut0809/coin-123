@@ -2,6 +2,9 @@ package api
 
 import (
 	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/api"
+	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/client"
+	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/utils"
+	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/net/ghttp"
 	"github.com/gogf/gf/util/gconv"
 	"meta_launchpad/model"
@@ -126,4 +129,40 @@ func (s *synthetic) ClientDetail(r *ghttp.Request) {
 		return
 	}
 	s.SusJsonExit(r, ret)
+}
+
+func (s *synthetic) GetDoSyntheticResult(r *ghttp.Request) {
+	orderNo := r.GetQueryString("orderNo")
+	ret := service.Synthetic.GetResult(orderNo)
+	s.SusJsonExit(r, ret)
+}
+
+func (s *synthetic) DoSynthetic(r *ghttp.Request) {
+	var req model.SyntheticReq
+	err := r.Parse(&req)
+	if err != nil {
+		s.FailJsonExit(r, err.Error())
+		return
+	}
+	req.UserId = s.GetUserId(r)
+	req.OrderNo = utils.Generate()
+	queueName := "synthetic.do"
+	mqClient, err := client.GetQueue(client.QueueConfig{
+		QueueName:  queueName,
+		Exchange:   queueName,
+		RoutingKey: "",
+		Kind:       "fanout",
+		MqUrl:      g.Cfg().GetString("rabbitmq.default.link"),
+	})
+	if err != nil {
+		s.FailJsonExit(r, err.Error())
+		return
+	}
+	defer mqClient.Close()
+	err = mqClient.Publish(req)
+	if err != nil {
+		s.FailJsonExit(r, err.Error())
+		return
+	}
+	s.SusJsonExit(r, req.OrderNo)
 }
