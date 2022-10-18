@@ -18,6 +18,25 @@ func (s *activity) GetByIds(ids []int) (ret []model.Activity) {
 	return
 }
 
+func (s *activity) GetCreatorRank(rankValue int, pageNum int, pageSize int, publisherId string) (ret map[string]interface{}, err error) {
+	ret = make(map[string]interface{})
+	m := g.DB().Model("subscribe_activity").Where("publisher_id = ?", publisherId)
+	if rankValue != 0 {
+		m = m.Where("sum_num = ?", rankValue)
+	}
+	ret["total"], err = m.Order("price DESC").Count()
+	if err != nil {
+		return
+	}
+	var list []model.SubscribeActivity
+	err = m.Order("price DESC").Page(pageNum, pageSize).Scan(&list)
+	if err != nil {
+		return
+	}
+	ret["list"] = list
+	return
+}
+
 func (s *activity) List(activityIds []int, pageNum int, pageSize int, startTime, endTime string, activityType int, status, searchVal, publisherId string, disable int) (ret model.AdminActivityList, err error) {
 	m := g.DB().Model("activity")
 	if disable != -1 {
@@ -110,6 +129,10 @@ func (s *activity) List(activityIds []int, pageNum int, pageSize int, startTime,
 		}
 		if v.ActivityType == 2 {
 			item.ActivityTypeString = "普通购"
+			if publisherId == "MCN" {
+				item.PublisherName = subAcMap[v.ActivityId].CreatorName
+				item.PublisherIcon = subAcMap[v.ActivityId].CreatorAvatar
+			}
 		}
 		if v.StartTime.Unix() > n.Unix() {
 			item.ActivityStatus = "0"

@@ -41,6 +41,10 @@ type SubscribeActivity struct {
 	AwardCompleteTime *gtime.Time `orm:"award_complete_time" json:"awardCompleteTime"`
 	Disable           int         `orm:"disable" json:"disable"`
 	NfrSec            int         `orm:"nfr_sec" json:"nfrSec"`
+	CreatorId         int         `orm:"creator_id" json:"creatorId"`
+	CreatorName       string      `orm:"creator_name" json:"creatorName"`
+	CreatorAvatar     string      `orm:"creator_avatar" json:"creatorAvatar"`
+	CreatorNo         string      `orm:"creator_no" json:"creatorNo"`
 	CreatedAt         *gtime.Time `orm:"created_at" json:"createdAt"` // 新建时间
 	UpdatedAt         *gtime.Time `orm:"updated_at" json:"updatedAt"` // 更新时间
 }
