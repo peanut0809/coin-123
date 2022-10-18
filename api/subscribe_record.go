@@ -66,7 +66,13 @@ func (s *subscribeRecord) GetListByOrder(r *ghttp.Request) {
 	activityType := r.GetQueryInt("activityType")
 	userId := s.GetUserId(r)
 	publisherId := s.GetPublisherId(r)
-	ret, err := service.SubscribeRecord.GetListByOrder(userId, "", pageNum, status, publisherId, activityType)
+	var aid = 0
+	alias := r.GetQueryString("alias")
+	if alias != "" {
+		ainfo := service.SubscribeActivity.GetByAlias(alias)
+		aid = ainfo.Id
+	}
+	ret, err := service.SubscribeRecord.GetListByOrder(userId, "", pageNum, status, publisherId, activityType, aid)
 	if err != nil {
 		s.FailJsonExit(r, err.Error())
 		return
@@ -82,7 +88,7 @@ func (s *subscribeRecord) GetDetailByOrder(r *ghttp.Request) {
 	}
 	userId := s.GetUserId(r)
 	publisherId := s.GetPublisherId(r)
-	ret, err := service.SubscribeRecord.GetListByOrder(userId, orderNo, 1, -1, publisherId, 0)
+	ret, err := service.SubscribeRecord.GetListByOrder(userId, orderNo, 1, -1, publisherId, 0, 0)
 	if err != nil {
 		s.FailJsonExit(r, err.Error())
 		return

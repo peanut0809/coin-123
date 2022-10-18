@@ -760,3 +760,8 @@ func (s *subscribeActivity) GetByIds(ids []int) (ret map[int]model.SubscribeActi
 	}
 	return
 }
+
+func (s *subscribeActivity) GetByAlias(alias string) (ret model.SubscribeActivity) {
+	g.DB().Model("subscribe_activity").Where("alias = ?", alias).Scan(&ret)
+	return
+}
