@@ -24,6 +24,19 @@ func (s *activity) ListBySearch(r *ghttp.Request) {
 	s.SusJsonExit(r, ret)
 }
 
+func (s *activity) GetPriceRank(r *ghttp.Request) {
+	rankValue := r.GetQueryInt("rankValue")
+	pageNum := r.GetQueryInt("pageNum", 1)
+	pageSize := r.GetQueryInt("pageSize", 20)
+	publisherId := r.GetQueryString("publisherId")
+	ret, err := service.Activity.GetCreatorRank(rankValue, pageNum, pageSize, publisherId)
+	if err != nil {
+		s.FailJsonExit(r, err.Error())
+		return
+	}
+	s.SusJsonExit(r, ret)
+}
+
 func (s *activity) ListByClient(r *ghttp.Request) {
 	pageNum := r.GetQueryInt("pageNum", 1)
 	pageSize := r.GetQueryInt("pageSize", 20)
