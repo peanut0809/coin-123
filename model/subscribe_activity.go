@@ -37,6 +37,7 @@ type SubscribeActivity struct {
 	SubSum            int         `orm:"sub_sum" json:"subSum"`
 	SubSumPeople      int         `orm:"sub_sum_people" json:"subSumPeople"`
 	GeneralBuyNum     int         `orm:"general_buy_num" json:"generalBuyNum"`
+	GeneralNumMethod  int         `orm:"general_num_method" json:"generalNumMethod"`
 	AwardMethod       int         `orm:"award_method" json:"awardMethod"`
 	AwardCompleteTime *gtime.Time `orm:"award_complete_time" json:"awardCompleteTime"`
 	Disable           int         `orm:"disable" json:"disable"`
