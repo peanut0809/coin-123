@@ -227,6 +227,7 @@ func (s *adminSubscribeActivity) Update(in model.SubscribeActivity, cons []model
 		"creator_id":          in.CreatorId,
 		"creator_name":        in.CreatorName,
 		"creator_avatar":      in.CreatorAvatar,
+		"general_num_method":  in.GeneralNumMethod,
 	}
 	if in.ActivityType == 2 {
 		updateMap["general_buy_num"] = in.GeneralBuyNum
