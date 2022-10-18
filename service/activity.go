@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/os/gtime"
+	"github.com/gogf/gf/util/gconv"
 	"meta_launchpad/model"
 	"meta_launchpad/provider"
 )
@@ -18,11 +19,14 @@ func (s *activity) GetByIds(ids []int) (ret []model.Activity) {
 	return
 }
 
-func (s *activity) GetCreatorRank(rankValue int, pageNum int, pageSize int, publisherId string) (ret map[string]interface{}, err error) {
+func (s *activity) GetCreatorRank(rankValue int, pageNum int, pageSize int, publisherId string, searchVal string) (ret map[string]interface{}, err error) {
 	ret = make(map[string]interface{})
 	m := g.DB().Model("subscribe_activity").Where("publisher_id = ?", publisherId)
 	if rankValue != 0 {
 		m = m.Where("sum_num = ?", rankValue)
+	}
+	if searchVal != "" {
+		m = m.Where("(creator_name LIKE ? OR creator_no = ?)", "%"+searchVal+"%", gconv.Int(searchVal))
 	}
 	ret["total"], err = m.Order("price DESC").Count()
 	if err != nil {

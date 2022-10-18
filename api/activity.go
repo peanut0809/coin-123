@@ -29,7 +29,8 @@ func (s *activity) GetPriceRank(r *ghttp.Request) {
 	pageNum := r.GetQueryInt("pageNum", 1)
 	pageSize := r.GetQueryInt("pageSize", 20)
 	publisherId := r.GetQueryString("publisherId")
-	ret, err := service.Activity.GetCreatorRank(rankValue, pageNum, pageSize, publisherId)
+	searchVal := r.GetQueryString("searchVal")
+	ret, err := service.Activity.GetCreatorRank(rankValue, pageNum, pageSize, publisherId, searchVal)
 	if err != nil {
 		s.FailJsonExit(r, err.Error())
 		return
