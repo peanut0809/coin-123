@@ -3,6 +3,7 @@ package provider
 import (
 	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/utils"
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/gogf/gf/frame/g"
 	"github.com/parnurzeal/gorequest"
@@ -48,6 +49,7 @@ func (s *developer) GetAssetsTemplate(appId string, templateId string) (ret Temp
 		err = fmt.Errorf(info.Msg)
 		return
 	}
+	json.Unmarshal([]byte(info.Data.CopyrightInfo), &info.Data.CopyrightInfoJson)
 	ret = info.Data
 	return
 }
