@@ -2,6 +2,7 @@ package model
 
 import (
 	"github.com/gogf/gf/os/gtime"
+	"meta_launchpad/provider"
 )
 
 type CreateSubscribeActivityReq struct {
@@ -76,15 +77,16 @@ type SubscribeActivityFull struct {
 	PayStatus     int                         `json:"payStatus"` //是否已付款
 	Steps         []SubscribeActivityFullStep `json:"steps"`
 
-	AssetCateString string      `json:"assetCateString"`
-	AssetTotal      int         `json:"assetTotal"`
-	AssetCreateAt   *gtime.Time `json:"assetCreateAt"`
-	AssetDetailImg  string      `json:"assetDetailImg"`
-	NfrDay          int         `json:"nfrDay"`
-	ChainName       string      `json:"chainName"`
-	AssetPic        string      `json:"assetPic"`
-	ChainAddr       string      `json:"chainAddr"`
-	ChainType       int         `json:"chainType"`
+	AssetCateString string                      `json:"assetCateString"`
+	AssetTotal      int                         `json:"assetTotal"`
+	AssetCreateAt   *gtime.Time                 `json:"assetCreateAt"`
+	AssetDetailImg  string                      `json:"assetDetailImg"`
+	NfrDay          int                         `json:"nfrDay"`
+	ChainName       string                      `json:"chainName"`
+	AssetPic        string                      `json:"assetPic"`
+	ChainAddr       string                      `json:"chainAddr"`
+	ChainType       int                         `json:"chainType"`
+	CopyrightInfo   []provider.TplCopyrightInfo `json:"copyrightInfo"`
 }
 
 type SubscribeActivityFullStep struct {

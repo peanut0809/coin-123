@@ -19,11 +19,20 @@ type AssetsTemplateRet struct {
 	Msg  string       `json:"msg"`
 }
 
+type TplCopyrightInfo struct {
+	Name     string `json:"name"`
+	FileUrl  string `json:"fileUrl"`
+	FileType string `json:"fileType"`
+}
+
 type TemplateInfo struct {
 	CateList []struct {
 		CnName string `json:"cnName"`
 	} `json:"cate_list"`
-	DetailImg string `json:"detail_img"`
+	DetailImg         string             `json:"detail_img"`
+	CopyrightInfo     string             `json:"copyright_info"`
+	CopyrightOpen     int                `json:"copyright_open"`
+	CopyrightInfoJson []TplCopyrightInfo `json:"copyright_info_json"`
 }
 
 func (s *developer) GetAssetsTemplate(appId string, templateId string) (ret TemplateInfo, err error) {
