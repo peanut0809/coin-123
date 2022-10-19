@@ -69,15 +69,18 @@ func (s *adminSubscribeActivity) Create(r *ghttp.Request) {
 	req.Alias = utils.RandString(6)
 	req.PublisherId = s.GetPublisherId(r)
 
-	if req.CreatorId != 0 {
-		creatorInfo, err := provider.Developer.GetCreatorInfo(req.CreatorId)
+	tplInfo, _ := provider.Developer.GetAssetsTemplate(req.AppId, req.TemplateId)
+
+	if tplInfo.DeveloperId != 0 {
+		creatorInfo, err := provider.Developer.GetCreatorInfo(tplInfo.DeveloperId)
 		if err != nil {
 			s.FailJsonExit(r, err.Error())
 			return
 		}
+		req.CreatorId = tplInfo.DeveloperId
 		req.CreatorName = creatorInfo.Data.Name
 		req.CreatorAvatar = creatorInfo.Data.LogoUrl
-		req.CreatorNo = fmt.Sprintf("%06d", req.CreatorId)
+		req.CreatorNo = fmt.Sprintf("%06d", tplInfo.DeveloperId)
 	}
 	if req.Id == 0 {
 		err = service.AdminSubscribeActivity.Create(req.SubscribeActivity, req.Condition)

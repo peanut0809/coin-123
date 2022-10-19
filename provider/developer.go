@@ -33,6 +33,7 @@ type TemplateInfo struct {
 	CopyrightInfo     string             `json:"copyright_info"`
 	CopyrightOpen     int                `json:"copyright_open"`
 	CopyrightInfoJson []TplCopyrightInfo `json:"copyright_info_json"`
+	DeveloperId       int                `json:"developerId"`
 }
 
 func (s *developer) GetAssetsTemplate(appId string, templateId string) (ret TemplateInfo, err error) {
