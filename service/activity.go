@@ -33,7 +33,7 @@ func (s *activity) GetCreatorRank(rankValue int, pageNum int, pageSize int, publ
 		return
 	}
 	var list []model.SubscribeActivity
-	err = m.Order("sum_num,price DESC").Page(pageNum, pageSize).Scan(&list)
+	err = m.Order("sum_num DESC,price DESC").Page(pageNum, pageSize).Scan(&list)
 	if err != nil {
 		return
 	}
