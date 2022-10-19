@@ -28,12 +28,12 @@ func (s *activity) GetCreatorRank(rankValue int, pageNum int, pageSize int, publ
 	if searchVal != "" {
 		m = m.Where("(creator_name LIKE ? OR creator_no = ?)", "%"+searchVal+"%", gconv.Int(searchVal))
 	}
-	ret["total"], err = m.Order("price DESC").Count()
+	ret["total"], err = m.Count()
 	if err != nil {
 		return
 	}
 	var list []model.SubscribeActivity
-	err = m.Order("price DESC").Page(pageNum, pageSize).Scan(&list)
+	err = m.Order("sum_num,price DESC").Page(pageNum, pageSize).Scan(&list)
 	if err != nil {
 		return
 	}
