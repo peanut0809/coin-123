@@ -23,7 +23,8 @@ type TemplateInfo struct {
 	CateList []struct {
 		CnName string `json:"cnName"`
 	} `json:"cate_list"`
-	DetailImg string `json:"detail_img"`
+	DetailImg   string `json:"detail_img"`
+	DeveloperId int    `json:"developerId"`
 }
 
 func (s *developer) GetAssetsTemplate(appId string, templateId string) (ret TemplateInfo, err error) {
