@@ -118,6 +118,8 @@ func (s *asset) GetMateDataByAm(params *map[string]interface{}) (ret GetMateData
 
 type GetMateDataByTplsItem struct {
 	AssetName string `orm:"asset_name" json:"assetName"` // 资产名称
+	Icon      string `orm:"icon" json:"icon"`            // 资产背包图标
+	AssetPic  string `orm:"asset_pic" json:"assetPic"`
 }
 
 func (s *asset) GetMateDataByTpls(params *map[string]interface{}) (ret map[string]GetMateDataByTplsItem, err error) {
@@ -131,6 +133,7 @@ func (s *asset) GetMateDataByTpls(params *map[string]interface{}) (ret map[strin
 
 type GetCanUsedAssetsByTemplateRet struct {
 	TokenId string `json:"tokenId"` // tokenId
+	AppId   string `orm:"app_id" json:"appId"`
 }
 
 func (s *asset) GetCanUsedAssetsByTemplate(params *map[string]interface{}) (ret []GetCanUsedAssetsByTemplateRet, err error) {

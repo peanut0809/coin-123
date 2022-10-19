@@ -76,6 +76,13 @@ func InitRouter() *ghttp.Server {
 		group.GET("/seckill/activity/order/list", api.SeckillActivity.GetOrderList)                  //订单列表
 		group.GET("/seckill/activity/order/detail", api.SeckillActivity.GetOrderDetail)              //订单详情
 
+		//合成
+		group.GET("/synthetic/list", api.Synthetic.ClientList)
+		group.GET("/synthetic/detail", api.Synthetic.ClientDetail)
+		group.POST("/synthetic/do", api.Synthetic.DoSynthetic)
+		group.GET("/synthetic/do/result", api.Synthetic.GetDoSyntheticResult)
+		group.GET("/synthetic/record/list", api.Synthetic.GetRecordList)
+		group.GET("/synthetic/record/detail", api.Synthetic.GetRecordDetail)
 	})
 
 	s.Group("/admin", func(group *ghttp.RouterGroup) {
@@ -121,6 +128,14 @@ func InitRouter() *ghttp.Server {
 		group.GET("/frontPage/transactionsNum", api.FrontPage.TransactionsNum) // 支付笔数
 		group.GET("/frontPage/payers", api.FrontPage.Payers)                   // 支付人数
 		group.GET("/frontPage/turnover", api.FrontPage.Turnover)               // 交易额
+
+		//合成
+		group.POST("/synthetic/create", api.Synthetic.Create)
+		group.GET("/synthetic/list", api.Synthetic.List)
+		group.GET("/synthetic/detail", api.Synthetic.Detail)
+		group.POST("/synthetic/open", api.Synthetic.Open)
+		group.POST("/synthetic/delete", api.Synthetic.Delete)
+		group.GET("/synthetic/record", api.Synthetic.GetSyntheticRecord)
 	})
 	return s
 }

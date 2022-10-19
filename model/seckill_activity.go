@@ -2,6 +2,7 @@ package model
 
 import (
 	"github.com/gogf/gf/os/gtime"
+	"meta_launchpad/provider"
 )
 
 type SeckillActivity struct {
@@ -35,15 +36,16 @@ type SeckillActivityFull struct {
 	Status    int    `json:"status"`
 	PriceYuan string `json:"priceYuan"`
 
-	AssetCateString string      `json:"assetCateString"`
-	AssetTotal      int         `json:"assetTotal"`
-	AssetCreateAt   *gtime.Time `json:"assetCreateAt"`
-	AssetDetailImg  string      `json:"assetDetailImg"`
-	AssetPic        string      `json:"assetPic"`
-	NfrDay          int         `json:"nfrDay"`
-	ChainName       string      `json:"chainName"`
-	ChainAddr       string      `json:"chainAddr"`
-	ChainType       int         `json:"chainType"`
+	AssetCateString string                      `json:"assetCateString"`
+	AssetTotal      int                         `json:"assetTotal"`
+	AssetCreateAt   *gtime.Time                 `json:"assetCreateAt"`
+	AssetDetailImg  string                      `json:"assetDetailImg"`
+	AssetPic        string                      `json:"assetPic"`
+	NfrDay          int                         `json:"nfrDay"`
+	ChainName       string                      `json:"chainName"`
+	ChainAddr       string                      `json:"chainAddr"`
+	ChainType       int                         `json:"chainType"`
+	CopyrightInfo   []provider.TplCopyrightInfo `json:"copyrightInfo"`
 }
 
 const SeckillActivityStatus_Wait_Start = 0

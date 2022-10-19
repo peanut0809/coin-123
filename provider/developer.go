@@ -3,6 +3,7 @@ package provider
 import (
 	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/utils"
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/gogf/gf/frame/g"
 	"github.com/parnurzeal/gorequest"
@@ -19,11 +20,20 @@ type AssetsTemplateRet struct {
 	Msg  string       `json:"msg"`
 }
 
+type TplCopyrightInfo struct {
+	Name     string `json:"name"`
+	FileUrl  string `json:"fileUrl"`
+	FileType string `json:"fileType"`
+}
+
 type TemplateInfo struct {
 	CateList []struct {
 		CnName string `json:"cnName"`
 	} `json:"cate_list"`
-	DetailImg string `json:"detail_img"`
+	DetailImg         string             `json:"detail_img"`
+	CopyrightInfo     string             `json:"copyright_info"`
+	CopyrightOpen     int                `json:"copyright_open"`
+	CopyrightInfoJson []TplCopyrightInfo `json:"copyright_info_json"`
 }
 
 func (s *developer) GetAssetsTemplate(appId string, templateId string) (ret TemplateInfo, err error) {
@@ -38,6 +48,7 @@ func (s *developer) GetAssetsTemplate(appId string, templateId string) (ret Temp
 		err = fmt.Errorf(info.Msg)
 		return
 	}
+	json.Unmarshal([]byte(info.Data.CopyrightInfo), &info.Data.CopyrightInfoJson)
 	ret = info.Data
 	return
 }

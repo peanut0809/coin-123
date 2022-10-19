@@ -73,6 +73,9 @@ func (s *seckillActivity) GetValidDetail(alias, publisherId string) (ret model.S
 	ret.AssetCreateAt = assetDetail.CreateTime
 	ret.AssetDetailImg = templateInfo.DetailImg
 	ret.NfrDay = as.NfrSec / 3600 / 24
+	if templateInfo.CopyrightOpen == 1 {
+		ret.CopyrightInfo = templateInfo.CopyrightInfoJson
+	}
 	return
 }
 
