@@ -288,9 +288,16 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string) (ticketInf
 		}
 	}
 	if as.ActivityType == 2 { //普通购
+		wallerRet, _ := provider.Wallet.WalletAuthenticationState(userId)
+
 		for k, v := range ticketInfo {
 			if v.Type == model.TICKET_MONEY {
 				ticketInfo[k].MaxBuyNum = as.GeneralBuyNum
+				if as.GeneralNumMethod == 1 {
+					if wallerRet != nil {
+						ticketInfo[k].MaxBuyNum = wallerRet.Account / as.Price
+					}
+				}
 			} else if v.Type == model.TICKET_CRYSTAL {
 				if v.UnitNum != 0 {
 					ticketInfo[k].MaxBuyNum = userInfoMap[userId].Crystal / v.UnitNum
@@ -299,6 +306,11 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string) (ticketInf
 					}
 				} else {
 					ticketInfo[k].MaxBuyNum = as.GeneralBuyNum
+					if as.GeneralNumMethod == 1 {
+						if wallerRet != nil {
+							ticketInfo[k].MaxBuyNum = wallerRet.Account / as.Price
+						}
+					}
 				}
 			} else if v.Type == model.TICKET_MONTH {
 				if v.UnitNum != 0 {
@@ -308,6 +320,11 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string) (ticketInf
 					}
 				} else {
 					ticketInfo[k].MaxBuyNum = as.GeneralBuyNum
+					if as.GeneralNumMethod == 1 {
+						if wallerRet != nil {
+							ticketInfo[k].MaxBuyNum = wallerRet.Account / as.Price
+						}
+					}
 				}
 			}
 		}
@@ -744,5 +761,10 @@ func (s *subscribeActivity) GetByIds(ids []int) (ret map[int]model.SubscribeActi
 	for _, v := range as {
 		ret[v.Id] = v
 	}
+	return
+}
+
+func (s *subscribeActivity) GetByAlias(alias string) (ret model.SubscribeActivity) {
+	g.DB().Model("subscribe_activity").Where("alias = ?", alias).Scan(&ret)
 	return
 }

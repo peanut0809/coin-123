@@ -30,3 +30,25 @@ func (s *user) GetWalletBalance(userId, acctScene string) (res *WalletBalance, e
 	}
 	return
 }
+
+// WalletAuthentication 钱包认证状态
+type WalletAuthentication struct {
+	IsActivation int    `json:"is_activation"` //激活状态,0 - 未认证 1 - 已认证 2：处理中 3：被驳回
+	VerifyStatus string `json:"verify_status"` //进度状态
+	Account      int    `json:"account"`       //钱包余额
+	Count        int    `json:"count"`         //银行卡个数
+	Msg          string `json:"msg"`           //驳回信息
+}
+
+// WalletAuthenticationState 钱包认证状态
+func (s *wallet) WalletAuthenticationState(userId string) (wallerRet *WalletAuthentication, err error) {
+	walletParams := map[string]interface{}{
+		"out_user_id": userId,
+	}
+	err = utils.SendJsonRpcScan(context.Background(), "mate-wallet", "Account.Activation", walletParams, &wallerRet)
+	if err != nil {
+		g.Log().Errorf("rpc Account.Activation err:%v", err)
+		return
+	}
+	return
+}

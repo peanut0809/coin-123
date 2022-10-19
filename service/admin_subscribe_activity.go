@@ -224,6 +224,10 @@ func (s *adminSubscribeActivity) Update(in model.SubscribeActivity, cons []model
 		"open_award_time":     in.OpenAwardTime,
 		"pay_end_time":        in.PayEndTime,
 		"nfr_sec":             in.NfrSec,
+		"creator_id":          in.CreatorId,
+		"creator_name":        in.CreatorName,
+		"creator_avatar":      in.CreatorAvatar,
+		"general_num_method":  in.GeneralNumMethod,
 	}
 	if in.ActivityType == 2 {
 		updateMap["general_buy_num"] = in.GeneralBuyNum

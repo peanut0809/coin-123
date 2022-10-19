@@ -3,9 +3,11 @@ package api
 import (
 	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/api"
 	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/utils"
+	"fmt"
 	"github.com/gogf/gf/net/ghttp"
 	"github.com/shopspring/decimal"
 	"meta_launchpad/model"
+	"meta_launchpad/provider"
 	"meta_launchpad/service"
 )
 
@@ -66,6 +68,20 @@ func (s *adminSubscribeActivity) Create(r *ghttp.Request) {
 	req.Price = int(priceInt)
 	req.Alias = utils.RandString(6)
 	req.PublisherId = s.GetPublisherId(r)
+
+	tplInfo, _ := provider.Developer.GetAssetsTemplate(req.AppId, req.TemplateId)
+
+	if tplInfo.DeveloperId != 0 {
+		creatorInfo, err := provider.Developer.GetCreatorInfo(tplInfo.DeveloperId)
+		if err != nil {
+			s.FailJsonExit(r, err.Error())
+			return
+		}
+		req.CreatorId = tplInfo.DeveloperId
+		req.CreatorName = creatorInfo.Data.Name
+		req.CreatorAvatar = creatorInfo.Data.LogoUrl
+		req.CreatorNo = fmt.Sprintf("%06d", tplInfo.DeveloperId)
+	}
 	if req.Id == 0 {
 		err = service.AdminSubscribeActivity.Create(req.SubscribeActivity, req.Condition)
 		if err != nil {

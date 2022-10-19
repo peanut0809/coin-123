@@ -38,10 +38,15 @@ type SubscribeActivity struct {
 	SubSum            int         `orm:"sub_sum" json:"subSum"`
 	SubSumPeople      int         `orm:"sub_sum_people" json:"subSumPeople"`
 	GeneralBuyNum     int         `orm:"general_buy_num" json:"generalBuyNum"`
+	GeneralNumMethod  int         `orm:"general_num_method" json:"generalNumMethod"`
 	AwardMethod       int         `orm:"award_method" json:"awardMethod"`
 	AwardCompleteTime *gtime.Time `orm:"award_complete_time" json:"awardCompleteTime"`
 	Disable           int         `orm:"disable" json:"disable"`
 	NfrSec            int         `orm:"nfr_sec" json:"nfrSec"`
+	CreatorId         int         `orm:"creator_id" json:"creatorId"`
+	CreatorName       string      `orm:"creator_name" json:"creatorName"`
+	CreatorAvatar     string      `orm:"creator_avatar" json:"creatorAvatar"`
+	CreatorNo         string      `orm:"creator_no" json:"creatorNo"`
 	CreatedAt         *gtime.Time `orm:"created_at" json:"createdAt"` // 新建时间
 	UpdatedAt         *gtime.Time `orm:"updated_at" json:"updatedAt"` // 更新时间
 }

@@ -34,6 +34,7 @@ type TemplateInfo struct {
 	CopyrightInfo     string             `json:"copyright_info"`
 	CopyrightOpen     int                `json:"copyright_open"`
 	CopyrightInfoJson []TplCopyrightInfo `json:"copyright_info_json"`
+	DeveloperId       int                `json:"developerId"`
 }
 
 func (s *developer) GetAssetsTemplate(appId string, templateId string) (ret TemplateInfo, err error) {
@@ -50,6 +51,30 @@ func (s *developer) GetAssetsTemplate(appId string, templateId string) (ret Temp
 	}
 	json.Unmarshal([]byte(info.Data.CopyrightInfo), &info.Data.CopyrightInfoJson)
 	ret = info.Data
+	return
+}
+
+type GetCreatorInfoRet struct {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
+	Data struct {
+		Name    string `json:"name"`
+		LogoUrl string `json:"logoUrl"`
+		Id      int    `json:"id"`
+	} `json:"data"`
+}
+
+func (s *developer) GetCreatorInfo(id int) (ret GetCreatorInfoRet, err error) {
+	developerHost := g.Cfg().GetString("developer.host")
+	_, _, errs := gorequest.New().Get(developerHost + fmt.Sprintf("/out/open/creator/detail?id=%d", id)).EndStruct(&ret)
+	if len(errs) != 0 {
+		err = errs[0]
+		return
+	}
+	if ret.Code != 200 {
+		err = fmt.Errorf(ret.Msg)
+		return
+	}
 	return
 }
 

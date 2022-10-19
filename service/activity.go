@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/os/gtime"
+	"github.com/gogf/gf/util/gconv"
 	"meta_launchpad/model"
 	"meta_launchpad/provider"
 )
@@ -15,6 +16,28 @@ var Activity = new(activity)
 
 func (s *activity) GetByIds(ids []int) (ret []model.Activity) {
 	_ = g.DB().Model("activity").Where("id in (?)", ids).Scan(&ret)
+	return
+}
+
+func (s *activity) GetCreatorRank(rankValue int, pageNum int, pageSize int, publisherId string, searchVal string) (ret map[string]interface{}, err error) {
+	ret = make(map[string]interface{})
+	m := g.DB().Model("subscribe_activity").Where("publisher_id = ?", publisherId)
+	if rankValue != 0 {
+		m = m.Where("sum_num = ?", rankValue)
+	}
+	if searchVal != "" {
+		m = m.Where("(creator_name LIKE ? OR creator_no = ?)", "%"+searchVal+"%", gconv.Int(searchVal))
+	}
+	ret["total"], err = m.Count()
+	if err != nil {
+		return
+	}
+	var list []model.SubscribeActivity
+	err = m.Order("sum_num,price DESC").Page(pageNum, pageSize).Scan(&list)
+	if err != nil {
+		return
+	}
+	ret["list"] = list
 	return
 }
 
@@ -110,6 +133,10 @@ func (s *activity) List(activityIds []int, pageNum int, pageSize int, startTime,
 		}
 		if v.ActivityType == 2 {
 			item.ActivityTypeString = "普通购"
+			if publisherId == "MCN" {
+				item.PublisherName = subAcMap[v.ActivityId].CreatorName
+				item.PublisherIcon = subAcMap[v.ActivityId].CreatorAvatar
+			}
 		}
 		if v.StartTime.Unix() > n.Unix() {
 			item.ActivityStatus = "0"
