@@ -122,6 +122,14 @@ func (s *synthetic) Open(id int, open int) (ret model.SyntheticActivity, err err
 	return
 }
 
+func (s *synthetic) UpdateRemainNum(id int, num int) (err error) {
+	_, err = g.DB().Exec("UPDATE synthetic_activity SET remain_num = remain_num - ? WHERE id = ?", num, id)
+	if err != nil {
+		return
+	}
+	return
+}
+
 func (s *synthetic) Delete(id int) (ret model.SyntheticActivity, err error) {
 	rcount, _ := g.DB().Model("synthetic_record").Where("aid = ?", id).Count()
 	if rcount != 0 {
@@ -276,6 +284,14 @@ func (s *synthetic) Synthetic(in model.SyntheticReq) {
 		})
 		return
 	}
+	if ainfo.RemainNum <= 0 {
+		s.SetResult(model.SyntheticRet{
+			Step:    "fail",
+			OrderNo: in.OrderNo,
+			Reason:  "合成条件不符合",
+		})
+		return
+	}
 	inMap := make(map[string]int)
 	cMap := make(map[string]int)
 	knIds := make([]int, 0)
@@ -359,6 +375,15 @@ func (s *synthetic) Synthetic(in model.SyntheticReq) {
 		"appIds":      []string{ainfo.AppId},
 		"templateIds": []string{ainfo.TemplateId},
 	})
+	err = s.UpdateRemainNum(in.Aid, ainfo.OutNum)
+	if err != nil {
+		s.SetResult(model.SyntheticRet{
+			Step:    "fail",
+			OrderNo: in.OrderNo,
+			Reason:  err.Error(),
+		})
+		return
+	}
 	var record model.SyntheticRecord
 	record.OrderNo = in.OrderNo
 	record.AssetName = tplInfo[ainfo.AppId+ainfo.TemplateId].AssetName
@@ -378,6 +403,7 @@ func (s *synthetic) Synthetic(in model.SyntheticReq) {
 		})
 		return
 	}
+
 	s.SetResult(model.SyntheticRet{
 		Step:    "success",
 		OrderNo: in.OrderNo,
