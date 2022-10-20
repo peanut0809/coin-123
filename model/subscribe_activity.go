@@ -85,6 +85,11 @@ type SubscribeActivityFull struct {
 	AssetPic        string      `json:"assetPic"`
 	ChainAddr       string      `json:"chainAddr"`
 	ChainType       int         `json:"chainType"`
+
+	CreatorId     int    `orm:"creator_id" json:"creatorId"`
+	CreatorName   string `orm:"creator_name" json:"creatorName"`
+	CreatorAvatar string `orm:"creator_avatar" json:"creatorAvatar"`
+	CreatorNo     string `orm:"creator_no" json:"creatorNo"`
 }
 
 type SubscribeActivityFullStep struct {
