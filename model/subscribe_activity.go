@@ -77,16 +77,21 @@ type SubscribeActivityFull struct {
 	PayStatus     int                         `json:"payStatus"` //是否已付款
 	Steps         []SubscribeActivityFullStep `json:"steps"`
 
-	AssetCateString string                      `json:"assetCateString"`
-	AssetTotal      int                         `json:"assetTotal"`
-	AssetCreateAt   *gtime.Time                 `json:"assetCreateAt"`
-	AssetDetailImg  string                      `json:"assetDetailImg"`
-	NfrDay          int                         `json:"nfrDay"`
-	ChainName       string                      `json:"chainName"`
-	AssetPic        string                      `json:"assetPic"`
-	ChainAddr       string                      `json:"chainAddr"`
-	ChainType       int                         `json:"chainType"`
-	CopyrightInfo   []provider.TplCopyrightInfo `json:"copyrightInfo"`
+	AssetCateString string      `json:"assetCateString"`
+	AssetTotal      int         `json:"assetTotal"`
+	AssetCreateAt   *gtime.Time `json:"assetCreateAt"`
+	AssetDetailImg  string      `json:"assetDetailImg"`
+	NfrDay          int         `json:"nfrDay"`
+	ChainName       string      `json:"chainName"`
+	AssetPic        string      `json:"assetPic"`
+	ChainAddr       string      `json:"chainAddr"`
+	ChainType       int         `json:"chainType"`
+
+	CreatorId     int                         `orm:"creator_id" json:"creatorId"`
+	CreatorName   string                      `orm:"creator_name" json:"creatorName"`
+	CreatorAvatar string                      `orm:"creator_avatar" json:"creatorAvatar"`
+	CreatorNo     string                      `orm:"creator_no" json:"creatorNo"`
+	CopyrightInfo []provider.TplCopyrightInfo `json:"copyrightInfo"`
 }
 
 type SubscribeActivityFullStep struct {

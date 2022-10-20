@@ -184,9 +184,15 @@ func (s *subscribeActivity) GetDetail(alias, userId, publisherId string) (ret mo
 	ret.AssetCreateAt = assetDetail.CreateTime
 	ret.AssetDetailImg = templateInfo.DetailImg
 	ret.NfrDay = as.NfrSec / 3600 / 24
+
 	if templateInfo.CopyrightOpen == 1 {
 		ret.CopyrightInfo = templateInfo.CopyrightInfoJson
 	}
+
+	ret.CreatorId = as.CreatorId
+	ret.CreatorName = as.CreatorName
+	ret.CreatorAvatar = as.CreatorAvatar
+	ret.CreatorNo = as.CreatorNo
 	return
 }
 
