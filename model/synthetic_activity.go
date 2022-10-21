@@ -14,6 +14,8 @@ type SyntheticActivityDetail struct {
 	ChainName       string          `json:"chainName"`
 	ChainAddr       string          `json:"chainAddr"`
 	ChainType       int             `json:"chainType"`
+
+	StatusTxt string `json:"statusText"`
 }
 
 type SyntheticActivity struct {

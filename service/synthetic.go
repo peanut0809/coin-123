@@ -55,10 +55,10 @@ func (s *synthetic) ClientDetail(id int) (ret model.SyntheticActivityDetail, err
 	if err != nil {
 		return
 	}
-	err = s.Check(ret.SyntheticActivity)
-	if err != nil {
-		return
-	}
+	//err = s.Check(ret.SyntheticActivity)
+	//if err != nil {
+	//	return
+	//}
 	if ret.Condition != nil {
 		json.Unmarshal([]byte(*ret.Condition), &ret.ConditionArr)
 	}
@@ -100,6 +100,7 @@ func (s *synthetic) ClientDetail(id int) (ret model.SyntheticActivityDetail, err
 		err = fmt.Errorf("获取发行商失败")
 		return
 	}
+	now := time.Now()
 	ret.AssetPic = assetDetail.AssetPic
 	ret.AssetName = assetDetail.AssetName
 	ret.ChainName = publisherInfo.ChainName
@@ -108,6 +109,17 @@ func (s *synthetic) ClientDetail(id int) (ret model.SyntheticActivityDetail, err
 	ret.AssetTotal = assetDetail.Total
 	ret.AssetCreateAt = assetDetail.CreateTime
 	ret.AssetDetailImg = templateInfo.DetailImg
+
+	if now.Unix() >= ret.SyntheticActivity.StartTime.Unix() && now.Unix() <= ret.SyntheticActivity.EndTime.Unix() {
+		ret.StatusTxt = "进行中"
+	} else {
+		if now.Unix() <= ret.SyntheticActivity.StartTime.Unix() {
+			ret.StatusTxt = "未开始"
+		} else {
+			ret.StatusTxt = "已结束"
+		}
+	}
+
 	return
 }
 
@@ -172,7 +184,7 @@ func (s *synthetic) Update(in model.SyntheticActivity) (err error) {
 	return
 }
 
-func (s *synthetic) List(publisherId string, pageNum, pageSize int, startTimeBegin, startTimeEnd, endTimeBegin, endTimeEnd, status, searchVal string, orderBy string, open int) (ret model.SyntheticActivityList, err error) {
+func (s *synthetic) List(publisherId string, pageNum, pageSize int, startTimeBegin, startTimeEnd, endTimeBegin, endTimeEnd, status, searchVal string, orderBy string, open int, client bool) (ret model.SyntheticActivityList, err error) {
 	m := g.DB().Model("synthetic_activity").Where("publisher_id", publisherId)
 	if startTimeBegin != "" && startTimeEnd != "" {
 		m = m.Where("start_time >= ? AND start_time <= ?", startTimeBegin, startTimeEnd)
