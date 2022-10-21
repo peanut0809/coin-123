@@ -172,7 +172,7 @@ func (s *synthetic) Update(in model.SyntheticActivity) (err error) {
 	return
 }
 
-func (s *synthetic) List(publisherId string, pageNum, pageSize int, startTimeBegin, startTimeEnd, endTimeBegin, endTimeEnd, status, searchVal string, orderBy string, open int) (ret model.SyntheticActivityList, err error) {
+func (s *synthetic) List(publisherId string, pageNum, pageSize int, startTimeBegin, startTimeEnd, endTimeBegin, endTimeEnd, status, searchVal string, orderBy string, open int, client bool) (ret model.SyntheticActivityList, err error) {
 	m := g.DB().Model("synthetic_activity").Where("publisher_id", publisherId)
 	if startTimeBegin != "" && startTimeEnd != "" {
 		m = m.Where("start_time >= ? AND start_time <= ?", startTimeBegin, startTimeEnd)
@@ -195,6 +195,10 @@ func (s *synthetic) List(publisherId string, pageNum, pageSize int, startTimeBeg
 			m = m.Where("? >= end_time", now)
 		}
 	}
+	if client {
+		m = m.Where("end_time > ? and remain_num != 0", now)
+	}
+
 	if searchVal != "" {
 		m = m.Where("(name LIKE ?) OR (id = ?)", "%"+searchVal+"%", searchVal)
 	}
