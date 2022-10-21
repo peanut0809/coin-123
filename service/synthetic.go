@@ -100,6 +100,7 @@ func (s *synthetic) ClientDetail(id int) (ret model.SyntheticActivityDetail, err
 		err = fmt.Errorf("获取发行商失败")
 		return
 	}
+	now := time.Now()
 	ret.AssetPic = assetDetail.AssetPic
 	ret.AssetName = assetDetail.AssetName
 	ret.ChainName = publisherInfo.ChainName
@@ -108,6 +109,17 @@ func (s *synthetic) ClientDetail(id int) (ret model.SyntheticActivityDetail, err
 	ret.AssetTotal = assetDetail.Total
 	ret.AssetCreateAt = assetDetail.CreateTime
 	ret.AssetDetailImg = templateInfo.DetailImg
+
+	if now.Unix() >= ret.SyntheticActivity.StartTime.Unix() && now.Unix() <= ret.SyntheticActivity.EndTime.Unix() {
+		ret.StatusTxt = "进行中"
+	} else {
+		if now.Unix() <= ret.SyntheticActivity.StartTime.Unix() {
+			ret.StatusTxt = "未开始"
+		} else {
+			ret.StatusTxt = "已结束"
+		}
+	}
+
 	return
 }
 
