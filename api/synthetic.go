@@ -64,7 +64,7 @@ func (s *synthetic) List(r *ghttp.Request) {
 	endTimeEnd := r.GetQueryString("endTimeEnd")
 	status := r.GetQueryString("status")
 	searchVal := r.GetQueryString("searchVal")
-	ret, err := service.Synthetic.List(publisherId, pageNum, pageSize, startTimeBegin, startTimeEnd, endTimeBegin, endTimeEnd, status, searchVal, "id DESC", 0)
+	ret, err := service.Synthetic.List(publisherId, pageNum, pageSize, startTimeBegin, startTimeEnd, endTimeBegin, endTimeEnd, status, searchVal, "id DESC", 0, false)
 	if err != nil {
 		s.FailJsonExit(r, err.Error())
 		return
@@ -78,7 +78,7 @@ func (s *synthetic) ClientList(r *ghttp.Request) {
 	pageNum := r.GetQueryInt("pageNum", 1)
 	pageSize := r.GetQueryInt("pageSize", 1)
 	status := r.GetQueryString("status")
-	ret, err := service.Synthetic.List(publisherId, pageNum, pageSize, "", "", "", "", status, "", "start_time DESC", 1)
+	ret, err := service.Synthetic.List(publisherId, pageNum, pageSize, "", "", "", "", status, "", "start_time DESC", 1, true)
 	if err != nil {
 		s.FailJsonExit(r, err.Error())
 		return
