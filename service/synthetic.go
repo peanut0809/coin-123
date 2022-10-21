@@ -55,10 +55,10 @@ func (s *synthetic) ClientDetail(id int) (ret model.SyntheticActivityDetail, err
 	if err != nil {
 		return
 	}
-	err = s.Check(ret.SyntheticActivity)
-	if err != nil {
-		return
-	}
+	//err = s.Check(ret.SyntheticActivity)
+	//if err != nil {
+	//	return
+	//}
 	if ret.Condition != nil {
 		json.Unmarshal([]byte(*ret.Condition), &ret.ConditionArr)
 	}
@@ -195,10 +195,6 @@ func (s *synthetic) List(publisherId string, pageNum, pageSize int, startTimeBeg
 			m = m.Where("? >= end_time", now)
 		}
 	}
-	if client {
-		m = m.Where("end_time > ? and remain_num != 0", now)
-	}
-
 	if searchVal != "" {
 		m = m.Where("(name LIKE ?) OR (id = ?)", "%"+searchVal+"%", searchVal)
 	}
