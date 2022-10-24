@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/os/gtime"
-	"github.com/gogf/gf/util/gconv"
 	"meta_launchpad/model"
 	"meta_launchpad/provider"
 )
@@ -26,7 +25,7 @@ func (s *activity) GetCreatorRank(rankValue int, pageNum int, pageSize int, publ
 		m = m.Where("sum_num = ?", rankValue)
 	}
 	if searchVal != "" {
-		m = m.Where("(creator_name LIKE ? OR creator_no = ?)", "%"+searchVal+"%", gconv.Int(searchVal))
+		m = m.Where("(creator_name LIKE ? OR creator_no = ?)", "%"+searchVal+"%", "%"+searchVal+"%")
 	}
 	ret["total"], err = m.Count()
 	if err != nil {
