@@ -25,7 +25,7 @@ func (s *activity) GetCreatorRank(rankValue int, pageNum int, pageSize int, publ
 		m = m.Where("sum_num = ?", rankValue)
 	}
 	if searchVal != "" {
-		m = m.Where("(creator_name LIKE ? OR creator_no = ?)", "%"+searchVal+"%", "%"+searchVal+"%")
+		m = m.Where("(creator_name LIKE ? OR creator_no = ?)", "%"+searchVal+"%", searchVal)
 	}
 	ret["total"], err = m.Count()
 	if err != nil {
