@@ -102,14 +102,14 @@ func (s *drop) Create(r *ghttp.Request) {
 		s.FailJsonExit(r, "缺少手机号")
 		return
 	}
-	phoneMap := make(map[string]int)
-	for _, v := range req.PhoneArr {
-		phoneMap[v] = 1
-	}
-	if len(phoneMap) != len(req.PhoneArr) {
-		s.FailJsonExit(r, "手机号重复")
-		return
-	}
+	//phoneMap := make(map[string]int)
+	//for _, v := range req.PhoneArr {
+	//	phoneMap[v] = 1
+	//}
+	//if len(phoneMap) != len(req.PhoneArr) {
+	//	s.FailJsonExit(r, "手机号重复")
+	//	return
+	//}
 	if len(req.PhoneArr) > 5000 {
 		s.FailJsonExit(r, "手机号不能超过5000个")
 		return
