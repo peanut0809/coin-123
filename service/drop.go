@@ -1,13 +1,14 @@
 package service
 
 import (
-	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/client"
 	"database/sql"
 	"fmt"
-	"github.com/gogf/gf/frame/g"
 	"meta_launchpad/model"
 	"meta_launchpad/provider"
 	"strings"
+
+	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/client"
+	"github.com/gogf/gf/frame/g"
 )
 
 type drop struct {
@@ -119,6 +120,8 @@ func (s *drop) StartDrop(dropId int) (err error) {
 		err = fmt.Errorf("空投ID不存在：%d", dropId)
 		return
 	}
+	// dropInfo.Phones = strings.TrimSpace(dropInfo.Phones)
+	dropInfo.Phones = strings.Replace(dropInfo.Phones, " ", "", -1)
 	phoneArr := strings.Split(dropInfo.Phones, ",")
 	userMap, e := provider.User.GetUserInfoByPhone(&map[string]interface{}{
 		"phoneArr": phoneArr,
