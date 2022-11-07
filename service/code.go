@@ -15,6 +15,7 @@ var SmsConfig = map[string]string{
 	"YCJY":     "dU4LPWDI",
 	"NIUDUXIU": "ASoUkovg",
 	"CTYS":     "4JgNMByb",
+	"THINKER":  "0BwfNxPS",
 }
 
 type sms struct {
