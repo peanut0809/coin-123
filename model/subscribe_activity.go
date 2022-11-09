@@ -1,8 +1,9 @@
 package model
 
 import (
-	"github.com/gogf/gf/os/gtime"
 	"meta_launchpad/provider"
+
+	"github.com/gogf/gf/os/gtime"
 )
 
 type CreateSubscribeActivityReq struct {
@@ -57,6 +58,7 @@ type TicketInfoJson struct {
 	Num       int    `json:"num"`
 	MaxBuyNum int    `json:"maxBuyNum"`
 	UnitNum   int    `json:"unitNum"`
+	IsShare   int    `json:"isShare"`
 }
 
 type SubscribeActivityFull struct {

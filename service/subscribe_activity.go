@@ -1,18 +1,19 @@
 package service
 
 import (
-	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/utils"
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/gogf/gf/database/gdb"
-	"github.com/gogf/gf/frame/g"
-	"github.com/gogf/gf/os/gtime"
-	"github.com/gogf/gf/util/gconv"
 	"meta_launchpad/cache"
 	"meta_launchpad/model"
 	"meta_launchpad/provider"
 	"time"
+
+	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/utils"
+	"github.com/gogf/gf/database/gdb"
+	"github.com/gogf/gf/frame/g"
+	"github.com/gogf/gf/os/gtime"
+	"github.com/gogf/gf/util/gconv"
 )
 
 const SubSetResultKey = "meta_launchpad:activity_result:%s"
@@ -295,13 +296,18 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string) (ticketInf
 	}
 	if as.ActivityType == 2 { //普通购
 		wallerRet, _ := provider.Wallet.WalletAuthenticationState(userId)
-
+		var isShare int
 		for k, v := range ticketInfo {
 			if v.Type == model.TICKET_MONEY {
 				ticketInfo[k].MaxBuyNum = as.GeneralBuyNum
 				if as.GeneralNumMethod == 1 {
 					if wallerRet != nil {
-						ticketInfo[k].MaxBuyNum = wallerRet.Account / as.Price
+						var count int
+						count, isShare, err = s.GetMaxCount(wallerRet.Account, userId, as)
+						if err != nil {
+							return
+						}
+						ticketInfo[k].MaxBuyNum = count
 					}
 				}
 			} else if v.Type == model.TICKET_CRYSTAL {
@@ -314,7 +320,12 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string) (ticketInf
 					ticketInfo[k].MaxBuyNum = as.GeneralBuyNum
 					if as.GeneralNumMethod == 1 {
 						if wallerRet != nil {
-							ticketInfo[k].MaxBuyNum = wallerRet.Account / as.Price
+							var count int
+							count, isShare, err = s.GetMaxCount(wallerRet.Account, userId, as)
+							if err != nil {
+								return
+							}
+							ticketInfo[k].MaxBuyNum = count
 						}
 					}
 				}
@@ -328,11 +339,35 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string) (ticketInf
 					ticketInfo[k].MaxBuyNum = as.GeneralBuyNum
 					if as.GeneralNumMethod == 1 {
 						if wallerRet != nil {
-							ticketInfo[k].MaxBuyNum = wallerRet.Account / as.Price
+							var count int
+							count, isShare, err = s.GetMaxCount(wallerRet.Account, userId, as)
+							if err != nil {
+								return
+							}
+							ticketInfo[k].MaxBuyNum = count
+							ticketInfo[k].IsShare = isShare
 						}
 					}
 				}
 			}
+		}
+
+	}
+	return
+}
+
+func (s *subscribeActivity) GetMaxCount(account int, userId string, as *model.SubscribeActivity) (count int, isShare int, err error) {
+	if as.GeneralNumMethod == 1 {
+		var share model.SubscribeShare
+		share, err = SubscribeShare.GetSubscrubeShare(userId, as.Id)
+		if err != nil {
+			return
+		}
+		count = account / as.Price
+		isShare = 0
+		if share.Id != 0 {
+			count = count + 1
+			isShare = 1
 		}
 	}
 	return

@@ -1,15 +1,16 @@
 package router
 
 import (
+	"fmt"
+	"meta_launchpad/api"
+	"meta_launchpad/cache"
+
 	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/middleware"
 	"brq5j1d.gfanx.pro/meta_cloud/meta_common/library"
-	"fmt"
 	"github.com/gogf/gf/errors/gcode"
 	"github.com/gogf/gf/errors/gerror"
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/net/ghttp"
-	"meta_launchpad/api"
-	"meta_launchpad/cache"
 )
 
 func V(r *ghttp.Request) {
@@ -70,6 +71,7 @@ func InitRouter() *ghttp.Server {
 		group.GET("/sub/order/list", api.SubscribeRecord.GetListByOrder)
 		group.GET("/sub/order/detail", api.SubscribeRecord.GetDetailByOrder)
 		group.POST("/sub/order/create", api.SubscribeRecord.CreateOrder)
+		group.POST("/sub/share/upload", api.SubscribeShare.UploadSubscribeShare)
 
 		//秒杀活动
 		group.GET("/seckill/activity/detail", api.SeckillActivity.GetDetail)                         //活动详情
