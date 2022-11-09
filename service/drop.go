@@ -47,8 +47,8 @@ func (s *drop) GetDetailRecordList(pageNum, pageSize, dropId int) (ret model.Dro
 	return
 }
 
-func (s *drop) GetRecordList(pageNum int, pageSize int, createStartTime string, createEndTime string, searchVal string) (ret model.RecordList, err error) {
-	m := g.DB().Model("drop_record")
+func (s *drop) GetRecordList(pageNum int, pageSize int, createStartTime string, createEndTime string, searchVal string, publisherId string) (ret model.RecordList, err error) {
+	m := g.DB().Model("drop_record").Where("publisher_id = ?", publisherId)
 	if createStartTime != "" && createEndTime != "" {
 		m = m.Where("created_at BETWEEN ? AND ?", createStartTime, createEndTime)
 	}

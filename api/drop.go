@@ -39,7 +39,8 @@ func (s *drop) GetRecordList(r *ghttp.Request) {
 	createStartTime := r.GetString("createStartTime")
 	createEndTime := r.GetString("createEndTime")
 	searchVal := r.GetString("searchVal")
-	ret, err := service.Drop.GetRecordList(pageNum, pageSize, createStartTime, createEndTime, searchVal)
+	publisherId := s.GetPublisherId(r)
+	ret, err := service.Drop.GetRecordList(pageNum, pageSize, createStartTime, createEndTime, searchVal, publisherId)
 	if err != nil {
 		s.FailJsonExit(r, err.Error())
 		return
@@ -124,6 +125,7 @@ func (s *drop) Create(r *ghttp.Request) {
 	re, e := g.Redis().Do("SET", locKey, 1, "ex", 60, "nx")
 	if fmt.Sprintf("%v", re) == "OK" && e == nil {
 		defer g.Redis().Do("DEL", locKey)
+		req.DropRecord.PublisherId = s.GetPublisherId(r)
 		err = service.Drop.Create(req.DropRecord)
 		if err != nil {
 			s.FailJsonExit(r, err.Error())
