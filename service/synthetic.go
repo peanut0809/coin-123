@@ -319,6 +319,8 @@ func (s *synthetic) Synthetic(in model.SyntheticReq) {
 	for _, v := range ainfo.ConditionArr {
 		cMap[v.TemplateId] = v.Num
 	}
+	g.Log().Infof("合成：cMap %+v\n", cMap)
+	g.Log().Infof("合成：inMap %+v\n", inMap)
 	for templateId, num := range cMap {
 		if inMap[templateId] != num {
 			s.SetResult(model.SyntheticRet{
