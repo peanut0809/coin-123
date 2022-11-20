@@ -319,7 +319,9 @@ func (s *synthetic) Synthetic(in model.SyntheticReq) {
 		}
 		cMap[vv.TemplateId] = vv.Num
 	}
-	fmt.Println(cMap, inMap)
+	//fmt.Println(cMap, inMap)
+	g.Log().Infof("合成：cMap %+v\n", cMap)
+	g.Log().Infof("合成：inMap %+v\n", inMap)
 	for templateId, num := range cMap {
 		if inMap[templateId] != num {
 			s.SetResult(model.SyntheticRet{
