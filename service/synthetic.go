@@ -1,16 +1,17 @@
 package service
 
 import (
-	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/utils"
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/gogf/gf/frame/g"
-	"github.com/gogf/gf/util/gconv"
 	"meta_launchpad/model"
 	"meta_launchpad/provider"
 	"strings"
 	"time"
+
+	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/utils"
+	"github.com/gogf/gf/frame/g"
+	"github.com/gogf/gf/util/gconv"
 )
 
 type synthetic struct {
@@ -305,19 +306,19 @@ func (s *synthetic) Synthetic(in model.SyntheticReq) {
 		return
 	}
 	inMap := make(map[string]int)
-	onwer, _ := provider.KnapsackService.GetListByTemplate(in.UserId, ainfo.AppId, ainfo.TemplateId)
+	cMap := make(map[string]int)
 	knIds := make([]int, 0)
-	for _, v := range onwer.List {
-		for _, j := range in.ConditionArr {
-			if v.AppId == j.AppId && v.TokenId == j.TokenId {
-				inMap[v.Metadata.TemplateId]++
-				knIds = append(knIds, v.Id)
+	for _, vv := range ainfo.ConditionArr {
+		onwer, _ := provider.KnapsackService.GetListByTemplate(in.UserId, vv.AppId, vv.TemplateId)
+		for _, v := range onwer.List {
+			for _, j := range in.ConditionArr {
+				if v.AppId == j.AppId && v.TokenId == j.TokenId {
+					inMap[v.Metadata.TemplateId]++
+					knIds = append(knIds, v.Id)
+				}
 			}
 		}
-	}
-	cMap := make(map[string]int)
-	for _, v := range ainfo.ConditionArr {
-		cMap[v.TemplateId] = v.Num
+		cMap[vv.TemplateId] = vv.Num
 	}
 	g.Log().Infof("合成：cMap %+v\n", cMap)
 	g.Log().Infof("合成：inMap %+v\n", inMap)
