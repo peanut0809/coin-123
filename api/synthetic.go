@@ -1,14 +1,16 @@
 package api
 
 import (
+	"meta_launchpad/model"
+	"meta_launchpad/service"
+	"time"
+
 	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/api"
 	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/client"
 	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/utils"
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/net/ghttp"
 	"github.com/gogf/gf/util/gconv"
-	"meta_launchpad/model"
-	"meta_launchpad/service"
 )
 
 type synthetic struct {
@@ -190,6 +192,29 @@ func (s *synthetic) DoSynthetic(r *ghttp.Request) {
 	req.UserId = s.GetUserId(r)
 	req.OrderNo = utils.Generate()
 	req.PublisherId = s.GetPublisherId(r)
+	if req.UserId == "" || req.Aid == 0 {
+		s.FailJsonExit(r, "参数错误!")
+		return
+	}
+	sa, err := service.Synthetic.Detail(req.Aid)
+	if err != nil {
+		return
+	}
+	now := time.Now()
+	if now.Unix() >= sa.StartTime.Unix() && now.Unix() <= sa.EndTime.Unix() {
+		// ret.StatusTxt = "进行中"
+	} else {
+		if now.Unix() <= sa.StartTime.Unix() {
+			// ret.StatusTxt = "未开始"
+			s.FailJsonExit(r, "活动未开始!")
+			return
+		} else {
+			// ret.StatusTxt = "已结束"
+			s.FailJsonExit(r, "活动已结束!")
+			return
+		}
+	}
+
 	queueName := "synthetic.do"
 	mqClient, err := client.GetQueue(client.QueueConfig{
 		QueueName:  queueName,
