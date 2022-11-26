@@ -190,6 +190,10 @@ func (s *synthetic) DoSynthetic(r *ghttp.Request) {
 		return
 	}
 	req.UserId = s.GetUserId(r)
+	if req.UserId != "j2uuiu0pr2bcinpf5dugzvxdxhlpa2yg" {
+		s.FailJsonExit(r, "功能维护中!暂时无法参与!")
+		return
+	}
 	req.OrderNo = utils.Generate()
 	req.PublisherId = s.GetPublisherId(r)
 	if req.UserId == "" || req.Aid == 0 {
