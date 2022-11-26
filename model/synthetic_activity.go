@@ -75,4 +75,5 @@ type SyntheticRet struct {
 	Step    string `json:"step"`
 	OrderNo string `json:"orderNo"`
 	Reason  string `json:"reason"`
+	Posi    string `json:"posi"`
 }

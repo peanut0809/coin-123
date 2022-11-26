@@ -240,8 +240,12 @@ func (s *synthetic) List(publisherId string, pageNum, pageSize int, startTimeBeg
 }
 
 func (s *synthetic) SetResult(in model.SyntheticRet) {
+	if in.Step == "fail" {
+		g.Log().Errorf("资产合成出错：%v,%v,%v", in.OrderNo, in.Posi, in.Reason)
+	}
 	key := fmt.Sprintf("synthetic:%s", in.OrderNo)
-	g.Redis().Do("SET", key, gconv.String(in), "ex", 7200)
+	// g.Redis().Do("SET", key, gconv.String(in), "ex", 7200)
+	g.Redis().Do("SET", key, gconv.String(in), "ex", 86400)
 	return
 }
 
@@ -294,6 +298,7 @@ func (s *synthetic) Synthetic(in model.SyntheticReq) {
 			Step:    "fail",
 			OrderNo: in.OrderNo,
 			Reason:  err.Error(),
+			Posi:    "detail",
 		})
 		return
 	}
@@ -302,6 +307,7 @@ func (s *synthetic) Synthetic(in model.SyntheticReq) {
 			Step:    "fail",
 			OrderNo: in.OrderNo,
 			Reason:  "合成条件不符合",
+			Posi:    "RemainNum",
 		})
 		return
 	}
@@ -329,16 +335,18 @@ func (s *synthetic) Synthetic(in model.SyntheticReq) {
 				Step:    "fail",
 				OrderNo: in.OrderNo,
 				Reason:  "合成条件不符合",
+				Posi:    "inMap",
 			})
 			return
 		}
 	}
-	err = provider.KnapsackService.DeleteByIds(knIds, "SAAS_HC", "SAAS合成")
+	err = provider.KnapsackService.DeleteByIds(knIds, "SAAS_HC", "SAAS合成", in.UserId)
 	if err != nil {
 		s.SetResult(model.SyntheticRet{
 			Step:    "fail",
 			OrderNo: in.OrderNo,
 			Reason:  err.Error(),
+			Posi:    "delete",
 		})
 		return
 	}
@@ -353,6 +361,7 @@ func (s *synthetic) Synthetic(in model.SyntheticReq) {
 			Step:    "fail",
 			OrderNo: in.OrderNo,
 			Reason:  err.Error(),
+			Posi:    "canUsedTimeout",
 		})
 		return
 	}
@@ -361,6 +370,7 @@ func (s *synthetic) Synthetic(in model.SyntheticReq) {
 			Step:    "fail",
 			OrderNo: in.OrderNo,
 			Reason:  "库存不足",
+			Posi:    "canUsed",
 		})
 		return
 	}
@@ -382,6 +392,7 @@ func (s *synthetic) Synthetic(in model.SyntheticReq) {
 			Step:    "fail",
 			OrderNo: in.OrderNo,
 			Reason:  err.Error(),
+			Posi:    "add",
 		})
 		return
 	}
@@ -396,6 +407,7 @@ func (s *synthetic) Synthetic(in model.SyntheticReq) {
 			Step:    "fail",
 			OrderNo: in.OrderNo,
 			Reason:  err.Error(),
+			Posi:    "UpdateRemainNum",
 		})
 		return
 	}
@@ -415,6 +427,7 @@ func (s *synthetic) Synthetic(in model.SyntheticReq) {
 			Step:    "fail",
 			OrderNo: in.OrderNo,
 			Reason:  err.Error(),
+			Posi:    "createRecord",
 		})
 		return
 	}

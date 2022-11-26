@@ -1,10 +1,11 @@
 package provider
 
 import (
-	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/utils"
 	"context"
 	"encoding/json"
 	"fmt"
+
+	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/utils"
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/os/gtime"
 	"github.com/gogf/gf/util/gconv"
@@ -141,10 +142,10 @@ func (s *knapsack) GetListByTemplate(userId, appId, templateId string) (ret GetL
 	return
 }
 
-func (s *knapsack) DeleteByIds(ids []int, optType string, optRemark string) (err error) {
+func (s *knapsack) DeleteByIds(ids []int, optType string, optRemark string, optUserId string) (err error) {
 	params := &map[string]interface{}{
 		"ids": ids,
-		"opt": g.Map{"optType": optType, "optRemark": optRemark},
+		"opt": g.Map{"optType": optType, "optRemark": optRemark, "optUserId": optUserId},
 	}
 	_, err = utils.SendJsonRpc(context.Background(), "knapsack", "AssetKnapsack.DeleteByIds", params)
 	if err != nil {
