@@ -160,3 +160,28 @@ func (s *user) GetUserInfoByPhone(params *map[string]interface{}) (ret map[strin
 	}
 	return
 }
+
+type GetStoreBalanceRes struct {
+	Id          int        `json:"id"`          // ID
+	PublisherId string     `json:"publisherId"` // 发行商ID
+	Balance     int        `json:"balance"`     // 余额
+	CreatedAt   gtime.Time `json:"createdAt"`   // 创建时间
+	UpdatedAt   gtime.Time `json:"updatedAt"`   // 更新时间
+	TotalAmount int        `json:"totalAmount"` // 累计充值
+	UserId      string     `json:"userId"`      // 用户ID
+	PayPassword string     `json:"payPassword"` // 支付密码
+}
+
+// GetStoreBalance 获取店铺余额
+func (s *user) GetStoreBalance(userId string, publisherId string) (res *GetStoreBalanceRes, err error) {
+	params := g.Map{
+		"userId":      userId,
+		"publisherId": publisherId,
+	}
+	err = utils.SendJsonRpcScan(context.Background(), "ucenter", "Users.GetUserInfoByPhone", params, res)
+	if err != nil {
+		g.Log().Errorf("GetUserInfoByPhone err:%v", err)
+		return
+	}
+	return
+}

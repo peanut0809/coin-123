@@ -65,12 +65,13 @@ func (s *subscribeActivity) GetActivityAwardRecord(r *ghttp.Request) {
 
 func (s *subscribeActivity) GetPayInfo(r *ghttp.Request) {
 	userId := s.GetUserId(r)
+	publisherId := r.GetQueryString("publisherId")
 	alias := r.GetQueryString("alias")
 	if alias == "" {
 		s.FailJsonExit(r, "参数错误")
 		return
 	}
-	ret, _, err := service.SubscribeActivity.GetMaxBuyNum(alias, userId)
+	ret, _, err := service.SubscribeActivity.GetMaxBuyNum(alias, userId, publisherId)
 	if err != nil {
 		s.FailJsonExit(r, err.Error())
 		return

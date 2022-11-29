@@ -4,9 +4,12 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/gogf/gf/errors/gerror"
+	"github.com/shopspring/decimal"
 	"meta_launchpad/cache"
 	"meta_launchpad/model"
 	"meta_launchpad/provider"
+	"strconv"
 	"time"
 
 	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/utils"
@@ -233,7 +236,7 @@ func (s *subscribeActivity) GetValidTicketInfo(ticketInfoStr string) (ticketInfo
 	return
 }
 
-func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string) (ticketInfo []model.TicketInfoJson, as *model.SubscribeActivity, err error) {
+func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string, publisherId string) (ticketInfo []model.TicketInfoJson, as *model.SubscribeActivity, err error) {
 	as, err = s.GetValidDetail(alias)
 	if err != nil {
 		return
@@ -295,7 +298,27 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string) (ticketInf
 		}
 	}
 	if as.ActivityType == 2 { //普通购
-		wallerRet, _ := provider.Wallet.WalletAuthenticationState(userId)
+		// 兼容之前代码
+		var wallerRet *provider.WalletAuthentication
+		if publisherId == "" {
+			// 根据钱包余额获取认购份数
+			wallerRet, _ = provider.Wallet.WalletAuthenticationState(userId)
+		} else {
+			// 根据店铺余额获取认购份数
+			userBalance, e := provider.User.GetStoreBalance(userId, publisherId)
+			if e != nil {
+				err = e
+				return
+			}
+			if userBalance == nil {
+				err = gerror.New("用户暂未开通店铺余额，暂时不能认购")
+				return
+			}
+			yuan := Penny2Yuan(int64(userBalance.Balance))
+			balance, _ := strconv.Atoi(yuan)
+			wallerRet = new(provider.WalletAuthentication)
+			wallerRet.Account = balance
+		}
 		var isShare int
 		for k, v := range ticketInfo {
 			if v.Type == model.TICKET_MONEY {
@@ -374,7 +397,7 @@ func (s *subscribeActivity) GetMaxCount(account int, userId string, as *model.Su
 }
 
 func (s *subscribeActivity) DoSubVerify(in model.DoSubReq) (oneTicketInfo model.TicketInfoJson, activityInfo *model.SubscribeActivity, err error) {
-	ticketInfo, as, e := s.GetMaxBuyNum(in.Alias, in.UserId)
+	ticketInfo, as, e := s.GetMaxBuyNum(in.Alias, in.UserId, in.PublisherId)
 	if e != nil {
 		err = e
 		return
@@ -808,4 +831,8 @@ func (s *subscribeActivity) GetByIds(ids []int) (ret map[int]model.SubscribeActi
 func (s *subscribeActivity) GetByAlias(alias string) (ret model.SubscribeActivity) {
 	g.DB().Model("subscribe_activity").Where("alias = ?", alias).Scan(&ret)
 	return
+}
+func Penny2Yuan(price int64) string {
+	d := decimal.New(1, 2)
+	return decimal.NewFromInt(price).DivRound(d, 2).String()
 }
