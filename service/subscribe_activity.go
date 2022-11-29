@@ -4,13 +4,14 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/gogf/gf/errors/gerror"
-	"github.com/shopspring/decimal"
 	"meta_launchpad/cache"
 	"meta_launchpad/model"
 	"meta_launchpad/provider"
 	"strconv"
 	"time"
+
+	"github.com/gogf/gf/errors/gerror"
+	"github.com/shopspring/decimal"
 
 	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/utils"
 	"github.com/gogf/gf/database/gdb"
@@ -193,6 +194,7 @@ func (s *subscribeActivity) GetDetail(alias, userId, publisherId string) (ret mo
 		ret.CopyrightInfo = templateInfo.CopyrightInfoJson
 	}
 
+	ret.CreatorUserId = as.CreatorUserId
 	ret.CreatorId = as.CreatorId
 	ret.CreatorName = as.CreatorName
 	ret.CreatorAvatar = as.CreatorAvatar

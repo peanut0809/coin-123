@@ -1,10 +1,11 @@
 package provider
 
 import (
-	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/utils"
 	"context"
 	"encoding/json"
 	"fmt"
+
+	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/utils"
 	"github.com/gogf/gf/frame/g"
 	"github.com/parnurzeal/gorequest"
 )
@@ -62,6 +63,19 @@ type GetCreatorInfoRet struct {
 		LogoUrl string `json:"logoUrl"`
 		Id      int    `json:"id"`
 	} `json:"data"`
+}
+
+type DeveloperDetail struct {
+	Id             string      `json:"id,omitempty"`
+	RelationUserId string      `json:"relationUserId"`
+	Name           string      `json:"name"`
+	LogoUrl        string      `json:"logoUrl"`
+	Desc           string      `json:"desc"`
+	Email          string      `json:"email"`
+	MicroBlog      string      `json:"microBlog"`
+	Wechat         string      `json:"wechat"`
+	OrderContact   string      `json:"orderContact"`
+	Image          interface{} `json:"image"`
 }
 
 func (s *developer) GetCreatorInfo(id int) (ret GetCreatorInfoRet, err error) {
@@ -129,6 +143,15 @@ func (s *developer) GetPublisherByIds(publisherId []string) (ret map[string]MwdA
 	}
 	err = utils.SendJsonRpcScan(context.Background(), "developer", "Publisher.GetPublisherByIds", params, &ret)
 	if err != nil {
+		return
+	}
+	return
+}
+
+func (s *developer) GetDeveloperDetailsById(params *map[string]interface{}) (ret DeveloperDetail, err error) {
+	err = utils.SendJsonRpcScan(context.Background(), "developer", "Developer.DeveloperDetailsById", params, &ret)
+	if err != nil {
+		g.Log().Errorf("GetDeveloper err:%v", err)
 		return
 	}
 	return

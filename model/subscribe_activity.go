@@ -45,6 +45,7 @@ type SubscribeActivity struct {
 	Disable           int         `orm:"disable" json:"disable"`
 	NfrSec            int         `orm:"nfr_sec" json:"nfrSec"`
 	CreatorId         int         `orm:"creator_id" json:"creatorId"`
+	CreatorUserId     string      `orm:"creator_user_id" json:"creatorUserId"`
 	CreatorName       string      `orm:"creator_name" json:"creatorName"`
 	CreatorAvatar     string      `orm:"creator_avatar" json:"creatorAvatar"`
 	CreatorNo         string      `orm:"creator_no" json:"creatorNo"`
@@ -90,6 +91,7 @@ type SubscribeActivityFull struct {
 	ChainType       int         `json:"chainType"`
 
 	CreatorId     int                         `orm:"creator_id" json:"creatorId"`
+	CreatorUserId string                      `orm:"creator_user_id" json:"creatorUserId"`
 	CreatorName   string                      `orm:"creator_name" json:"creatorName"`
 	CreatorAvatar string                      `orm:"creator_avatar" json:"creatorAvatar"`
 	CreatorNo     string                      `orm:"creator_no" json:"creatorNo"`
