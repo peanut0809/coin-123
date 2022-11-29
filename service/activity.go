@@ -136,6 +136,7 @@ func (s *activity) List(activityIds []int, pageNum int, pageSize int, startTime,
 			if publisherId == "MCN" {
 				item.PublisherName = subAcMap[v.ActivityId].CreatorName
 				item.PublisherIcon = subAcMap[v.ActivityId].CreatorAvatar
+				item.PublisherUserId = subAcMap[v.ActivityId].CreatorUserId
 			}
 		}
 		if v.StartTime.Unix() > n.Unix() {
