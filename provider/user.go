@@ -178,7 +178,7 @@ func (s *user) GetStoreBalance(userId string, publisherId string) (res *GetStore
 		"userId":      userId,
 		"publisherId": publisherId,
 	}
-	err = utils.SendJsonRpcScan(context.Background(), "ucenter", "Users.GetUserInfoByPhone", params, res)
+	err = utils.SendJsonRpcScan(context.Background(), "ucenter", "CnyPublisher.GetPublisherAccount", params, res)
 	if err != nil {
 		g.Log().Errorf("GetUserInfoByPhone err:%v", err)
 		return
