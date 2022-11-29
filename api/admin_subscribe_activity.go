@@ -49,12 +49,12 @@ func (s *adminSubscribeActivity) Create(r *ghttp.Request) {
 		s.FailJsonExit(r, "活动类型错误")
 		return
 	}
-	if req.ActivityType == 2 {
-		if req.GeneralBuyNum <= 0 {
-			s.FailJsonExit(r, "抽签次数参数错误")
-			return
-		}
-	}
+	// if req.ActivityType == 2 {
+	// 	if req.GeneralBuyNum <= 0 {
+	// 		s.FailJsonExit(r, "抽签次数参数错误")
+	// 		return
+	// 	}
+	// }
 	decimalValue, err := decimal.NewFromString(req.PriceYuan)
 	if err != nil {
 		s.FailJsonExit(r, "价格参数错误")
