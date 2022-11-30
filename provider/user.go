@@ -185,3 +185,30 @@ func (s *user) GetStoreBalance(userId string, publisherId string) (res *GetStore
 	}
 	return
 }
+
+type GetCnyPublisherOrderRes struct {
+	Id           int        `json:"id"`           // ID
+	UserId       string     `json:"userId"`       // 用户ID
+	PublisherId  string     `json:"publisherId"`  // 发行商ID
+	OrderNo      string     `json:"orderNo"`      // 订单号
+	ThirdOrderNo string     `json:"thirdOrderNo"` // 三方支付订单号
+	PayChannel   string     `json:"payChannel"`   // 支付渠道
+	Amount       int        `json:"amount"`       // 金额
+	Status       int        `json:"status"`       // 支付状态 1.已付款 2.未付款 3.订单超时
+	PayTime      gtime.Time `json:"payTime"`      // 支付时间
+	CreatedAt    gtime.Time `json:"createdAt"`    // 创建时间
+	UpdatedAt    gtime.Time `json:"updatedAt"`    // 更新时间
+}
+
+func (s *user) GetCnyPublisherOrder(userId string, publisherId string) (res *GetCnyPublisherOrderRes, err error) {
+	params := g.Map{
+		"userId":      userId,
+		"publisherId": publisherId,
+	}
+	err = utils.SendJsonRpcScan(context.Background(), "ucenter", "CnyPublisher.GetCnyPublisherOrder", params, &res)
+	if err != nil {
+		g.Log().Errorf("GetUserInfoByPhone err:%v", err)
+		return
+	}
+	return
+}

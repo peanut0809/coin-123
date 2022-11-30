@@ -11,5 +11,6 @@ type SubscribeShare struct {
 
 type SubscribeShareUpload struct {
 	// UserId      string `json:"userId"`
-	Alias string `json:"alias"`
+	Alias       string `json:"alias"`
+	PublisherId string `json:"publisherId"`
 }
