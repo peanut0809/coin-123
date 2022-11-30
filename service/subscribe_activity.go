@@ -383,7 +383,7 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string, publisherI
 
 func (s *subscribeActivity) GetMaxCount(account int, userId string, as *model.SubscribeActivity) (count int, isShare int, err error) {
 	if as.GeneralNumMethod == 1 {
-		var share model.SubscribeShare
+		var share *model.SubscribeShare
 		share, err = SubscribeShare.GetSubscrubeShare(userId, as.Id)
 		if err != nil {
 			return
