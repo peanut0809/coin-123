@@ -197,7 +197,7 @@ func (s *subscribeActivity) GetDetail(alias, userId, publisherId string) (ret mo
 	ret.CreatorName = as.CreatorName
 	ret.CreatorAvatar = as.CreatorAvatar
 	ret.CreatorNo = as.CreatorNo
-	ret.AnHourAgo = as.ActivityEndTime.Add(-time.Hour)
+	ret.AnHourAgo = as.ActivityEndTime.Add(-time.Hour).Layout("15:04:05")
 	return
 }
 
