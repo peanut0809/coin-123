@@ -96,6 +96,7 @@ type SubscribeActivityFull struct {
 	CreatorAvatar string                      `orm:"creator_avatar" json:"creatorAvatar"`
 	CreatorNo     string                      `orm:"creator_no" json:"creatorNo"`
 	CopyrightInfo []provider.TplCopyrightInfo `json:"copyrightInfo"`
+	AnHourAgo     *gtime.Time                 `json:"anHourAgo"` //活动结束前一个小时
 }
 
 type SubscribeActivityFullStep struct {
