@@ -14,7 +14,7 @@ type subscribeShare struct {
 
 var SubscribeShare = new(subscribeShare)
 
-func (s *subscribeShare) GetSubscrubeShare(userId string, subscribeId int) (ret model.SubscribeShare, err error) {
+func (s *subscribeShare) GetSubscrubeShare(userId string, subscribeId int) (ret *model.SubscribeShare, err error) {
 	err = g.DB().Model("subscribe_share").Where("user_id = ? AND subscribe_id = ?", userId, subscribeId).Scan(&ret)
 	if err != nil {
 		return
