@@ -200,8 +200,8 @@ func (s *subscribeActivity) GetDetail(alias, userId, publisherId string) (ret mo
 	ret.CreatorNo = as.CreatorNo
 	// 活动结束前一个小时开始倒计时
 	anHourAgo := as.ActivityEndTime.Add(-time.Hour)
-	if gtime.Now().After(anHourAgo) {
-		ret.AnHourAgo = as.ActivityEndTime.Time.Sub(anHourAgo.Time).Seconds()
+	if gtime.Now().After(as.ActivityStartTime) {
+		ret.AnHourAgo = anHourAgo.Time.Sub(gtime.Now().Time).Seconds()
 	}
 	return
 }

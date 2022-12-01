@@ -37,11 +37,11 @@ func (s *subscribeShare) UploadSubscrubeShare(req model.SubscribeShareUpload, us
 	}
 	// 活动前一个小时
 	anHourAgo := ret.ActivityEndTime.Add(-time.Hour).Time
-	if now.Before(anHourAgo) {
+	if now.Before(ret.ActivityStartTime.Time) {
 		err = gerror.New("分享有奖活动还未开始")
 		return
 	}
-	if now.After(ret.ActivityEndTime.Time) {
+	if now.After(anHourAgo) {
 		err = gerror.New("分享有奖活动已结束")
 		return
 	}
