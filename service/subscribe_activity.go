@@ -394,12 +394,11 @@ func (s *subscribeActivity) GetMaxCount(account int, userId string, as *model.Su
 		}
 		count = account / as.Price
 		isShare = 0
-		if share == nil {
-			return
-		}
-		if share.Id != 0 {
-			count = count + 1
-			isShare = 1
+		if share != nil {
+			if share.Id != 0 {
+				count = count + 1
+				isShare = 1
+			}
 		}
 		// 最大认购只能是3000
 		if count > 3000 {
