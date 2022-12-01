@@ -320,10 +320,10 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string, publisherI
 				err = gerror.New("用户暂未开通店铺余额，暂时不能认购")
 				return
 			}
-			yuan := Penny2Yuan(int64(userBalance.Balance))
-			balance := gconv.Int(yuan)
+			//yuan := Penny2Yuan(int64(userBalance.Balance))
+			//balance := gconv.Int(yuan)
 			wallerRet = new(provider.WalletAuthentication)
-			wallerRet.Account = balance
+			wallerRet.Account = userBalance.Balance
 		}
 		var isShare int
 		for k, v := range ticketInfo {
