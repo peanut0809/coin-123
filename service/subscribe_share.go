@@ -63,6 +63,7 @@ func (s *subscribeShare) UploadSubscrubeShare(req model.SubscribeShareUpload, us
 			return
 		}
 		if order == nil {
+			err = gerror.New("请先认购再参与活动")
 			return
 		}
 		share = &model.SubscribeShare{
