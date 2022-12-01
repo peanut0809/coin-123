@@ -9,7 +9,6 @@ import (
 	"meta_launchpad/cache"
 	"meta_launchpad/model"
 	"meta_launchpad/provider"
-	"strconv"
 	"time"
 
 	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/utils"
@@ -197,7 +196,11 @@ func (s *subscribeActivity) GetDetail(alias, userId, publisherId string) (ret mo
 	ret.CreatorName = as.CreatorName
 	ret.CreatorAvatar = as.CreatorAvatar
 	ret.CreatorNo = as.CreatorNo
-	ret.AnHourAgo = as.ActivityEndTime.Add(-time.Hour).Layout("15:04:05")
+	// 活动结束前一个小时开始倒计时
+	anHourAgo := as.ActivityEndTime.Add(-time.Hour)
+	if gtime.Now().After(anHourAgo) {
+		ret.AnHourAgo = as.ActivityEndTime.Time.Sub(anHourAgo.Time).Seconds()
+	}
 	return
 }
 
@@ -316,7 +319,7 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string, publisherI
 				return
 			}
 			yuan := Penny2Yuan(int64(userBalance.Balance))
-			balance, _ := strconv.Atoi(yuan)
+			balance := gconv.Int(yuan)
 			wallerRet = new(provider.WalletAuthentication)
 			wallerRet.Account = balance
 		}
