@@ -199,7 +199,7 @@ func (s *subscribeActivity) GetDetail(alias, userId, publisherId string) (ret mo
 	// 活动结束前一个小时活动结束
 	anHourAgo := as.ActivityEndTime.Add(-time.Hour)
 	if gtime.Now().After(as.ActivityStartTime) && gtime.Now().Before(anHourAgo) {
-		ret.AnHourAgo = gconv.String(int64(anHourAgo.Time.Sub(gtime.Now().Time).Seconds()))
+		ret.AnHourAgo = int(anHourAgo.Time.Sub(gtime.Now().Time).Seconds())
 	}
 	return
 }
