@@ -119,10 +119,6 @@ func InitRouter() *ghttp.Server {
 			10、用户订单列表
 			11、用户订单详情
 		*/
-		// c端产品列表
-		group.GET("/activity/white_list/list", api.Equity.List)
-		// c端产品详情
-		group.GET("/activity/white_list/list", api.Equity.Info)
 
 	})
 
@@ -179,10 +175,9 @@ func InitRouter() *ghttp.Server {
 		group.GET("/synthetic/record", api.Synthetic.GetSyntheticRecord)
 
 		// 白名单活动
-		group.POST("/white/activity/create", api.Synthetic.Create)  //白名单活动创建
-		group.POST("/white/activity/update", api.Synthetic.Create)  //下架更新
-		group.POST("/white/activity/invalid", api.Synthetic.Create) //活动失效
-		group.POST("/white/activity/import", api.Synthetic.Create)  //用户导入
+		group.POST("/equity/activity/create", api.AdminEquity.Create) //白名单活动创建
+		group.POST("/equity/activity/update", api.Synthetic.Create)   //下架更新
+		group.POST("/equity/activity/import", api.AdminEquity.Import) //用户导入
 
 		//  rpc  定时任务处理活动下架状态
 
