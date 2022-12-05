@@ -107,7 +107,7 @@ func InitRouter() *ghttp.Server {
 		*/
 		//c端白名单活动接口集合
 		/*
-			1、c端产品列表
+			1、
 			2、c端产品详情
 			3、当前用户可购买数量
 			4、创建订单 校验用户是否可以购买等 发送创建订单mq
@@ -119,6 +119,10 @@ func InitRouter() *ghttp.Server {
 			10、用户订单列表
 			11、用户订单详情
 		*/
+		// c端产品列表
+		group.GET("/activity/white_list/list", api.Equity.List)
+		// c端产品详情
+		group.GET("/activity/white_list/list", api.Equity.Info)
 
 	})
 
