@@ -10,7 +10,7 @@ const WHITE_ACTIVITY_STATUS2 = 2 // 下架
 const WHITE_ACTIVITY_LIMIT_TYPE1 = 1 // 每人限购
 const WHITE_ACTIVITY_LIMIT_TYPE2 = 2 // 专属限购 白名单用户
 
-type WhiteActivity struct {
+type EquityActivity struct {
 	Id                int         `orm:"id,primary" json:"id"`                         // 活动iD
 	Name              string      `orm:"Name" json:"Name"`                             // 活动名称
 	Price             int         `orm:"price" json:"price"`                           // 发售价,单位：分
@@ -25,6 +25,6 @@ type WhiteActivity struct {
 }
 
 type CreateWhiteActivityReq struct {
-	WhiteActivity
+	EquityActivity
 	PriceYuan string `json:"priceYuan"`
 }
