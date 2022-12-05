@@ -15,11 +15,11 @@ type EquityActivity struct {
 	Name              string      `orm:"Name" json:"Name"`                             // 活动名称
 	Price             int         `orm:"price" json:"price"`                           // 发售价,单位：分
 	ActivityStartTime *gtime.Time `orm:"activity_start_time" json:"activityStartTime"` // 活动开始时间
-	ActivityEndTime   *gtime.Time `orm:"activity_end_time" json:"activityEndTime"`     //活动结束时间
+	ActivityEndTime   *gtime.Time `orm:"activity_end_time" json:"activityEndTime"`     // 活动结束时间
 	LimitBuy          int         `orm:"limit_buy" json:"limitBuy"`                    // 限购类型 1 按每人限购 2 白名单限购  1 每人限购数量
-	LimitType         int         `orm:"limit_type" json:"limitType"`                  //限购类型 1 按每人限购 2 白名单限购
-	Number            int         `orm:"number" json:"number"`                         //总数量
-	Status            int         `orm:"status" json:"status"`                         //活动状态1:上架 2:下架
+	LimitType         int         `orm:"limit_type" json:"limitType"`                  // 限购类型 1 按每人限购 2 白名单限购
+	Number            int         `orm:"number" json:"number"`                         // 总数量
+	Status            int         `orm:"status" json:"status"`                         // 活动状态1:上架 2:下架
 	CreatedAt         *gtime.Time `orm:"created_at" json:"createdAt"`                  // 新建时间
 	UpdatedAt         *gtime.Time `orm:"updated_at" json:"updatedAt"`                  // 更新时间
 }
