@@ -95,6 +95,22 @@ func InitRouter() *ghttp.Server {
 		group.GET("/synthetic/do/result", api.Synthetic.GetDoSyntheticResult)
 		group.GET("/synthetic/record/list", api.Synthetic.GetRecordList)
 		group.GET("/synthetic/record/detail", api.Synthetic.GetRecordDetail)
+
+		//c端白名单活动接口集合
+		/*
+			c端产品列表
+			c端产品详情
+			当前用户可购买数量
+			创建订单 校验用户是否可以购买等 发送创建订单mq
+			创建订单结果接口
+			订阅mq消息处理创建订单任务 插入待支付订单数据
+			轮询处理待支付订单任务
+			取消订单 订单库存回滚
+			订阅订单支付mq处理订单支付任务
+			用户订单列表
+			用户订单详情
+		*/
+
 	})
 
 	s.Group("/admin", func(group *ghttp.RouterGroup) {
@@ -148,6 +164,19 @@ func InitRouter() *ghttp.Server {
 		group.POST("/synthetic/open", api.Synthetic.Open)
 		group.POST("/synthetic/delete", api.Synthetic.Delete)
 		group.GET("/synthetic/record", api.Synthetic.GetSyntheticRecord)
+
+		// 白名单活动
+		group.POST("/white/activity/create", api.Synthetic.Create)  //白名单活动创建
+		group.POST("/white/activity/update", api.Synthetic.Create)  //下架更新
+		group.POST("/white/activity/invalid", api.Synthetic.Create) //活动失效
+		group.POST("/white/activity/import", api.Synthetic.Create)  //用户导入
+
+		//  rpc  定时任务处理活动下架状态
+
+		// 白名单活动 叮当相关
+		group.GET("/order/items", api.Synthetic.Create)  //订单查询
+		group.GET("/order/export", api.Synthetic.Create) //订单导出
+
 	})
 	return s
 }
