@@ -42,7 +42,7 @@ func (s *activity) GetPriceRank(r *ghttp.Request) {
 func (s *activity) ListByClient(r *ghttp.Request) {
 	pageNum := r.GetQueryInt("pageNum", 1)
 	pageSize := r.GetQueryInt("pageSize", 20)
-	activityType := r.GetQueryInt("activityType", 20)
+	activityType := r.GetQueryInt("activityType")
 	searchVal := r.GetQueryString("searchVal")
 	publisherId := s.GetPublisherId(r)
 	if publisherId == "" {
