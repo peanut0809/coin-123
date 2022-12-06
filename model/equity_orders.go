@@ -22,3 +22,15 @@ type EquityOrder struct {
 	CreatedAt   *gtime.Time `orm:"created_at" json:"createdAt"`      // 新建时间
 	UpdatedAt   *gtime.Time `orm:"updated_at" json:"updatedAt"`      // 更新时间
 }
+
+type EquityOrderFull struct {
+	*EquityOrder
+	PriceYuan   string `json:"priceYuan"`
+	RealFeeYuan string `json:"realFeeYuan"`
+	LastSec     int64  `json:"lastSec"`
+}
+
+type EquityOrderList struct {
+	List  []*EquityOrderFull
+	Total int
+}

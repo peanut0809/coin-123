@@ -6,7 +6,6 @@ import (
 	"github.com/gogf/gf/database/gdb"
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/os/gtime"
-	"github.com/gogf/gf/util/gconv"
 	"meta_launchpad/model"
 	"time"
 )
@@ -56,16 +55,8 @@ func (c *equity) Create(req model.EquityOrderReq) {
 	// 获取活动详情
 	activityInfo, e := c.GetValidDetail(req.Id)
 	if e != nil {
-		c.SetSubResult(model.EquitySubResult{
+		EquityOrder.SetSubResult(model.EquitySubResult{
 			Reason:  e.Error(),
-			Step:    "fail",
-			OrderNo: req.OrderNo,
-		})
-		return
-	}
-	if activityInfo.Status == model.EquityActivityStatusEnd {
-		c.SetSubResult(model.EquitySubResult{
-			Reason:  "活动已结束",
 			Step:    "fail",
 			OrderNo: req.OrderNo,
 		})
@@ -74,7 +65,7 @@ func (c *equity) Create(req model.EquityOrderReq) {
 	var tx *gdb.TX
 	tx, e = g.DB().Begin()
 	if e != nil {
-		c.SetSubResult(model.EquitySubResult{
+		EquityOrder.SetSubResult(model.EquitySubResult{
 			Reason:  e.Error(),
 			Step:    "fail",
 			OrderNo: req.OrderNo,
@@ -84,8 +75,8 @@ func (c *equity) Create(req model.EquityOrderReq) {
 	// 扣除库存
 	r, e := tx.Exec("UPDATE equity_activity SET number = number - ? WHERE id = ?", req.Num, activityInfo.Id)
 	if e != nil {
-		tx.Rollback()
-		c.SetSubResult(model.EquitySubResult{
+		e = tx.Rollback()
+		EquityOrder.SetSubResult(model.EquitySubResult{
 			Reason:  "库存不足",
 			Step:    "fail",
 			OrderNo: req.OrderNo,
@@ -94,34 +85,39 @@ func (c *equity) Create(req model.EquityOrderReq) {
 	}
 	affectedNum, _ := r.RowsAffected()
 	if affectedNum != 1 {
-		tx.Rollback()
-		c.SetSubResult(model.EquitySubResult{
+		fmt.Println("err=", e)
+		err := tx.Rollback()
+		if err != nil {
+			return
+		}
+		EquityOrder.SetSubResult(model.EquitySubResult{
 			Reason:  "更新库存失败",
 			Step:    "fail",
 			OrderNo: req.OrderNo,
 		})
 		return
 	}
+	// 定义限购数量
 	limitNum := 0
 	// 判断白名单
 	if activityInfo.LimitType == model.EQUITY_ACTIVITY_LIMIT_TYPE2 {
-		var user model.EquityUser
+		var user *model.EquityUser
 		err := g.DB().Model("equity_user").
 			Where("activity_id = ?", req.Id).
 			Where("user_id = ?", req.UserId).
 			Scan(&user)
 		if err != nil {
-			tx.Rollback()
-			c.SetSubResult(model.EquitySubResult{
+			err = tx.Rollback()
+			EquityOrder.SetSubResult(model.EquitySubResult{
 				Reason:  e.Error(),
 				Step:    "fail",
 				OrderNo: req.OrderNo,
 			})
 			return
 		}
-		if user.UserId == "" {
-			tx.Rollback()
-			c.SetSubResult(model.EquitySubResult{
+		if user == nil {
+			err = tx.Rollback()
+			EquityOrder.SetSubResult(model.EquitySubResult{
 				Reason:  "不在限购白名单中",
 				Step:    "fail",
 				OrderNo: req.OrderNo,
@@ -138,8 +134,8 @@ func (c *equity) Create(req model.EquityOrderReq) {
 		Where("activity_id = ?", req.Id).
 		Count()
 	if err != nil {
-		tx.Rollback()
-		c.SetSubResult(model.EquitySubResult{
+		err = tx.Rollback()
+		EquityOrder.SetSubResult(model.EquitySubResult{
 			Reason:  e.Error(),
 			Step:    "fail",
 			OrderNo: req.OrderNo,
@@ -147,8 +143,8 @@ func (c *equity) Create(req model.EquityOrderReq) {
 		return
 	}
 	if alreadyBuyNum >= limitNum {
-		tx.Rollback()
-		c.SetSubResult(model.EquitySubResult{
+		err = tx.Rollback()
+		EquityOrder.SetSubResult(model.EquitySubResult{
 			Reason:  "超过限定购买数量",
 			Step:    "fail",
 			OrderNo: req.OrderNo,
@@ -169,44 +165,41 @@ func (c *equity) Create(req model.EquityOrderReq) {
 	}
 	err = EquityOrder.Create(tx, order)
 	if err != nil {
-		tx.Rollback()
-		c.SetSubResult(model.EquitySubResult{
+		err = tx.Rollback()
+		EquityOrder.SetSubResult(model.EquitySubResult{
 			Reason:  e.Error(),
 			Step:    "fail",
 			OrderNo: req.OrderNo,
 		})
 		return
 	}
-	return
-}
-
-func (c *equity) SetSubResult(in model.EquitySubResult) {
-	_, err := g.Redis().Do("SET", fmt.Sprintf(model.SubSetEquityResultKey, in.OrderNo), gconv.String(in), "ex", 3600)
+	err = tx.Commit()
 	if err != nil {
-		g.Log().Errorf("EquityBuy err:%v", err)
 		return
 	}
 	return
 }
 
-func (c *equity) GetValidDetail(id int) (ret model.EquityActivity, err error) {
-	var as *model.EquityActivity
+// 获取活动详情
+func (c *equity) GetValidDetail(id int) (ret *model.EquityActivity, err error) {
 	now := time.Now()
-	err = g.DB().Model("equity_activity").Where("id = ?", id).Scan(&as)
+	err = g.DB().Model("equity_activity").Where("id = ?", id).Scan(&ret)
 	if err != nil {
 		return
 	}
-	if as == nil {
+	if ret == nil {
 		err = fmt.Errorf("活动不存在")
 		return
 	}
-	if now.Unix() > as.ActivityStartTime.Unix() && now.Unix() < as.ActivityEndTime.Unix() {
+	if now.Unix() > ret.ActivityStartTime.Unix() && now.Unix() < ret.ActivityEndTime.Unix() {
 		ret.Status = model.EquityActivityStatusIng
 	} else {
-		if now.Unix() < as.ActivityStartTime.Unix() {
+		if now.Unix() < ret.ActivityStartTime.Unix() {
 			ret.Status = model.EquityActivityStatusWait
+			err = fmt.Errorf("活动暂未开始")
 			//ret.LastSec = as.ActivityStartTime.Unix() - now.Unix()
 		} else {
+			err = fmt.Errorf("活动已结束")
 			ret.Status = model.EquityActivityStatusEnd
 		}
 	}

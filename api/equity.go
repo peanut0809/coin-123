@@ -82,3 +82,37 @@ func (c *equity) CreateOrder(r *ghttp.Request) {
 	}
 	c.SusJsonExit(r, req.OrderNo)
 }
+
+// GetOrderList 获取订单列表
+func (c *equity) GetOrderList(r *ghttp.Request) {
+	pageNum := r.GetQueryInt("pageNum")
+	if pageNum <= 0 {
+		pageNum = 1
+	}
+	status := r.GetQueryInt("status")
+	userId := c.GetUserId(r)
+	publisherId := c.GetPublisherId(r)
+	ret, err := service.EquityOrder.GetOrderList(pageNum, userId, status, "", publisherId)
+	if err != nil {
+		c.FailJsonExit(r, err.Error())
+		return
+	}
+	c.SusJsonExit(r, ret.List)
+}
+
+// GetOrderDetail 获取订单详情
+func (c *equity) GetOrderDetail(r *ghttp.Request) {
+	orderNo := r.GetQueryString("orderNo")
+	userId := c.GetUserId(r)
+	publisherId := c.GetPublisherId(r)
+	ret, err := service.EquityOrder.GetOrderList(1, userId, 0, orderNo, publisherId)
+	if err != nil {
+		c.FailJsonExit(r, err.Error())
+		return
+	}
+	if len(ret.List) == 0 {
+		c.FailJsonExit(r, "订单不存在")
+		return
+	}
+	c.SusJsonExit(r, ret.List[0])
+}
