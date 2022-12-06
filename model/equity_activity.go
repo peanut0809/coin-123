@@ -4,11 +4,16 @@ import (
 	"github.com/gogf/gf/os/gtime"
 )
 
-const WHITE_ACTIVITY_STATUS1 = 1 // 上架
-const WHITE_ACTIVITY_STATUS2 = 2 // 下架
+const EQUITY_ACTIVITY_STATUS1 = 1 // 上架
+const EQUITY_ACTIVITY_STATUS2 = 2 // 下架
 
-const WHITE_ACTIVITY_LIMIT_TYPE1 = 1 // 每人限购
-const WHITE_ACTIVITY_LIMIT_TYPE2 = 2 // 专属限购 白名单用户
+const EQUITY_ACTIVITY_LIMIT_TYPE1 = 1 // 每人限购
+const EQUITY_ACTIVITY_LIMIT_TYPE2 = 2 // 专属限购 白名单用户
+
+const SubSetEquityResultKey = "meta_launchpad:activity_equity_result:%s"
+const EquityActivityStatusWait = 0
+const EquityActivityStatusIng = 1
+const EquityActivityStatusEnd = 2
 
 type EquityActivity struct {
 	Id                int         `orm:"id,primary" json:"id"`                         // 活动iD
@@ -30,6 +35,18 @@ type CreateWhiteActivityReq struct {
 }
 
 type EquityActivityList struct {
-	List  []*EquityActivity
-	Total int
+	List  []*EquityActivity `json:"list"`
+	Total int               `json:"total"`
+}
+
+type EquityOrderReq struct {
+	Id                 int    `json:"id"`
+	Num                int    `json:"num"`
+	ClientIp           string `json:"clientIp"`
+	SuccessRedirectUrl string `json:"successRedirectUrl"`
+	ExitRedirectUrl    string `json:"exitRedirectUrl"`
+	PublisherId        string `json:"publisherId"`
+	PlatformAppId      string `json:"platformAppId"`
+	UserId             string `json:"userId"`
+	OrderNo            string `json:"orderNo"`
 }

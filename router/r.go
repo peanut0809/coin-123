@@ -95,7 +95,12 @@ func InitRouter() *ghttp.Server {
 		group.GET("/synthetic/do/result", api.Synthetic.GetDoSyntheticResult)
 		group.GET("/synthetic/record/list", api.Synthetic.GetRecordList)
 		group.GET("/synthetic/record/detail", api.Synthetic.GetRecordDetail)
-
+		// 权益活动列表
+		group.GET("/activity/equity/list", api.Equity.List)
+		// 权益活动详情
+		group.GET("/activity/equity/info", api.Equity.Info)
+		// 下单
+		group.POST("/activity/equity/order/create", api.Equity.CreateOrder)
 		// B端白名单活动
 		/*
 			1、活动创建
@@ -119,10 +124,6 @@ func InitRouter() *ghttp.Server {
 			10、用户订单列表
 			11、用户订单详情
 		*/
-		// c端产品列表
-		group.GET("/activity/white_list/list", api.Equity.List)
-		// c端产品详情
-		group.GET("/activity/white_list/list", api.Equity.Info)
 
 	})
 
