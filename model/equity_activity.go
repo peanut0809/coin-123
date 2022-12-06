@@ -30,9 +30,10 @@ type EquityActivity struct {
 	UpdatedAt         *gtime.Time `orm:"updated_at" json:"updatedAt"`                  // 更新时间
 }
 
-type CreateWhiteActivityReq struct {
+type CreateEquityActivityReq struct {
 	EquityActivity
 	PriceYuan string `json:"priceYuan"`
+	ExcelFile string `json:"excelFile"` //导入名单集合
 }
 
 type EquityActivityList struct {
@@ -57,4 +58,18 @@ type EquityOrderReq struct {
 	PlatformAppId      string `json:"platformAppId"`
 	UserId             string `json:"userId"`
 	OrderNo            string `json:"orderNo"`
+}
+
+type ImportItems struct {
+	ErrItems  []ImportItem
+	SuccItems []ImportItem
+	HaveErr   bool
+	Total     int
+	Number    int
+}
+type ImportItem struct {
+	Phone      string `orm:"phone" json:"phone"`
+	LimitNum   int    `orm:"limit_num" json:"limitNum"`
+	ErrMessage string
+	UserId     string `orm:"user_id" json:"userId"`
 }
