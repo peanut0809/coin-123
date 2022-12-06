@@ -1,10 +1,11 @@
 package api
 
 import (
-	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/api"
-	"github.com/gogf/gf/net/ghttp"
 	"meta_launchpad/model"
 	"meta_launchpad/service"
+
+	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/api"
+	"github.com/gogf/gf/net/ghttp"
 )
 
 type subscribeRecord struct {
@@ -14,9 +15,13 @@ type subscribeRecord struct {
 var SubscribeRecord = new(subscribeRecord)
 
 func (s *subscribeRecord) GetList(r *ghttp.Request) {
-	publisherId := s.GetPublisherId(r)
+	// publisherId := s.GetPublisherId(r)
+	// if publisherId == "" {
+	// 	publisherId = r.GetQueryString("publisherId")
+	// }
+	publisherId := r.GetQueryString("publisherId")
 	if publisherId == "" {
-		publisherId = r.GetQueryString("publisherId")
+		publisherId = s.GetPublisherId(r)
 	}
 	userId := s.GetUserId(r)
 	pageNum := r.GetQueryInt("pageNum", 1)
@@ -65,7 +70,11 @@ func (s *subscribeRecord) GetListByOrder(r *ghttp.Request) {
 	status := r.GetQueryInt("status", -1)
 	activityType := r.GetQueryInt("activityType")
 	userId := s.GetUserId(r)
-	publisherId := s.GetPublisherId(r)
+
+	publisherId := r.GetQueryString("publisherId")
+	if publisherId == "" {
+		publisherId = s.GetPublisherId(r)
+	}
 	var aid = 0
 	alias := r.GetQueryString("alias")
 	if alias != "" {

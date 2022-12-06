@@ -7,7 +7,6 @@ import (
 	"meta_launchpad/cache"
 	"meta_launchpad/model"
 	"meta_launchpad/provider"
-	"strconv"
 	"time"
 
 	"github.com/gogf/gf/errors/gerror"
@@ -199,7 +198,11 @@ func (s *subscribeActivity) GetDetail(alias, userId, publisherId string) (ret mo
 	ret.CreatorName = as.CreatorName
 	ret.CreatorAvatar = as.CreatorAvatar
 	ret.CreatorNo = as.CreatorNo
-	ret.AnHourAgo = as.ActivityEndTime.Add(-time.Hour).Layout("15:04:05")
+	// 活动结束前一个小时活动结束
+	anHourAgo := as.ActivityEndTime.Add(-time.Hour)
+	if gtime.Now().After(as.ActivityStartTime) && gtime.Now().Before(anHourAgo) {
+		ret.AnHourAgo = int(anHourAgo.Time.Sub(gtime.Now().Time).Seconds())
+	}
 	return
 }
 
@@ -239,7 +242,7 @@ func (s *subscribeActivity) GetValidTicketInfo(ticketInfoStr string) (ticketInfo
 	return
 }
 
-func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string, publisherId string) (ticketInfo []model.TicketInfoJson, as *model.SubscribeActivity, err error) {
+func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string) (ticketInfo []model.TicketInfoJson, as *model.SubscribeActivity, err error) {
 	as, err = s.GetValidDetail(alias)
 	if err != nil {
 		return
@@ -303,38 +306,32 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string, publisherI
 	if as.ActivityType == 2 { //普通购
 		// 兼容之前代码
 		var wallerRet *provider.WalletAuthentication
-		if publisherId == "" {
-			// 根据钱包余额获取认购份数
-			wallerRet, _ = provider.Wallet.WalletAuthenticationState(userId)
-		} else {
-			// 根据店铺余额获取认购份数
-			userBalance, e := provider.User.GetStoreBalance(userId, publisherId)
-			if e != nil {
-				err = e
-				return
-			}
-			if userBalance == nil {
-				err = gerror.New("用户暂未开通店铺余额，暂时不能认购")
-				return
-			}
-			yuan := Penny2Yuan(int64(userBalance.Balance))
-			balance, _ := strconv.Atoi(yuan)
-			wallerRet = new(provider.WalletAuthentication)
-			wallerRet.Account = balance
+		// 根据店铺余额获取认购份数
+		userBalance, e := provider.User.GetStoreBalance(userId, as.PublisherId)
+		if e != nil {
+			err = e
+			return
 		}
+		if userBalance == nil {
+			err = gerror.New("用户暂未开通店铺余额，暂时不能认购")
+			return
+		}
+		//yuan := Penny2Yuan(int64(userBalance.Balance))
+		//balance := gconv.Int(yuan)
+		wallerRet = new(provider.WalletAuthentication)
+		wallerRet.Account = userBalance.Balance
+
 		var isShare int
 		for k, v := range ticketInfo {
 			if v.Type == model.TICKET_MONEY {
 				ticketInfo[k].MaxBuyNum = as.GeneralBuyNum
 				if as.GeneralNumMethod == 1 {
-					if wallerRet != nil {
-						var count int
-						count, isShare, err = s.GetMaxCount(wallerRet.Account, userId, as)
-						if err != nil {
-							return
-						}
-						ticketInfo[k].MaxBuyNum = count
+					var count int
+					count, isShare, err = s.GetMaxCount(wallerRet.Account, userId, as)
+					if err != nil {
+						return
 					}
+					ticketInfo[k].MaxBuyNum = count
 				}
 			} else if v.Type == model.TICKET_CRYSTAL {
 				if v.UnitNum != 0 {
@@ -345,14 +342,12 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string, publisherI
 				} else {
 					ticketInfo[k].MaxBuyNum = as.GeneralBuyNum
 					if as.GeneralNumMethod == 1 {
-						if wallerRet != nil {
-							var count int
-							count, isShare, err = s.GetMaxCount(wallerRet.Account, userId, as)
-							if err != nil {
-								return
-							}
-							ticketInfo[k].MaxBuyNum = count
+						var count int
+						count, isShare, err = s.GetMaxCount(wallerRet.Account, userId, as)
+						if err != nil {
+							return
 						}
+						ticketInfo[k].MaxBuyNum = count
 					}
 				}
 			} else if v.Type == model.TICKET_MONTH {
@@ -364,15 +359,13 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string, publisherI
 				} else {
 					ticketInfo[k].MaxBuyNum = as.GeneralBuyNum
 					if as.GeneralNumMethod == 1 {
-						if wallerRet != nil {
-							var count int
-							count, isShare, err = s.GetMaxCount(wallerRet.Account, userId, as)
-							if err != nil {
-								return
-							}
-							ticketInfo[k].MaxBuyNum = count
-							ticketInfo[k].IsShare = isShare
+						var count int
+						count, isShare, err = s.GetMaxCount(wallerRet.Account, userId, as)
+						if err != nil {
+							return
 						}
+						ticketInfo[k].MaxBuyNum = count
+						ticketInfo[k].IsShare = isShare
 					}
 				}
 			}
@@ -391,19 +384,22 @@ func (s *subscribeActivity) GetMaxCount(account int, userId string, as *model.Su
 		}
 		count = account / as.Price
 		isShare = 0
-		if share == nil {
-			return
+		if share != nil {
+			if share.Id != 0 {
+				count = count + 1
+				isShare = 1
+			}
 		}
-		if share.Id != 0 {
-			count = count + 1
-			isShare = 1
+		// 最大认购只能是3000
+		if count > 3000 {
+			count = 3000
 		}
 	}
 	return
 }
 
 func (s *subscribeActivity) DoSubVerify(in model.DoSubReq) (oneTicketInfo model.TicketInfoJson, activityInfo *model.SubscribeActivity, err error) {
-	ticketInfo, as, e := s.GetMaxBuyNum(in.Alias, in.UserId, in.PublisherId)
+	ticketInfo, as, e := s.GetMaxBuyNum(in.Alias, in.UserId)
 	if e != nil {
 		err = e
 		return
