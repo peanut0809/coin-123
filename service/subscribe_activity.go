@@ -242,7 +242,7 @@ func (s *subscribeActivity) GetValidTicketInfo(ticketInfoStr string) (ticketInfo
 	return
 }
 
-func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string, publisherId string) (ticketInfo []model.TicketInfoJson, as *model.SubscribeActivity, err error) {
+func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string) (ticketInfo []model.TicketInfoJson, as *model.SubscribeActivity, err error) {
 	as, err = s.GetValidDetail(alias)
 	if err != nil {
 		return
@@ -306,38 +306,32 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string, publisherI
 	if as.ActivityType == 2 { //普通购
 		// 兼容之前代码
 		var wallerRet *provider.WalletAuthentication
-		if publisherId == "" {
-			// 根据钱包余额获取认购份数
-			wallerRet, _ = provider.Wallet.WalletAuthenticationState(userId)
-		} else {
-			// 根据店铺余额获取认购份数
-			userBalance, e := provider.User.GetStoreBalance(userId, publisherId)
-			if e != nil {
-				err = e
-				return
-			}
-			if userBalance == nil {
-				err = gerror.New("用户暂未开通店铺余额，暂时不能认购")
-				return
-			}
-			//yuan := Penny2Yuan(int64(userBalance.Balance))
-			//balance := gconv.Int(yuan)
-			wallerRet = new(provider.WalletAuthentication)
-			wallerRet.Account = userBalance.Balance
+		// 根据店铺余额获取认购份数
+		userBalance, e := provider.User.GetStoreBalance(userId, as.PublisherId)
+		if e != nil {
+			err = e
+			return
 		}
+		if userBalance == nil {
+			err = gerror.New("用户暂未开通店铺余额，暂时不能认购")
+			return
+		}
+		//yuan := Penny2Yuan(int64(userBalance.Balance))
+		//balance := gconv.Int(yuan)
+		wallerRet = new(provider.WalletAuthentication)
+		wallerRet.Account = userBalance.Balance
+
 		var isShare int
 		for k, v := range ticketInfo {
 			if v.Type == model.TICKET_MONEY {
 				ticketInfo[k].MaxBuyNum = as.GeneralBuyNum
 				if as.GeneralNumMethod == 1 {
-					if wallerRet != nil {
-						var count int
-						count, isShare, err = s.GetMaxCount(wallerRet.Account, userId, as)
-						if err != nil {
-							return
-						}
-						ticketInfo[k].MaxBuyNum = count
+					var count int
+					count, isShare, err = s.GetMaxCount(wallerRet.Account, userId, as)
+					if err != nil {
+						return
 					}
+					ticketInfo[k].MaxBuyNum = count
 				}
 			} else if v.Type == model.TICKET_CRYSTAL {
 				if v.UnitNum != 0 {
@@ -348,14 +342,12 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string, publisherI
 				} else {
 					ticketInfo[k].MaxBuyNum = as.GeneralBuyNum
 					if as.GeneralNumMethod == 1 {
-						if wallerRet != nil {
-							var count int
-							count, isShare, err = s.GetMaxCount(wallerRet.Account, userId, as)
-							if err != nil {
-								return
-							}
-							ticketInfo[k].MaxBuyNum = count
+						var count int
+						count, isShare, err = s.GetMaxCount(wallerRet.Account, userId, as)
+						if err != nil {
+							return
 						}
+						ticketInfo[k].MaxBuyNum = count
 					}
 				}
 			} else if v.Type == model.TICKET_MONTH {
@@ -367,15 +359,13 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string, publisherI
 				} else {
 					ticketInfo[k].MaxBuyNum = as.GeneralBuyNum
 					if as.GeneralNumMethod == 1 {
-						if wallerRet != nil {
-							var count int
-							count, isShare, err = s.GetMaxCount(wallerRet.Account, userId, as)
-							if err != nil {
-								return
-							}
-							ticketInfo[k].MaxBuyNum = count
-							ticketInfo[k].IsShare = isShare
+						var count int
+						count, isShare, err = s.GetMaxCount(wallerRet.Account, userId, as)
+						if err != nil {
+							return
 						}
+						ticketInfo[k].MaxBuyNum = count
+						ticketInfo[k].IsShare = isShare
 					}
 				}
 			}
@@ -409,7 +399,7 @@ func (s *subscribeActivity) GetMaxCount(account int, userId string, as *model.Su
 }
 
 func (s *subscribeActivity) DoSubVerify(in model.DoSubReq) (oneTicketInfo model.TicketInfoJson, activityInfo *model.SubscribeActivity, err error) {
-	ticketInfo, as, e := s.GetMaxBuyNum(in.Alias, in.UserId, in.PublisherId)
+	ticketInfo, as, e := s.GetMaxBuyNum(in.Alias, in.UserId)
 	if e != nil {
 		err = e
 		return
