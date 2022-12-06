@@ -30,7 +30,7 @@ type EquityActivity struct {
 	UpdatedAt         *gtime.Time `orm:"updated_at" json:"updatedAt"`                  // 更新时间
 }
 
-type CreateWhiteActivityReq struct {
+type CreateEquityActivityReq struct {
 	EquityActivity
 	PriceYuan string `json:"priceYuan"`
 	ExcelFile string `json:"excelFile"` //导入名单集合
