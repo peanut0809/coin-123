@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -195,8 +196,33 @@ func (s *subscribeActivity) GetDetail(alias, userId, publisherId string) (ret mo
 
 	ret.CreatorUserId = as.CreatorUserId
 	ret.CreatorId = as.CreatorId
-	ret.CreatorName = as.CreatorName
-	ret.CreatorAvatar = as.CreatorAvatar
+
+	type developers struct {
+		Id             int    `json:"id"`
+		RelationUserId string `json:"relationUserId"`
+		Name           string `json:"name"`
+		LogoUrl        string `json:"logoUrl"`
+	}
+	var developerDetails []developers
+	developer := make(map[int]developers)
+	var developerIds []int
+	developerIds = append(developerIds, as.CreatorId)
+	rpc, err := utils.SendJsonRpc(context.Background(), "developer", "Developer.DeveloperList", g.Map{
+		"ids": developerIds,
+	})
+	if err != nil {
+		return
+	}
+	mar, _ := json.Marshal(rpc)
+	_ = json.Unmarshal(mar, &developerDetails)
+	for _, i := range developerDetails {
+		developer[i.Id] = i
+	}
+	ret.CreatorName = developer[as.CreatorId].Name
+	ret.CreatorAvatar = developer[as.CreatorId].LogoUrl
+	ret.CreatorUserId = developer[as.CreatorId].RelationUserId
+	//ret.CreatorName = as.CreatorName
+	//ret.CreatorAvatar = as.CreatorAvatar
 	ret.CreatorNo = as.CreatorNo
 	// 活动结束前一个小时活动结束
 	anHourAgo := as.ActivityEndTime.Add(-time.Hour)
