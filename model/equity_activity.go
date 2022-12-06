@@ -18,12 +18,16 @@ const EquityActivityStatusEnd = 2
 type EquityActivity struct {
 	Id                int         `orm:"id,primary" json:"id"`                         // 活动iD
 	PublisherId       string      `orm:"publisher_id" json:"publisherId"`              // 发行商ID
+	TemplateId        string      `orm:"template_id" json:"templateId"`                // 模板ID
+	AppId             string      `orm:"app_id" json:"appId"`                          // 应用ID
 	Name              string      `orm:"name" json:"name"`                             // 活动名称
 	Price             int         `orm:"price" json:"price"`                           // 发售价,单位：分
 	ActivityStartTime *gtime.Time `orm:"activity_start_time" json:"activityStartTime"` // 活动开始时间
 	ActivityEndTime   *gtime.Time `orm:"activity_end_time" json:"activityEndTime"`     // 活动结束时间
 	LimitBuy          int         `orm:"limit_buy" json:"limitBuy"`                    // 限购类型 1 按每人限购 2 白名单限购  1 每人限购数量
 	LimitType         int         `orm:"limit_type" json:"limitType"`                  // 限购类型 1 按每人限购 2 白名单限购
+	TimeType          int         `orm:"time_type" json:"timeType"`                    // 时间类型 1 立即上架 2 按自定义时间
+	SubLimitType      int         `orm:"sub_limit_type" json:"subLimitType"`           // 子类型限购 当limit_type = 1时候 分 不限购最大999/限购数量
 	Number            int         `orm:"number" json:"number"`                         // 总数量
 	Status            int         `orm:"status" json:"status"`                         // 活动状态1:上架 2:下架
 	CreatedAt         *gtime.Time `orm:"created_at" json:"createdAt"`                  // 新建时间
