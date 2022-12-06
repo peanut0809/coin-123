@@ -17,6 +17,7 @@ const EquityActivityStatusEnd = 2
 
 type EquityActivity struct {
 	Id                int         `orm:"id,primary" json:"id"`                         // 活动iD
+	PublisherId       string      `orm:"publisher_id" json:"publisherId"`              // 发行商ID
 	Name              string      `orm:"name" json:"name"`                             // 活动名称
 	Price             int         `orm:"price" json:"price"`                           // 发售价,单位：分
 	ActivityStartTime *gtime.Time `orm:"activity_start_time" json:"activityStartTime"` // 活动开始时间
