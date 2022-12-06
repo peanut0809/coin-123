@@ -42,19 +42,23 @@ func (s *adminEquity) Create(r *ghttp.Request) {
 		s.FailJsonExit(r, "活动开始时间不能大于结束时间")
 		return
 	}
-
 	req.Price = int(priceInt)
-	if req.Id == 0 {
-		err = service.AdminEquity.Create(req.EquityActivity)
-		if err != nil {
-			s.FailJsonExit(r, err.Error())
-			return
-		}
+
+	err = service.AdminEquity.Create(req)
+	if err != nil {
+		s.FailJsonExit(r, err.Error())
+		return
 	}
 	s.SusJsonExit(r)
 }
 
 // 用户导入解析
 func (s *adminEquity) Import(r *ghttp.Request) {
-
+	var req model.CreateEquityActivityReq
+	result, err := service.AdminEquity.HandelExcelUser(req)
+	if err != nil {
+		s.FailJsonExit(r, err.Error())
+		return
+	}
+	s.SusJsonExit(r, result)
 }
