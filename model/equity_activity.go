@@ -40,6 +40,13 @@ type EquityActivityList struct {
 	Total int               `json:"total"`
 }
 
+type EquitySubResult struct {
+	Reason  string `json:"reason"`
+	OrderNo string `json:"orderNo"`
+	Type    string `json:"type"`
+	Step    string `json:"step"`
+}
+
 type EquityOrderReq struct {
 	Id                 int    `json:"id"`
 	Num                int    `json:"num"`
