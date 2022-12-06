@@ -23,7 +23,7 @@ func (s *adminEquity) Create(r *ghttp.Request) {
 		return
 	}
 
-	if req.Name == "" || req.Number <= 0 || req.LimitBuy <= 0 || req.LimitType <= 0 || req.ActivityStartTime == nil || req.ActivityEndTime == nil {
+	if req.Name == "" || req.TimeType <= 0 || req.SubLimitType <= 0 || req.TemplateId == "" || req.Number <= 0 || req.LimitBuy <= 0 || req.LimitType <= 0 || req.ActivityStartTime == nil || req.ActivityEndTime == nil {
 		s.FailJsonExit(r, "参数错误")
 		return
 	}
@@ -61,4 +61,25 @@ func (s *adminEquity) Import(r *ghttp.Request) {
 		return
 	}
 	s.SusJsonExit(r, result)
+}
+
+// 获取详情
+func (s *adminEquity) Item(r *ghttp.Request) {
+	templateId := r.GetQueryString("templateId")
+	if templateId == "" {
+		s.FailJsonExit(r, "活动标识为空")
+		return
+	}
+	ret, err := service.AdminEquity.Item(templateId)
+	if err != nil {
+		s.FailJsonExit(r, err.Error())
+		return
+	}
+	s.SusJsonExit(r, ret)
+}
+
+//Invalid 失效下架活动
+// 获取详情
+func (s *adminEquity) Invalid(r *ghttp.Request) {
+
 }

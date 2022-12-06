@@ -38,6 +38,10 @@ func (s *adminEquity) Create(in model.CreateEquityActivityReq) (err error) {
 		}
 		equityUserItems = items.SuccItems
 	}
+	// 校验导入数据结束
+
+	// 获取详情
+	equityItem, err2 := AdminEquity.Item(in.TemplateId)
 
 	// 插入数据
 	var tx *gdb.TX
@@ -45,31 +49,48 @@ func (s *adminEquity) Create(in model.CreateEquityActivityReq) (err error) {
 	if err != nil {
 		return
 	}
-	item, err := tx.Model("equity_activity").Insert(&in)
-	if err != nil {
-		tx.Rollback()
-		return
-	}
-	activityId, err := item.LastInsertId()
-	if err != nil {
-		tx.Rollback()
-		return
-	}
-	_, err = tx.Model("activity").Insert(g.Map{
-		"name":          in.Name,
-		"start_time":    in.ActivityStartTime,
-		"end_time":      in.ActivityEndTime,
-		"publisher_id":  in.PublisherId,
-		"activity_id":   activityId,
-		"activity_type": model.ACTIVITY_TYPE_4,
-	})
-	if err != nil {
-		tx.Rollback()
-		return
+	if err2 != nil {
+		insterItem, insertEerr := tx.Model("equity_activity").Insert(&in)
+		if insertEerr != nil {
+			err = fmt.Errorf(insertEerr.Error())
+			tx.Rollback()
+			return
+		}
+		i, _ := insterItem.LastInsertId()
+		equityItem.Id = int(i)
+		_, err = tx.Model("activity").Insert(g.Map{
+			"name":          in.Name,
+			"start_time":    in.ActivityStartTime,
+			"end_time":      in.ActivityEndTime,
+			"publisher_id":  in.PublisherId,
+			"activity_id":   equityItem.Id,
+			"activity_type": model.ACTIVITY_TYPE_4,
+		})
+		if err != nil {
+			tx.Rollback()
+			return
+		}
+	} else {
+		_, err = tx.Model("equity_activity").Where("template_id", in.TemplateId).Update(g.Map{
+			"name":                in.Name,
+			"price":               in.Price,
+			"time_type":           in.TimeType,
+			"activity_start_time": in.ActivityStartTime,
+			"activity_end_time":   in.ActivityEndTime,
+			"limit_type":          in.LimitType,
+			"sub_limit_type":      in.SubLimitType,
+			"limit_buy":           in.LimitBuy,
+			"number":              in.Number,
+			"status":              in.Status,
+		})
+		if err != nil {
+			tx.Rollback()
+			return
+		}
 	}
 	tx.Commit()
 	if in.LimitType == model.EQUITY_ACTIVITY_LIMIT_TYPE2 {
-		go AdminEquity.CreateEquityUser(in.PublisherId, activityId, equityUserItems)
+		go AdminEquity.CreateEquityUser(in.PublisherId, equityItem.Id, equityUserItems)
 	}
 	return
 }
@@ -203,7 +224,7 @@ func (s *adminEquity) HandelExcelUser(req model.CreateEquityActivityReq) (items 
 }
 
 // 创建白名单用户数据
-func (s *adminEquity) CreateEquityUser(PublishedId string, activityId int64, equityUser []model.ImportItem) {
+func (s *adminEquity) CreateEquityUser(PublishedId string, activityId int, equityUser []model.ImportItem) {
 	for _, value := range equityUser {
 		g.DB().Model("equity_user").Insert(g.Map{
 			"publisher_id": PublishedId,
@@ -213,4 +234,14 @@ func (s *adminEquity) CreateEquityUser(PublishedId string, activityId int64, equ
 			"limit_num":    value.LimitNum,
 		})
 	}
+}
+
+// 获取详情
+func (s *adminEquity) Item(templateId string) (ret model.EquityActivity, err error) {
+	m := g.DB().Model("equity_activity")
+	err = m.Where("template_id", templateId).Scan(&ret)
+	if err != nil {
+		return
+	}
+	return
 }
