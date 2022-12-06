@@ -26,6 +26,7 @@ func RunEquityOrderTask() {
 		var data model.EquityOrderReq
 		err = json.Unmarshal(msg, &data)
 		if err == nil {
+			// 创建订单
 			service.Equity.Create(data)
 		} else {
 			g.Log().Info("RunEquityOrderTask json.Unmarshal err:%v", err)
