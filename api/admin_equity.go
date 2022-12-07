@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"meta_launchpad/model"
 	"meta_launchpad/service"
 
@@ -95,7 +94,7 @@ func (s *adminEquity) UserItems(r *ghttp.Request) {
 		return
 	}
 	//获取参数
-	fmt.Println(req)
+	req.PublisherId = s.GetPublisherId(r)
 	if req.EquityId <= 0 {
 		s.FailJsonExit(r, "活动标识为空")
 		return
@@ -103,10 +102,41 @@ func (s *adminEquity) UserItems(r *ghttp.Request) {
 	if req.Page <= 0 {
 		req.Page = 1
 	}
+	if req.PageSize <= 0 {
+		req.PageSize = 20
+	}
+
 	ret, err := service.AdminEquity.UserItems(req)
 	if err != nil {
 		s.FailJsonExit(r, err.Error())
 		return
 	}
 	s.SusJsonExit(r, ret)
+}
+
+// 订单列表
+func (s *adminEquity) OrderItems(r *ghttp.Request) {
+	var req model.AdminEquityOrderReq
+	if err := r.Parse(&req); err != nil {
+		s.FailJsonExit(r, err.(gvalid.Error).FirstString())
+		return
+	}
+	if req.Page <= 0 {
+		req.Page = 1
+	}
+	if req.PageSize <= 0 {
+		req.PageSize = 20
+	}
+	req.PublisherId = s.GetPublisherId(r)
+	ret, err := service.AdminEquity.OrderItems(req)
+	if err != nil {
+		s.FailJsonExit(r, err.Error())
+		return
+	}
+	s.SusJsonExit(r, ret)
+}
+
+// 订单导出
+func (s *adminEquity) OrderExport(r *ghttp.Request) {
+
 }

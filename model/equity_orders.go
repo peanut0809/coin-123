@@ -19,6 +19,7 @@ type EquityOrder struct {
 	UserId       string      `orm:"user_id" json:"userId"`             // 用户ID
 	ActivityName string      `orm:"activity_name" json:"activityName"` // 活动名字
 	UserName     string      `orm:"user_name" json:"userName"`         // 用户名字
+	UserPhone    string      `orm:"user_phone" json:"userPhone"`       // 用户手机号
 	Icon         string      `orm:"icon" json:"icon"`                  // icon
 	Status       int         `orm:"status" json:"status"`              // 1.待支付；2.已支付；3.已超时；4.已取消
 	Price        int         `orm:"price" json:"price"`                // 单价
@@ -39,4 +40,18 @@ type EquityOrderFull struct {
 type EquityOrderList struct {
 	List  []*EquityOrderFull
 	Total int
+}
+
+type AdminEquityOrderReq struct {
+	PublisherId string `json:"publisherId"`
+	ActivityId  int    `json:"activityId"`
+	Page        int    `json:"pageNum"`
+	PageSize    int    `json:"pageSize"`
+	Phone       int    `json:"phone"`
+	Status      int    `json:"status"`
+	StartDate   string `json:"startDate"`
+	EndDate     string `json:"endDate"`
+	MinPrice    int    `json:"minPrice"`
+	MaxPrice    int    `json:"maxPrice"`
+	OrderNo     string `json:"orderNo"`
 }

@@ -7,6 +7,7 @@ import (
 	"meta_launchpad/provider"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gogf/gf/database/gdb"
 	"github.com/gogf/gf/errors/gerror"
@@ -248,7 +249,7 @@ func (s *adminEquity) Item(templateId string) (ret model.EquityActivity, err err
 }
 
 func (s *adminEquity) UserItems(in model.EquityUserReq) (list model.EquityUserFull, err error) {
-	m := g.DB().Model("equity_user").Where("activity_id", in.EquityId)
+	m := g.DB().Model("equity_user").Where("publisher_id", in.PublisherId).Where("activity_id", in.EquityId)
 	if in.Phone > 0 {
 		m = m.Where("phone", in.Phone)
 	}
@@ -269,6 +270,56 @@ func (s *adminEquity) UserItems(in model.EquityUserReq) (list model.EquityUserFu
 	list.List = rs
 	if err != nil {
 		return
+	}
+	return
+}
+
+func (s *adminEquity) OrderItems(in model.AdminEquityOrderReq) (ret model.EquityOrderList, err error) {
+	m := g.DB().Model("equity_orders").Where("publisher_id", in.PublisherId)
+	if in.Phone > 0 {
+		m = m.Where("phone", in.Phone)
+	}
+	if in.Status > 0 {
+		m = m.Where("status", in.Status)
+	}
+	if in.StartDate != "" {
+		m = m.Where("created_at < ", in.StartDate)
+	}
+	if in.EndDate != "" {
+		m = m.Where("created_at > ", in.EndDate)
+	}
+	if in.MinPrice > 0 {
+		m = m.Where("real_fee > ", in.MinPrice)
+	}
+	if in.MaxPrice > 0 {
+		m = m.Where("real_fee < ", in.MaxPrice)
+	}
+	if in.OrderNo != "" {
+		m = m.Where("order_no ", in.OrderNo)
+	}
+	total, err := m.Count()
+	if err != nil {
+		err = gerror.New("获取总行数失败")
+		return
+	}
+	ret.Total = total
+
+	var items []*model.EquityOrder
+	err = m.Order("id DESC").Page(in.Page, in.PageSize).Scan(&items)
+	if err != nil {
+		return
+	}
+	for _, v := range items {
+		lastSec := v.PayExpireAt.Unix() - time.Now().Unix()
+		if lastSec <= 0 {
+			lastSec = 0
+		}
+		ret.List = append(ret.List, &model.EquityOrderFull{
+			EquityOrder: v,
+			PriceYuan:   fmt.Sprintf("%.2f", float64(v.Price)/100),
+			RealFeeYuan: fmt.Sprintf("%.2f", float64(v.RealFee)/100),
+			LastSec:     lastSec,
+		})
 	}
 	return
 }

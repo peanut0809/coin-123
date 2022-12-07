@@ -103,30 +103,6 @@ func InitRouter() *ghttp.Server {
 		group.GET("/activity/equity/order/create/result", api.Equity.GetCreateOrderResult) // 下单结果
 		group.GET("/activity/equity/order/list", api.Equity.GetOrderList)                  // 订单列表
 		group.GET("/activity/equity/order/detail", api.Equity.GetOrderDetail)              // 订单详情
-		// B端白名单活动
-		/*
-			1、活动创建
-			2、活动失效
-			3、活动下架
-			4、用户导入
-			5、订单查询
-			6、订单导出
-		*/
-		//c端白名单活动接口集合
-		/*
-			1、
-			2、c端产品详情
-			3、当前用户可购买数量
-			4、创建订单 校验用户是否可以购买等 发送创建订单mq
-			5、创建订单结果接口
-			6、订阅mq消息处理创建订单任务 插入待支付订单数据
-			7、轮询处理待支付订单任务
-			8、取消订单 订单库存回滚
-			9.订阅订单支付mq处理订单支付任务
-			10、用户订单列表
-			11、用户订单详情
-		*/
-
 	})
 
 	s.Group("/admin", func(group *ghttp.RouterGroup) {
@@ -190,9 +166,9 @@ func InitRouter() *ghttp.Server {
 
 		//  rpc  定时任务处理活动下架状态
 
-		// 白名单活动 叮当相关
-		group.GET("/order/items", api.Synthetic.Create)  //订单查询
-		group.GET("/order/export", api.Synthetic.Create) //订单导出
+		// 白名单活动 订单相关
+		group.GET("/equity/order/items", api.AdminEquity.OrderItems)    //订单查询
+		group.POST("/equity/order/export", api.AdminEquity.OrderExport) //订单导出
 
 	})
 	return s
