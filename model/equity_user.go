@@ -11,9 +11,21 @@ type EquityUser struct {
 	UserId      string      `orm:"userId" json:"userId"`            // 用户ID
 	Phone       string      `orm:"phone" json:"phone"`              // 手机号
 	LimitNum    int         `orm:"limit_num" json:"limitNum"`       // 限购数量
-	Price       int         `orm:"price" json:"price"`              // 发售价,单位：分
 	Status      int         `orm:"status" json:"status"`            // 活动状态1:正常 2:失效
 	Note        string      `orm:"note" json:"note"`                // 备注失效原因
 	CreatedAt   *gtime.Time `orm:"created_at" json:"createdAt"`     // 新建时间
 	UpdatedAt   *gtime.Time `orm:"updated_at" json:"updatedAt"`     // 更新时间
+}
+
+type EquityUserReq struct {
+	EquityId int `json:"equityId"`
+	Page     int `json:"pageNum"`
+	PageSize int `json:"pageSize"`
+	Phone    int `json:"phone"`
+	Status   int `json:"status"`
+}
+
+type EquityUserFull struct {
+	Total int          `json:"total"`
+	List  []EquityUser `json:"list"`
 }

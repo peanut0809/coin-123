@@ -1,11 +1,13 @@
 package api
 
 import (
+	"fmt"
 	"meta_launchpad/model"
 	"meta_launchpad/service"
 
 	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/api"
 	"github.com/gogf/gf/net/ghttp"
+	"github.com/gogf/gf/util/gvalid"
 	"github.com/shopspring/decimal"
 )
 
@@ -82,4 +84,29 @@ func (s *adminEquity) Item(r *ghttp.Request) {
 // 获取详情
 func (s *adminEquity) Invalid(r *ghttp.Request) {
 
+}
+
+// 获取专属活动用户明细
+func (s *adminEquity) UserItems(r *ghttp.Request) {
+
+	var req model.EquityUserReq
+	if err := r.Parse(&req); err != nil {
+		s.FailJsonExit(r, err.(gvalid.Error).FirstString())
+		return
+	}
+	//获取参数
+	fmt.Println(req)
+	if req.EquityId <= 0 {
+		s.FailJsonExit(r, "活动标识为空")
+		return
+	}
+	if req.Page <= 0 {
+		req.Page = 1
+	}
+	ret, err := service.AdminEquity.UserItems(req)
+	if err != nil {
+		s.FailJsonExit(r, err.Error())
+		return
+	}
+	s.SusJsonExit(r, ret)
 }

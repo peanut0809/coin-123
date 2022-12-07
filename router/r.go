@@ -180,10 +180,11 @@ func InitRouter() *ghttp.Server {
 		group.GET("/synthetic/record", api.Synthetic.GetSyntheticRecord)
 
 		// 白名单活动
-		group.POST("/equity/activity/create", api.AdminEquity.Create)   //白名单活动创建
-		group.POST("/equity/activity/invalid", api.AdminEquity.Invalid) //下架更新
-		group.POST("/equity/activity/import", api.AdminEquity.Import)   //用户导入
-		group.GET("/equity/activity/item", api.AdminEquity.Item)        //白名单活动创建
+		group.POST("/equity/activity/create", api.AdminEquity.Create)       //白名单活动创建
+		group.POST("/equity/activity/invalid", api.AdminEquity.Invalid)     //下架更新
+		group.POST("/equity/activity/import", api.AdminEquity.Import)       //用户导入
+		group.GET("/equity/activity/item", api.AdminEquity.Item)            //白名单活动创建
+		group.GET("/equity/activity/user/items", api.AdminEquity.UserItems) //白名单活动创建
 
 		//  rpc  定时任务处理活动下架状态
 
