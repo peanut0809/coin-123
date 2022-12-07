@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/gogf/gf/database/gdb"
+	"github.com/gogf/gf/errors/gerror"
 	"github.com/gogf/gf/frame/g"
 	"github.com/parnurzeal/gorequest"
 	"github.com/xuri/excelize/v2"
@@ -240,6 +241,32 @@ func (s *adminEquity) CreateEquityUser(PublishedId string, activityId int, equit
 func (s *adminEquity) Item(templateId string) (ret model.EquityActivity, err error) {
 	m := g.DB().Model("equity_activity")
 	err = m.Where("template_id", templateId).Scan(&ret)
+	if err != nil {
+		return
+	}
+	return
+}
+
+func (s *adminEquity) UserItems(in model.EquityUserReq) (list model.EquityUserFull, err error) {
+	m := g.DB().Model("equity_user").Where("activity_id", in.EquityId)
+	if in.Phone > 0 {
+		m = m.Where("phone", in.Phone)
+	}
+	if in.Status > 0 {
+		m = m.Where("status", in.Status)
+	}
+	total, err := m.Count()
+	if err != nil {
+		err = gerror.New("获取总行数失败")
+		return
+	}
+	list.Total = total
+	rs := make([]model.EquityUser, 0)
+	err = m.Order("id DESC").Page(in.Page, in.PageSize).Scan(&rs)
+	if err != nil {
+		return
+	}
+	list.List = rs
 	if err != nil {
 		return
 	}
