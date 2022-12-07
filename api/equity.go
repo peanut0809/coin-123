@@ -22,7 +22,8 @@ func (c *equity) List(r *ghttp.Request) {
 	pageNum := r.GetInt("pageNum", 1)
 	pageSize := r.GetInt("pageSize", 20)
 	publisherId := r.GetString("publisherId")
-	ret, err := service.Equity.List(publisherId, pageNum, pageSize)
+	userId := c.GetUserId(r)
+	ret, err := service.Equity.List(publisherId, userId, pageNum, pageSize)
 	if err != nil {
 		c.FailJsonExit(r, err.Error())
 		return
