@@ -118,8 +118,7 @@ func (s *adminEquity) Create(in model.CreateEquityActivityReq) (err error) {
 */
 func (s *adminEquity) HandelExcelUser(req model.CreateEquityActivityReq) (items model.ImportItems, err error) {
 
-	//req.ExcelFile = "https://website-cdn.gfanx.com/developer/meta_world_id/2034061254251279543550bb04c840d30fae9f2ef282 (2).xlsx"
-
+	req.ExcelFile = "https://website-cdn.gfanx.com/developer/meta_world_id/2034071736501234567.xlsx"
 	if req.ExcelFile == "" {
 		err = fmt.Errorf("请上传文件")
 		return
@@ -136,14 +135,21 @@ func (s *adminEquity) HandelExcelUser(req model.CreateEquityActivityReq) (items 
 	}
 	rows, e := f.GetRows("Sheet1")
 	if e != nil {
-		err = fmt.Errorf("文件读取错误[解析手机号异常]")
+		err = fmt.Errorf("文件读取错误[解析手机/数量异常]")
 		return
 	}
 
 	phoneItems, countItems := []string{}, []string{}
-
 	for dx, v := range rows {
 		if dx == 0 {
+			continue
+		}
+		if len(v) != 2 {
+			err = fmt.Errorf("列文件数据错误[两列长度不匹配]")
+			return
+		}
+		s2 := strings.TrimSpace(v[1])
+		if s2 == "" {
 			continue
 		}
 		countItems = append(phoneItems, v[1])
@@ -165,60 +171,18 @@ func (s *adminEquity) HandelExcelUser(req model.CreateEquityActivityReq) (items 
 		err = fmt.Errorf("手机号列数与库存列数不匹配")
 		return
 	}
+
 	// 查询用户详情
-	mobileString := strings.Join(phoneItems, ",")
-	mobileString = strings.Replace(mobileString, " ", "", -1)
-	phoneArr := strings.Split(mobileString, ",")
-	userMap, e := provider.User.GetUserInfoByPhone(&map[string]interface{}{
-		"phoneArr": phoneArr,
-	})
-	if e != nil {
-		return items, e
+	userMap, equityUserMap, userErr := AdminEquity.HandelUserItems(phoneItems)
+	if userErr != nil {
+		return items, userErr
 	}
 
-	haveErr := false
-	total, number := 0, 0 //总条数 总库存数
-	succItems, errItems := []model.ImportItem{}, []model.ImportItem{}
-	for key, value := range rows {
-		if key == 0 {
-			continue
-		}
-		mobileRow := string(value[0])
-		num, e := strconv.Atoi(value[1])
-		number += num
-		total += 1
-		errMessage := ""
-		if e != nil {
-			errMessage = errMessage + "[" + e.Error() + "]"
-		}
-		if num <= 0 {
-			errMessage = errMessage + "[数量异常]"
-		}
-		// 用户存在
-		userItem := userMap[mobileRow]
-		if userItem.UserId == "" {
-			errMessage = errMessage + "[用户不存在]"
-		}
+	// 校验表格每行数据
+	haveErr, number, succItems, errItems := AdminEquity.HandelExcelRowErr(rows, userMap, equityUserMap)
 
-		if errMessage != "" {
-			haveErr = true
-			errItem := model.ImportItem{
-				ErrMessage: errMessage,
-				LimitNum:   num,
-				Phone:      mobileRow,
-			}
-			errItems = append(errItems, errItem)
-		} else {
-			succItem := model.ImportItem{
-				UserId:   userItem.UserId,
-				LimitNum: num,
-				Phone:    mobileRow,
-			}
-			succItems = append(succItems, succItem)
-		}
-	}
 	items.HaveErr = haveErr
-	items.Total = total
+	items.Total = len(rows) - 1
 	items.Number = number
 	items.ErrItems = errItems
 	items.SuccItems = succItems
@@ -242,6 +206,18 @@ func (s *adminEquity) CreateEquityUser(PublishedId string, activityId int, equit
 func (s *adminEquity) Item(templateId string) (ret model.EquityActivity, err error) {
 	m := g.DB().Model("equity_activity")
 	err = m.Where("template_id", templateId).Scan(&ret)
+	if err != nil {
+		return
+	}
+	return
+}
+
+// 下架活动
+func (s *adminEquity) Invalid(EquityId int) (err error) {
+	m := g.DB().Model("equity_activity")
+	_, err = m.Where("id", EquityId).Update(g.Map{
+		"status": model.EQUITY_ACTIVITY_STATUS2,
+	})
 	if err != nil {
 		return
 	}
@@ -321,5 +297,86 @@ func (s *adminEquity) OrderItems(in model.AdminEquityOrderReq) (ret model.Equity
 			LastSec:     lastSec,
 		})
 	}
+	return
+}
+
+// 获取导入表格用户信息
+func (s *adminEquity) HandelUserItems(phoneItems []string) (userMap map[string]provider.GetUserInfoRet, equityUserMap map[string]model.EquityUser, err error) {
+	mobileString := strings.Join(phoneItems, ",")
+	mobileString = strings.Replace(mobileString, " ", "", -1)
+	phoneArr := strings.Split(mobileString, ",")
+	userMap, err = provider.User.GetUserInfoByPhone(&map[string]interface{}{
+		"phoneArr": phoneArr,
+	})
+	if err != nil {
+		return
+	}
+
+	// 获取activity_id关联手机号用户信息
+	var users []model.EquityUser
+	err = g.DB().Model("equity_user").Where("status", 1).Where("phone IN (?)", phoneArr).Scan(&users)
+	if err != nil {
+		return
+	}
+	equityTempUserMap := make(map[string]model.EquityUser)
+	for _, v := range users {
+		equityTempUserMap[v.Phone] = v
+	}
+	return
+}
+
+func (s *adminEquity) HandelExcelRowErr(rows [][]string, userMap map[string]provider.GetUserInfoRet, equityUserMap map[string]model.EquityUser) (haveErr bool, number int, succItems, errItems []model.ImportItem) {
+	m := make(map[interface{}]interface{})
+
+	for key, value := range rows {
+		if key == 0 {
+			continue
+		}
+		mobileRow := string(value[0])
+		num, _ := strconv.Atoi(value[1])
+
+		number += num
+
+		errMessage := ""
+
+		_, ok := m[mobileRow]
+		if ok {
+			errMessage = errMessage + "[手机号重复]"
+		} else {
+			m[mobileRow] = value
+		}
+		if num <= 0 {
+			errMessage = errMessage + "[数量异常]"
+		}
+		// 用户存在
+		userItem := userMap[mobileRow]
+		if userItem.UserId == "" {
+			errMessage = errMessage + "[用户不存在]"
+		}
+
+		// 用户在白名单已经存在
+		equityUserItem := equityUserMap[mobileRow]
+		if equityUserItem.Phone != "" {
+			errMessage = errMessage + "[用户已经在白名单]"
+		}
+
+		if errMessage != "" {
+			haveErr = true
+			errItem := model.ImportItem{
+				ErrMessage: errMessage,
+				LimitNum:   num,
+				Phone:      mobileRow,
+			}
+			errItems = append(errItems, errItem)
+		} else {
+			succItem := model.ImportItem{
+				UserId:   userItem.UserId,
+				LimitNum: num,
+				Phone:    mobileRow,
+			}
+			succItems = append(succItems, succItem)
+		}
+	}
+
 	return
 }

@@ -82,7 +82,17 @@ func (s *adminEquity) Item(r *ghttp.Request) {
 //Invalid 失效下架活动
 // 获取详情
 func (s *adminEquity) Invalid(r *ghttp.Request) {
-
+	equityId := r.GetQueryInt("equityId")
+	if equityId <= 0 {
+		s.FailJsonExit(r, "活动标识为空")
+		return
+	}
+	err := service.AdminEquity.Invalid(equityId)
+	if err != nil {
+		s.FailJsonExit(r, err.Error())
+		return
+	}
+	s.SusJsonExit(r)
 }
 
 // 获取专属活动用户明细
