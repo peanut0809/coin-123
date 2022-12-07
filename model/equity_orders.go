@@ -4,6 +4,11 @@ import (
 	"github.com/gogf/gf/os/gtime"
 )
 
+const WAIT_PAY = 1 // 待支付
+const PAID = 2     // 已支付
+const TIMEOUT = 3  // 已超时
+const CANCEL = 4   // 已取消
+
 type EquityOrder struct {
 	Id           int         `orm:"id" json:"id"`                      // 主键
 	PublisherId  string      `orm:"publisher_id" json:"publisherId"`   // 发行商ID

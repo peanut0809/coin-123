@@ -83,6 +83,22 @@ func (c *equity) CreateOrder(r *ghttp.Request) {
 	c.SusJsonExit(r, req.OrderNo)
 }
 
+// CancelOrder 取消订单
+func (c *equity) CancelOrder(r *ghttp.Request) {
+	userId := c.GetUserId(r)
+	orderNo := r.GetString("orderNo")
+	if orderNo == "" {
+		c.FailJsonExit(r, "参数错误")
+		return
+	}
+	err := service.EquityOrder.Cancel(userId, orderNo)
+	if err != nil {
+		c.FailJsonExit(r, err.Error())
+		return
+	}
+	c.SusJsonExit(r)
+}
+
 // GetCreateOrderResult 获取下单结果
 func (c *equity) GetCreateOrderResult(r *ghttp.Request) {
 	orderNo := r.GetQueryString("orderNo")

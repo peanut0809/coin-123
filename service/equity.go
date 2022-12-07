@@ -2,15 +2,8 @@ package service
 
 import "C"
 import (
-	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/utils"
-	userModel "brq5j1d.gfanx.pro/meta_cloud/meta_service/app/user/model"
-	"context"
-	"encoding/json"
 	"fmt"
-	"github.com/gogf/gf/database/gdb"
 	"github.com/gogf/gf/frame/g"
-	"github.com/gogf/gf/os/gtime"
-	"github.com/gogf/gf/util/gconv"
 	"meta_launchpad/model"
 	"time"
 )
@@ -67,36 +60,10 @@ func (c *equity) Create(req model.EquityOrderReq) {
 		})
 		return
 	}
-	var tx *gdb.TX
-	tx, e = g.DB().Begin()
-	if e != nil {
-		EquityOrder.SetSubResult(model.EquitySubResult{
-			Reason:  e.Error(),
-			Step:    "fail",
-			OrderNo: req.OrderNo,
-		})
-		return
-	}
-	// 扣除库存
-	r, e := tx.Exec("UPDATE equity_activity SET number = number - ? WHERE id = ?", req.Num, activityInfo.Id)
-	if e != nil {
-		e = tx.Rollback()
+	// 库存判断
+	if activityInfo.Number < req.Num {
 		EquityOrder.SetSubResult(model.EquitySubResult{
 			Reason:  "库存不足",
-			Step:    "fail",
-			OrderNo: req.OrderNo,
-		})
-		return
-	}
-	affectedNum, _ := r.RowsAffected()
-	if affectedNum != 1 {
-		fmt.Println("err=", e)
-		err := tx.Rollback()
-		if err != nil {
-			return
-		}
-		EquityOrder.SetSubResult(model.EquitySubResult{
-			Reason:  "更新库存失败",
 			Step:    "fail",
 			OrderNo: req.OrderNo,
 		})
@@ -112,7 +79,6 @@ func (c *equity) Create(req model.EquityOrderReq) {
 			Where("user_id = ?", req.UserId).
 			Scan(&user)
 		if err != nil {
-			err = tx.Rollback()
 			EquityOrder.SetSubResult(model.EquitySubResult{
 				Reason:  e.Error(),
 				Step:    "fail",
@@ -121,7 +87,6 @@ func (c *equity) Create(req model.EquityOrderReq) {
 			return
 		}
 		if user == nil {
-			err = tx.Rollback()
 			EquityOrder.SetSubResult(model.EquitySubResult{
 				Reason:  "不在限购白名单中",
 				Step:    "fail",
@@ -139,7 +104,6 @@ func (c *equity) Create(req model.EquityOrderReq) {
 		Where("activity_id = ?", req.Id).
 		Count()
 	if err != nil {
-		err = tx.Rollback()
 		EquityOrder.SetSubResult(model.EquitySubResult{
 			Reason:  e.Error(),
 			Step:    "fail",
@@ -148,7 +112,6 @@ func (c *equity) Create(req model.EquityOrderReq) {
 		return
 	}
 	if alreadyBuyNum >= limitNum {
-		err = tx.Rollback()
 		EquityOrder.SetSubResult(model.EquitySubResult{
 			Reason:  "超过限定购买数量",
 			Step:    "fail",
@@ -156,48 +119,14 @@ func (c *equity) Create(req model.EquityOrderReq) {
 		})
 		return
 	}
-	// 用户信息
-	user := &userModel.Users{}
-	params := &map[string]interface{}{
-		"userId": req.UserId,
-	}
-	// 获取用户信息
-	result, err := utils.SendJsonRpc(context.Background(), "ucenter", "UserBase.GetOneUserInfo", params)
+	// 创建订单
+	err = EquityOrder.Create(&req, activityInfo)
 	if err != nil {
-		g.Log().Error(err)
-		return
-	}
-	err = json.Unmarshal([]byte(gconv.String(result)), user)
-	if err != nil {
-		g.Log().Error(err)
-		return
-	}
-	// 生成订单
-	order := model.EquityOrder{
-		PublisherId:  req.PublisherId,
-		OrderNo:      req.OrderNo,
-		Num:          req.Num,
-		RealFee:      req.Num * activityInfo.Price,
-		ActivityId:   activityInfo.Id,
-		ActivityName: activityInfo.Name,
-		UserName:     user.Nickname,
-		UserId:       req.UserId,
-		Status:       WAIT_PAY,
-		Price:        activityInfo.Price,
-		PayExpireAt:  gtime.Now().Add(time.Minute * 10),
-	}
-	err = EquityOrder.Create(tx, order)
-	if err != nil {
-		err = tx.Rollback()
 		EquityOrder.SetSubResult(model.EquitySubResult{
 			Reason:  e.Error(),
 			Step:    "fail",
 			OrderNo: req.OrderNo,
 		})
-		return
-	}
-	err = tx.Commit()
-	if err != nil {
 		return
 	}
 	return
