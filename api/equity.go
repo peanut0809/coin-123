@@ -83,6 +83,16 @@ func (c *equity) CreateOrder(r *ghttp.Request) {
 	c.SusJsonExit(r, req.OrderNo)
 }
 
+// GetCreateOrderResult 获取下单结果
+func (c *equity) GetCreateOrderResult(r *ghttp.Request) {
+	orderNo := r.GetQueryString("orderNo")
+	ret, err := service.EquityOrder.GetSubResult(orderNo)
+	if err != nil {
+		return
+	}
+	c.SusJsonExit(r, ret)
+}
+
 // GetOrderList 获取订单列表
 func (c *equity) GetOrderList(r *ghttp.Request) {
 	pageNum := r.GetQueryInt("pageNum")

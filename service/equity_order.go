@@ -9,6 +9,8 @@ import (
 	"time"
 )
 
+const WAIT_PAY = 1 // 待支付
+
 type equityOrder struct{}
 
 var EquityOrder = new(equityOrder)

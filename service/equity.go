@@ -2,10 +2,15 @@ package service
 
 import "C"
 import (
+	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/utils"
+	userModel "brq5j1d.gfanx.pro/meta_cloud/meta_service/app/user/model"
+	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/gogf/gf/database/gdb"
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/os/gtime"
+	"github.com/gogf/gf/util/gconv"
 	"meta_launchpad/model"
 	"time"
 )
@@ -151,17 +156,35 @@ func (c *equity) Create(req model.EquityOrderReq) {
 		})
 		return
 	}
+	// 用户信息
+	user := &userModel.Users{}
+	params := &map[string]interface{}{
+		"userId": req.UserId,
+	}
+	// 获取用户信息
+	result, err := utils.SendJsonRpc(context.Background(), "ucenter", "UserBase.GetOneUserInfo", params)
+	if err != nil {
+		g.Log().Error(err)
+		return
+	}
+	err = json.Unmarshal([]byte(gconv.String(result)), user)
+	if err != nil {
+		g.Log().Error(err)
+		return
+	}
 	// 生成订单
 	order := model.EquityOrder{
-		PublisherId: req.PublisherId,
-		OrderNo:     req.OrderNo,
-		Num:         req.Num,
-		RealFee:     req.Num * activityInfo.Price,
-		ActivityId:  activityInfo.Id,
-		UserId:      req.UserId,
-		Status:      1,
-		Price:       activityInfo.Price,
-		PayExpireAt: gtime.Now().Add(time.Minute * 10),
+		PublisherId:  req.PublisherId,
+		OrderNo:      req.OrderNo,
+		Num:          req.Num,
+		RealFee:      req.Num * activityInfo.Price,
+		ActivityId:   activityInfo.Id,
+		ActivityName: activityInfo.Name,
+		UserName:     user.Nickname,
+		UserId:       req.UserId,
+		Status:       WAIT_PAY,
+		Price:        activityInfo.Price,
+		PayExpireAt:  gtime.Now().Add(time.Minute * 10),
 	}
 	err = EquityOrder.Create(tx, order)
 	if err != nil {

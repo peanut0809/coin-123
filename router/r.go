@@ -96,11 +96,12 @@ func InitRouter() *ghttp.Server {
 		group.GET("/synthetic/record/list", api.Synthetic.GetRecordList)
 		group.GET("/synthetic/record/detail", api.Synthetic.GetRecordDetail)
 		// 权益活动
-		group.GET("/activity/equity/list", api.Equity.List)                   // 活动列表
-		group.GET("/activity/equity/info", api.Equity.Info)                   // 活动详情
-		group.POST("/activity/equity/order/create", api.Equity.CreateOrder)   // 活动下单
-		group.GET("/activity/equity/order/list", api.Equity.GetOrderList)     // 订单列表
-		group.GET("/activity/equity/order/detail", api.Equity.GetOrderDetail) // 订单详情
+		group.GET("/activity/equity/list", api.Equity.List)                                // 活动列表
+		group.GET("/activity/equity/info", api.Equity.Info)                                // 活动详情
+		group.POST("/activity/equity/order/create", api.Equity.CreateOrder)                // 活动下单
+		group.GET("/activity/equity/order/create/result", api.Equity.GetCreateOrderResult) // 获取下单结果
+		group.GET("/activity/equity/order/list", api.Equity.GetOrderList)                  // 订单列表
+		group.GET("/activity/equity/order/detail", api.Equity.GetOrderDetail)              // 订单详情
 		// B端白名单活动
 		/*
 			1、活动创建
