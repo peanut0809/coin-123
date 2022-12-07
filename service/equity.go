@@ -2,17 +2,18 @@ package service
 
 import "C"
 import (
-	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/utils"
-	userModel "brq5j1d.gfanx.pro/meta_cloud/meta_service/app/user/model"
 	"context"
 	"encoding/json"
 	"fmt"
+	"meta_launchpad/model"
+	"time"
+
+	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/utils"
+	userModel "brq5j1d.gfanx.pro/meta_cloud/meta_service/app/user/model"
 	"github.com/gogf/gf/database/gdb"
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/os/gtime"
 	"github.com/gogf/gf/util/gconv"
-	"meta_launchpad/model"
-	"time"
 )
 
 type equity struct{}
@@ -180,6 +181,7 @@ func (c *equity) Create(req model.EquityOrderReq) {
 		RealFee:      req.Num * activityInfo.Price,
 		ActivityId:   activityInfo.Id,
 		ActivityName: activityInfo.Name,
+		UserPhone:    user.Phone,
 		UserName:     user.Nickname,
 		UserId:       req.UserId,
 		Status:       WAIT_PAY,
