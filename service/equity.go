@@ -12,11 +12,14 @@ type equity struct{}
 var Equity = new(equity)
 
 // 活动列表
-func (c *equity) List(publisherId string, pageNum int, pageSize int) (res model.EquityActivityList, err error) {
+func (c *equity) List(publisherId, userId string, pageNum int, pageSize int) (res model.EquityActivityList, err error) {
 	var equity []*model.EquityActivity
 	m := g.DB().Model("equity_activity")
 	if publisherId != "" {
 		m = m.Where("publisher_id = ?", publisherId)
+	}
+	if userId != "" {
+		m = m.Where("user_id = ?", userId)
 	}
 	res.Total, err = m.Count()
 	if err != nil {
