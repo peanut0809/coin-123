@@ -189,9 +189,9 @@ func InitRouter() *ghttp.Server {
 
 		//  rpc  定时任务处理活动下架状态
 
-		// 白名单活动 叮当相关
-		group.GET("/order/items", api.Synthetic.Create)  //订单查询
-		group.GET("/order/export", api.Synthetic.Create) //订单导出
+		// 白名单活动 订单相关
+		group.GET("/equity/order/items", api.AdminEquity.OrderItems)    //订单查询
+		group.POST("/equity/order/export", api.AdminEquity.OrderExport) //订单导出
 
 	})
 	return s

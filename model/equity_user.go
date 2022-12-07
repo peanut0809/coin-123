@@ -18,11 +18,12 @@ type EquityUser struct {
 }
 
 type EquityUserReq struct {
-	EquityId int `json:"equityId"`
-	Page     int `json:"pageNum"`
-	PageSize int `json:"pageSize"`
-	Phone    int `json:"phone"`
-	Status   int `json:"status"`
+	PublisherId string `json:"publisherId"`
+	EquityId    int    `json:"equityId"`
+	Page        int    `json:"pageNum"`
+	PageSize    int    `json:"pageSize"`
+	Phone       int    `json:"phone"`
+	Status      int    `json:"status"`
 }
 
 type EquityUserFull struct {
