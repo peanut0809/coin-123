@@ -42,6 +42,9 @@ func (c *equity) Info(activityId int) (res model.EquityActivityFull, err error) 
 	m.Where("id = ?", activityId)
 	err = m.Scan(&res)
 	res.LastSec = res.ActivityStartTime.Unix() - time.Now().Unix()
+	if res.LastSec < 0 {
+		res.LastSec = 0
+	}
 	if err != nil {
 		return
 	}
