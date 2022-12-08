@@ -4,6 +4,11 @@ import (
 	"github.com/gogf/gf/os/gtime"
 )
 
+const ACTIVITY_TYPE_1 = 1
+const ACTIVITY_TYPE_2 = 2
+const ACTIVITY_TYPE_3 = 3
+const ACTIVITY_TYPE_4 = 4
+
 type Activity struct {
 	Id           int         `orm:"id" json:"id"`
 	PublisherId  string      `orm:"publisher_id" json:"publisherId"`

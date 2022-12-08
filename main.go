@@ -26,6 +26,8 @@ func main() {
 				go task.RunSubLaunchpadPayTask()
 				go task.RunSeckillOrderTask()
 				go task.RunSeckillOrderPayTask()
+				go task.RunEquityOrderTask()
+				go task.RunEquityOrderPayTask()
 				go task.DropTask()
 				go task.RunSyntheticTask()
 			}()

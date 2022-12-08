@@ -95,6 +95,14 @@ func InitRouter() *ghttp.Server {
 		group.GET("/synthetic/do/result", api.Synthetic.GetDoSyntheticResult)
 		group.GET("/synthetic/record/list", api.Synthetic.GetRecordList)
 		group.GET("/synthetic/record/detail", api.Synthetic.GetRecordDetail)
+		// 权益活动
+		group.GET("/activity/equity/list", api.Equity.List)                                // 活动列表
+		group.GET("/activity/equity/info", api.Equity.Info)                                // 活动详情
+		group.POST("/activity/equity/order/create", api.Equity.CreateOrder)                // 活动下单
+		group.POST("/activity/equity/order/cancel", api.Equity.CancelOrder)                // 取消订单
+		group.GET("/activity/equity/order/create/result", api.Equity.GetCreateOrderResult) // 下单结果
+		group.GET("/activity/equity/order/list", api.Equity.GetOrderList)                  // 订单列表
+		group.GET("/activity/equity/order/detail", api.Equity.GetOrderDetail)              // 订单详情
 	})
 
 	s.Group("/admin", func(group *ghttp.RouterGroup) {
@@ -148,6 +156,20 @@ func InitRouter() *ghttp.Server {
 		group.POST("/synthetic/open", api.Synthetic.Open)
 		group.POST("/synthetic/delete", api.Synthetic.Delete)
 		group.GET("/synthetic/record", api.Synthetic.GetSyntheticRecord)
+
+		// 白名单活动
+		group.POST("/equity/activity/create", api.AdminEquity.Create)       //白名单活动创建
+		group.POST("/equity/activity/invalid", api.AdminEquity.Invalid)     //下架更新
+		group.POST("/equity/activity/import", api.AdminEquity.Import)       //用户导入
+		group.GET("/equity/activity/item", api.AdminEquity.Item)            //白名单活动创建
+		group.GET("/equity/activity/user/items", api.AdminEquity.UserItems) //白名单活动创建
+
+		//  rpc  定时任务处理活动下架状态
+
+		// 白名单活动 订单相关
+		group.GET("/equity/order/items", api.AdminEquity.OrderItems)    //订单查询
+		group.POST("/equity/order/export", api.AdminEquity.OrderExport) //订单导出
+
 	})
 	return s
 }
