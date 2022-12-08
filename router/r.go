@@ -157,16 +157,14 @@ func InitRouter() *ghttp.Server {
 		group.POST("/synthetic/delete", api.Synthetic.Delete)
 		group.GET("/synthetic/record", api.Synthetic.GetSyntheticRecord)
 
-		// 白名单活动
+		// 权益活动后台@段昀彤
 		group.POST("/equity/activity/create", api.AdminEquity.Create)       //白名单活动创建
 		group.POST("/equity/activity/invalid", api.AdminEquity.Invalid)     //下架更新
 		group.POST("/equity/activity/import", api.AdminEquity.Import)       //用户导入
 		group.GET("/equity/activity/item", api.AdminEquity.Item)            //白名单活动创建
-		group.GET("/equity/activity/user/items", api.AdminEquity.UserItems) //白名单活动创建
-
+		group.GET("/equity/activity/user/items", api.AdminEquity.UserItems) //权益活动关联用户
+		group.GET("/equity/activity/items", api.AdminEquity.EquityItems)    //权益活动列表
 		//  rpc  定时任务处理活动下架状态
-
-		// 白名单活动 订单相关
 		group.GET("/equity/order/items", api.AdminEquity.OrderItems)    //订单查询
 		group.POST("/equity/order/export", api.AdminEquity.OrderExport) //订单导出
 

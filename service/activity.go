@@ -2,10 +2,11 @@ package service
 
 import (
 	"fmt"
-	"github.com/gogf/gf/frame/g"
-	"github.com/gogf/gf/os/gtime"
 	"meta_launchpad/model"
 	"meta_launchpad/provider"
+
+	"github.com/gogf/gf/frame/g"
+	"github.com/gogf/gf/os/gtime"
 )
 
 type activity struct {
@@ -41,7 +42,7 @@ func (s *activity) GetCreatorRank(rankValue int, pageNum int, pageSize int, publ
 }
 
 func (s *activity) List(activityIds []int, pageNum int, pageSize int, startTime, endTime string, activityType int, status, searchVal, publisherId string, disable int) (ret model.AdminActivityList, err error) {
-	m := g.DB().Model("activity")
+	m := g.DB().Model("activity").Where("activity_type != ", model.ACTIVITY_TYPE_4)
 	if disable != -1 {
 		m = m.Where("disable = ?", disable)
 	}
