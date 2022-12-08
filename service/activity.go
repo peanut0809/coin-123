@@ -1,6 +1,9 @@
 package service
 
 import (
+	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/utils"
+	"context"
+	"encoding/json"
 	"fmt"
 	"meta_launchpad/model"
 	"meta_launchpad/provider"
@@ -105,6 +108,31 @@ func (s *activity) List(activityIds []int, pageNum int, pageSize int, startTime,
 	if len(secKillIds) != 0 {
 		secKillAcMap = SeckillActivity.GetByIds(secKillIds)
 	}
+
+	type developers struct {
+		Id             int    `json:"id"`
+		RelationUserId string `json:"relationUserId"`
+		Name           string `json:"name"`
+		LogoUrl        string `json:"logoUrl"`
+	}
+	var developerDetails []developers
+	developer := make(map[int]developers)
+	var developerIds []int
+	for _, i := range as {
+		developerIds = append(developerIds, subAcMap[i.ActivityId].CreatorId)
+	}
+	rpc, err := utils.SendJsonRpc(context.Background(), "developer", "Developer.DeveloperList", g.Map{
+		"ids": developerIds,
+	})
+	if err != nil {
+		return
+	}
+	mar, _ := json.Marshal(rpc)
+	_ = json.Unmarshal(mar, &developerDetails)
+	for _, i := range developerDetails {
+		developer[i.Id] = i
+	}
+
 	publisherIds := make([]string, 0)
 	for _, v := range as {
 		publisherIds = append(publisherIds, v.PublisherId)
@@ -134,8 +162,12 @@ func (s *activity) List(activityIds []int, pageNum int, pageSize int, startTime,
 		if v.ActivityType == 2 {
 			item.ActivityTypeString = "普通购"
 			if publisherId == "MCN" {
-				item.PublisherName = subAcMap[v.ActivityId].CreatorName
-				item.PublisherIcon = subAcMap[v.ActivityId].CreatorAvatar
+				item.PublisherName = developer[subAcMap[v.ActivityId].CreatorId].Name
+				item.PublisherIcon = developer[subAcMap[v.ActivityId].CreatorId].LogoUrl
+				item.PublisherUserId = developer[subAcMap[v.ActivityId].CreatorId].RelationUserId
+				//item.PublisherName = subAcMap[v.ActivityId].CreatorName
+				//item.PublisherIcon = subAcMap[v.ActivityId].CreatorAvatar
+				//item.PublisherUserId = subAcMap[v.ActivityId].CreatorUserId
 			}
 		}
 		if v.StartTime.Unix() > n.Unix() {

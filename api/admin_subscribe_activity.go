@@ -1,14 +1,15 @@
 package api
 
 import (
-	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/api"
-	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/utils"
 	"fmt"
-	"github.com/gogf/gf/net/ghttp"
-	"github.com/shopspring/decimal"
 	"meta_launchpad/model"
 	"meta_launchpad/provider"
 	"meta_launchpad/service"
+
+	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/api"
+	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/utils"
+	"github.com/gogf/gf/net/ghttp"
+	"github.com/shopspring/decimal"
 )
 
 type adminSubscribeActivity struct {
@@ -48,12 +49,12 @@ func (s *adminSubscribeActivity) Create(r *ghttp.Request) {
 		s.FailJsonExit(r, "活动类型错误")
 		return
 	}
-	if req.ActivityType == 2 {
-		if req.GeneralBuyNum <= 0 {
-			s.FailJsonExit(r, "抽签次数参数错误")
-			return
-		}
-	}
+	// if req.ActivityType == 2 {
+	// 	if req.GeneralBuyNum <= 0 {
+	// 		s.FailJsonExit(r, "抽签次数参数错误")
+	// 		return
+	// 	}
+	// }
 	decimalValue, err := decimal.NewFromString(req.PriceYuan)
 	if err != nil {
 		s.FailJsonExit(r, "价格参数错误")
@@ -72,14 +73,19 @@ func (s *adminSubscribeActivity) Create(r *ghttp.Request) {
 	tplInfo, _ := provider.Developer.GetAssetsTemplate(req.AppId, req.TemplateId)
 
 	if tplInfo.DeveloperId != 0 {
-		creatorInfo, err := provider.Developer.GetCreatorInfo(tplInfo.DeveloperId)
+		// creatorInfo, err := provider.Developer.GetCreatorInfo(tplInfo.DeveloperId)
+		params := &map[string]interface{}{
+			"creatorId": tplInfo.DeveloperId,
+		}
+		creatorInfo, err := provider.Developer.GetDeveloperDetailsById(params)
 		if err != nil {
 			s.FailJsonExit(r, err.Error())
 			return
 		}
 		req.CreatorId = tplInfo.DeveloperId
-		req.CreatorName = creatorInfo.Data.Name
-		req.CreatorAvatar = creatorInfo.Data.LogoUrl
+		req.CreatorUserId = creatorInfo.RelationUserId
+		req.CreatorName = creatorInfo.Name
+		req.CreatorAvatar = creatorInfo.LogoUrl
 		req.CreatorNo = fmt.Sprintf("%06d", tplInfo.DeveloperId)
 	}
 	if req.Id == 0 {

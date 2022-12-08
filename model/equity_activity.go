@@ -14,6 +14,7 @@ const SubSetEquityResultKey = "meta_launchpad:activity_equity_result:%s"
 const EquityActivityStatusWait = 0
 const EquityActivityStatusIng = 1
 const EquityActivityStatusEnd = 2
+const EQUITY_LIMITBUY = 999
 
 type EquityActivity struct {
 	Id                int         `orm:"id,primary" json:"id"`                         // 活动iD
@@ -29,9 +30,10 @@ type EquityActivity struct {
 	TimeType          int         `orm:"time_type" json:"timeType"`                    // 时间类型 1 立即上架 2 按自定义时间
 	SubLimitType      int         `orm:"sub_limit_type" json:"subLimitType"`           // 子类型限购 当limit_type = 1时候 分 不限购最大999/限购数量
 	Number            int         `orm:"number" json:"number"`                         // 总数量
-	Status            int         `orm:"status" json:"status"`                         // 活动状态1:上架 2:下架
-	CreatedAt         *gtime.Time `orm:"created_at" json:"createdAt"`                  // 新建时间
-	UpdatedAt         *gtime.Time `orm:"updated_at" json:"updatedAt"`                  // 更新时间
+	CoverImgUrl       string      `orm:"cover_img_url" json:"coverImgUrl"`
+	Status            int         `orm:"status" json:"status"`        // 活动状态1:上架 2:下架
+	CreatedAt         *gtime.Time `orm:"created_at" json:"createdAt"` // 新建时间
+	UpdatedAt         *gtime.Time `orm:"updated_at" json:"updatedAt"` // 更新时间
 }
 
 type CreateEquityActivityReq struct {

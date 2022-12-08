@@ -23,15 +23,23 @@ func (s *adminEquity) Create(r *ghttp.Request) {
 		s.FailJsonExit(r, err.Error())
 		return
 	}
-
+	req.PublisherId = s.GetPublisherId(r)
 	if req.Name == "" || req.TimeType <= 0 || req.SubLimitType <= 0 || req.TemplateId == "" || req.Number <= 0 || req.LimitBuy <= 0 || req.LimitType <= 0 || req.ActivityStartTime == nil || req.ActivityEndTime == nil {
 		s.FailJsonExit(r, "参数错误")
 		return
 	}
+	if req.CoverImgUrl == "" {
+		s.FailJsonExit(r, "请上传图片")
+		return
+	}
+	// 如果是每个人 不限购 默认值 999
 	if req.LimitType == model.EQUITY_ACTIVITY_LIMIT_TYPE1 {
-		if req.LimitType == 1 {
-			req.LimitBuy = 999
+		if req.LimitType == model.EQUITY_ACTIVITY_LIMIT_TYPE1 {
+			req.LimitBuy = model.EQUITY_LIMITBUY
 		}
+	}
+	if req.TimeType == model.EQUITY_ACTIVITY_LIMIT_TYPE1 {
+
 	}
 	decimalValue, err := decimal.NewFromString(req.PriceYuan)
 	if err != nil {
@@ -61,6 +69,11 @@ func (s *adminEquity) Create(r *ghttp.Request) {
 // 用户导入解析
 func (s *adminEquity) Import(r *ghttp.Request) {
 	var req model.CreateEquityActivityReq
+	err := r.Parse(&req)
+	if err != nil {
+		s.FailJsonExit(r, err.Error())
+		return
+	}
 	req.IsCreate = false
 	result, err := service.AdminEquity.HandelExcelUser(req)
 	if err != nil {

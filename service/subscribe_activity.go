@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -8,6 +9,9 @@ import (
 	"meta_launchpad/model"
 	"meta_launchpad/provider"
 	"time"
+
+	"github.com/gogf/gf/errors/gerror"
+	"github.com/shopspring/decimal"
 
 	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/utils"
 	"github.com/gogf/gf/database/gdb"
@@ -190,10 +194,41 @@ func (s *subscribeActivity) GetDetail(alias, userId, publisherId string) (ret mo
 		ret.CopyrightInfo = templateInfo.CopyrightInfoJson
 	}
 
+	ret.CreatorUserId = as.CreatorUserId
 	ret.CreatorId = as.CreatorId
-	ret.CreatorName = as.CreatorName
-	ret.CreatorAvatar = as.CreatorAvatar
+
+	type developers struct {
+		Id             int    `json:"id"`
+		RelationUserId string `json:"relationUserId"`
+		Name           string `json:"name"`
+		LogoUrl        string `json:"logoUrl"`
+	}
+	var developerDetails []developers
+	developer := make(map[int]developers)
+	var developerIds []int
+	developerIds = append(developerIds, as.CreatorId)
+	rpc, err := utils.SendJsonRpc(context.Background(), "developer", "Developer.DeveloperList", g.Map{
+		"ids": developerIds,
+	})
+	if err != nil {
+		return
+	}
+	mar, _ := json.Marshal(rpc)
+	_ = json.Unmarshal(mar, &developerDetails)
+	for _, i := range developerDetails {
+		developer[i.Id] = i
+	}
+	ret.CreatorName = developer[as.CreatorId].Name
+	ret.CreatorAvatar = developer[as.CreatorId].LogoUrl
+	ret.CreatorUserId = developer[as.CreatorId].RelationUserId
+	//ret.CreatorName = as.CreatorName
+	//ret.CreatorAvatar = as.CreatorAvatar
 	ret.CreatorNo = as.CreatorNo
+	// 活动结束前一个小时活动结束
+	anHourAgo := as.ActivityEndTime.Add(-time.Hour)
+	if gtime.Now().After(as.ActivityStartTime) && gtime.Now().Before(anHourAgo) {
+		ret.AnHourAgo = int(anHourAgo.Time.Sub(gtime.Now().Time).Seconds())
+	}
 	return
 }
 
@@ -295,20 +330,34 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string) (ticketInf
 		}
 	}
 	if as.ActivityType == 2 { //普通购
-		wallerRet, _ := provider.Wallet.WalletAuthenticationState(userId)
+		// 兼容之前代码
+		var wallerRet *provider.WalletAuthentication
+		// 根据店铺余额获取认购份数
+		userBalance, e := provider.User.GetStoreBalance(userId, as.PublisherId)
+		if e != nil {
+			err = e
+			return
+		}
+		if userBalance == nil {
+			err = gerror.New("用户暂未开通店铺余额，暂时不能认购")
+			return
+		}
+		//yuan := Penny2Yuan(int64(userBalance.Balance))
+		//balance := gconv.Int(yuan)
+		wallerRet = new(provider.WalletAuthentication)
+		wallerRet.Account = userBalance.Balance
+
 		var isShare int
 		for k, v := range ticketInfo {
 			if v.Type == model.TICKET_MONEY {
 				ticketInfo[k].MaxBuyNum = as.GeneralBuyNum
 				if as.GeneralNumMethod == 1 {
-					if wallerRet != nil {
-						var count int
-						count, isShare, err = s.GetMaxCount(wallerRet.Account, userId, as)
-						if err != nil {
-							return
-						}
-						ticketInfo[k].MaxBuyNum = count
+					var count int
+					count, isShare, err = s.GetMaxCount(wallerRet.Account, userId, as)
+					if err != nil {
+						return
 					}
+					ticketInfo[k].MaxBuyNum = count
 				}
 			} else if v.Type == model.TICKET_CRYSTAL {
 				if v.UnitNum != 0 {
@@ -319,14 +368,12 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string) (ticketInf
 				} else {
 					ticketInfo[k].MaxBuyNum = as.GeneralBuyNum
 					if as.GeneralNumMethod == 1 {
-						if wallerRet != nil {
-							var count int
-							count, isShare, err = s.GetMaxCount(wallerRet.Account, userId, as)
-							if err != nil {
-								return
-							}
-							ticketInfo[k].MaxBuyNum = count
+						var count int
+						count, isShare, err = s.GetMaxCount(wallerRet.Account, userId, as)
+						if err != nil {
+							return
 						}
+						ticketInfo[k].MaxBuyNum = count
 					}
 				}
 			} else if v.Type == model.TICKET_MONTH {
@@ -338,15 +385,13 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string) (ticketInf
 				} else {
 					ticketInfo[k].MaxBuyNum = as.GeneralBuyNum
 					if as.GeneralNumMethod == 1 {
-						if wallerRet != nil {
-							var count int
-							count, isShare, err = s.GetMaxCount(wallerRet.Account, userId, as)
-							if err != nil {
-								return
-							}
-							ticketInfo[k].MaxBuyNum = count
-							ticketInfo[k].IsShare = isShare
+						var count int
+						count, isShare, err = s.GetMaxCount(wallerRet.Account, userId, as)
+						if err != nil {
+							return
 						}
+						ticketInfo[k].MaxBuyNum = count
+						ticketInfo[k].IsShare = isShare
 					}
 				}
 			}
@@ -358,16 +403,22 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string) (ticketInf
 
 func (s *subscribeActivity) GetMaxCount(account int, userId string, as *model.SubscribeActivity) (count int, isShare int, err error) {
 	if as.GeneralNumMethod == 1 {
-		var share model.SubscribeShare
+		var share *model.SubscribeShare
 		share, err = SubscribeShare.GetSubscrubeShare(userId, as.Id)
 		if err != nil {
 			return
 		}
 		count = account / as.Price
 		isShare = 0
-		if share.Id != 0 {
-			count = count + 1
-			isShare = 1
+		if share != nil {
+			if share.Id != 0 {
+				count = count + 1
+				isShare = 1
+			}
+		}
+		// 最大认购只能是3000
+		if count > 3000 {
+			count = 3000
 		}
 	}
 	return
@@ -808,4 +859,8 @@ func (s *subscribeActivity) GetByIds(ids []int) (ret map[int]model.SubscribeActi
 func (s *subscribeActivity) GetByAlias(alias string) (ret model.SubscribeActivity) {
 	g.DB().Model("subscribe_activity").Where("alias = ?", alias).Scan(&ret)
 	return
+}
+func Penny2Yuan(price int64) string {
+	d := decimal.New(1, 2)
+	return decimal.NewFromInt(price).DivRound(d, 2).String()
 }

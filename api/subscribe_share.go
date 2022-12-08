@@ -25,6 +25,10 @@ func (s *subscribeShare) UploadSubscribeShare(r *ghttp.Request) {
 		s.FailJsonExit(r, "参数错误")
 		return
 	}
+	if req.PublisherId == "" {
+		s.FailJsonExit(r, "参数错误")
+		return
+	}
 
 	userId := s.GetUserId(r)
 	err = service.SubscribeShare.UploadSubscrubeShare(req, userId)

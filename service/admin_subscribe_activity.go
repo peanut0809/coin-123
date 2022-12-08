@@ -5,11 +5,12 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"meta_launchpad/model"
+	"meta_launchpad/provider"
+
 	"github.com/gogf/gf/database/gdb"
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/os/gtime"
-	"meta_launchpad/model"
-	"meta_launchpad/provider"
 )
 
 type adminSubscribeActivity struct {
@@ -225,6 +226,7 @@ func (s *adminSubscribeActivity) Update(in model.SubscribeActivity, cons []model
 		"pay_end_time":        in.PayEndTime,
 		"nfr_sec":             in.NfrSec,
 		"creator_id":          in.CreatorId,
+		"creator_user_id":     in.CreatorUserId,
 		"creator_name":        in.CreatorName,
 		"creator_avatar":      in.CreatorAvatar,
 		"general_num_method":  in.GeneralNumMethod,

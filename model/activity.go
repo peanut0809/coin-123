@@ -31,6 +31,7 @@ type AdminActivityFull struct {
 	Cover              string `json:"cover"`
 	Alias              string `json:"alias"`
 	PublisherName      string `json:"publisherName"`
+	PublisherUserId    string `json:"publisherUserId"`
 	PublisherIcon      string `json:"publisherIcon"`
 }
 

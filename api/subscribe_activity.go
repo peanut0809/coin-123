@@ -65,6 +65,7 @@ func (s *subscribeActivity) GetActivityAwardRecord(r *ghttp.Request) {
 
 func (s *subscribeActivity) GetPayInfo(r *ghttp.Request) {
 	userId := s.GetUserId(r)
+
 	alias := r.GetQueryString("alias")
 	if alias == "" {
 		s.FailJsonExit(r, "参数错误")
