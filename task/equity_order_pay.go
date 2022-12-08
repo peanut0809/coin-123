@@ -61,10 +61,12 @@ func RunEquityOrderPayTask() {
 				"num":        orderInfo.Num,
 				"userId":     orderInfo.UserId,
 				"optType":    "LAUNCHPAD",
-				"optRemark":  "元初发射台权限发放资产",
+				"optRemark":  "元初发射台权益发放资产",
 			})
 			if err != nil {
 				if strings.Contains(err.Error(), "timeout") {
+					publishSuccess = true
+				} else {
 					publishSuccess = false
 				}
 			}
