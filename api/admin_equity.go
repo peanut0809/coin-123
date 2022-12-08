@@ -61,6 +61,11 @@ func (s *adminEquity) Create(r *ghttp.Request) {
 // 用户导入解析
 func (s *adminEquity) Import(r *ghttp.Request) {
 	var req model.CreateEquityActivityReq
+	err := r.Parse(&req)
+	if err != nil {
+		s.FailJsonExit(r, err.Error())
+		return
+	}
 	req.IsCreate = false
 	result, err := service.AdminEquity.HandelExcelUser(req)
 	if err != nil {
