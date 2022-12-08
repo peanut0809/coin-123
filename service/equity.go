@@ -12,14 +12,11 @@ type equity struct{}
 var Equity = new(equity)
 
 // 活动列表
-func (c *equity) List(publisherId, userId string, pageNum int, pageSize int) (res model.EquityActivityList, err error) {
+func (c *equity) List(publisherId string, pageNum int, pageSize int) (res model.EquityActivityList, err error) {
 	var equity []*model.EquityActivity
 	m := g.DB().Model("equity_activity")
 	if publisherId != "" {
 		m = m.Where("publisher_id = ?", publisherId)
-	}
-	if userId != "" {
-		m = m.Where("user_id = ?", userId)
 	}
 	res.Total, err = m.Count()
 	if err != nil {
@@ -62,67 +59,8 @@ func (c *equity) Create(req model.EquityOrderReq) {
 		})
 		return
 	}
-	// 库存判断
-	if activityInfo.Number < req.Num {
-		EquityOrder.SetSubResult(model.EquitySubResult{
-			Reason:  "库存不足",
-			Step:    "fail",
-			OrderNo: req.OrderNo,
-		})
-		return
-	}
-	// 定义限购数量
-	limitNum := 0
-	// 判断白名单
-	if activityInfo.LimitType == model.EQUITY_ACTIVITY_LIMIT_TYPE2 {
-		var user *model.EquityUser
-		err := g.DB().Model("equity_user").
-			Where("activity_id = ?", req.Id).
-			Where("user_id = ?", req.UserId).
-			Scan(&user)
-		if err != nil {
-			EquityOrder.SetSubResult(model.EquitySubResult{
-				Reason:  e.Error(),
-				Step:    "fail",
-				OrderNo: req.OrderNo,
-			})
-			return
-		}
-		if user == nil {
-			EquityOrder.SetSubResult(model.EquitySubResult{
-				Reason:  "不在限购白名单中",
-				Step:    "fail",
-				OrderNo: req.OrderNo,
-			})
-			return
-		}
-		limitNum = user.LimitNum
-	} else {
-		limitNum = activityInfo.LimitBuy
-	}
-	// 判断购买数量
-	alreadyBuyNum, err := g.DB().Model("equity_orders").
-		Where("user_id = ?", req.UserId).
-		Where("activity_id = ?", req.Id).
-		Count()
-	if err != nil {
-		EquityOrder.SetSubResult(model.EquitySubResult{
-			Reason:  e.Error(),
-			Step:    "fail",
-			OrderNo: req.OrderNo,
-		})
-		return
-	}
-	if alreadyBuyNum >= limitNum {
-		EquityOrder.SetSubResult(model.EquitySubResult{
-			Reason:  "超过限定购买数量",
-			Step:    "fail",
-			OrderNo: req.OrderNo,
-		})
-		return
-	}
 	// 创建订单
-	err = EquityOrder.Create(&req, activityInfo)
+	err := EquityOrder.Create(&req, activityInfo)
 	if err != nil {
 		EquityOrder.SetSubResult(model.EquitySubResult{
 			Reason:  e.Error(),

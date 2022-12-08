@@ -23,8 +23,7 @@ func (c *equity) List(r *ghttp.Request) {
 	pageNum := r.GetInt("pageNum", 1)
 	pageSize := r.GetInt("pageSize", 20)
 	publisherId := r.GetString("publisherId")
-	userId := c.GetUserId(r)
-	ret, err := service.Equity.List(publisherId, userId, pageNum, pageSize)
+	ret, err := service.Equity.List(publisherId, pageNum, pageSize)
 	if err != nil {
 		c.FailJsonExit(r, err.Error())
 		return
@@ -70,6 +69,46 @@ func (c *equity) CreateOrder(r *ghttp.Request) {
 		c.FailJsonExit(r, "已结束")
 		return
 	}
+	// 库存判断
+	if activityInfo.Number < req.Num {
+		c.FailJsonExit(r, "库存不足")
+		return
+	}
+	// 定义限购数量
+	limitNum := 0
+	// 判断白名单
+	if activityInfo.LimitType == model.EQUITY_ACTIVITY_LIMIT_TYPE2 {
+		var user *model.EquityUser
+		err := g.DB().Model("equity_user").
+			Where("activity_id = ?", req.Id).
+			Where("user_id = ?", req.UserId).
+			Scan(&user)
+		if err != nil {
+			c.FailJsonExit(r, "网络繁忙")
+			return
+		}
+		if user == nil {
+			c.FailJsonExit(r, "不在限购白名单中")
+			return
+		}
+		limitNum = user.LimitNum
+	} else {
+		limitNum = activityInfo.LimitBuy
+	}
+	// 判断购买数量
+	alreadyBuyNum, err := g.DB().Model("equity_orders").
+		Where("user_id = ?", req.UserId).
+		Where("activity_id = ?", req.Id).
+		Count()
+	if err != nil {
+		c.FailJsonExit(r, "网络繁忙")
+		return
+	}
+	if alreadyBuyNum >= limitNum {
+		c.FailJsonExit(r, "超过限定购买数量")
+		return
+	}
+	// 发送消息
 	req.OrderNo = fmt.Sprintf("%d", utils.GetOrderNo())
 	req.UserId = c.GetUserId(r)
 	req.ClientIp = r.GetClientIp()
