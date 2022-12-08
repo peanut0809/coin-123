@@ -9,6 +9,7 @@ import (
 	"github.com/gogf/gf/net/ghttp"
 	"meta_launchpad/model"
 	"meta_launchpad/service"
+	"time"
 )
 
 type equity struct {
@@ -56,6 +57,17 @@ func (c *equity) CreateOrder(r *ghttp.Request) {
 	}
 	if req.Num <= 0 || req.Id <= 0 {
 		c.FailJsonExit(r, "参数错误")
+		return
+	}
+	// 活动详情
+	activityInfo, err := service.Equity.GetValidDetail(req.Id)
+	currentTime := time.Now().Unix()
+	if currentTime < activityInfo.ActivityStartTime.Unix() {
+		c.FailJsonExit(r, "暂未开始")
+		return
+	}
+	if currentTime > activityInfo.ActivityEndTime.Unix() {
+		c.FailJsonExit(r, "已结束")
 		return
 	}
 	req.OrderNo = fmt.Sprintf("%d", utils.GetOrderNo())
