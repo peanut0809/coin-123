@@ -32,8 +32,8 @@ func (s *adminEquity) Create(in model.CreateEquityActivityReq) (err error) {
 		return
 	}
 	if equityItem.Status == model.EQUITY_ACTIVITY_STATUS1 {
-		//err = fmt.Errorf("权益活动信息上架中，请勿重复上架")
-		//return
+		err = fmt.Errorf("权益活动信息上架中，请勿重复上架")
+		return
 	}
 	// 插入数据
 	var tx *gdb.TX
@@ -66,13 +66,13 @@ func (s *adminEquity) Create(in model.CreateEquityActivityReq) (err error) {
 		}
 	}
 	tx.Commit()
+	// 如果是白名单 创建用户
 	if in.LimitType == model.EQUITY_ACTIVITY_LIMIT_TYPE2 {
 		go AdminEquity.CreateEquityUser(in.PublisherId, equityItem.Id, in)
 	}
 	return
 }
 
-// 解析处理用户数据
 /*
 	查询用户 用户存在 不用校验手机号是否符合规则
 	判断是否有重复
@@ -93,7 +93,6 @@ func (s *adminEquity) Create(in model.CreateEquityActivityReq) (err error) {
 */
 func (s *adminEquity) HandelExcelUser(req model.CreateEquityActivityReq) (items model.ImportItems, err error) {
 
-	//req.ExcelFile = "https://website-cdn.gfanx.com/developer/meta_world_id/20340810435412345678911.xlsx"
 	if req.ExcelFile == "" {
 		err = fmt.Errorf("请上传文件")
 		g.Log().Error(req.PublisherId + "导入白名单异常!" + "请上传文件")
@@ -151,7 +150,12 @@ func (s *adminEquity) HandelExcelUser(req model.CreateEquityActivityReq) (items 
 		}
 	}
 
-	// 校验表格每行数据
+	/*
+		rows 表格数据
+		userMap rpc获取用户数据集合
+		equityUserMap 白名单表用户是否存在
+		req.IsCreate 如果是创建 校验用户+创建用户
+	*/
 	haveErr, number, succItems, errItems := AdminEquity.HandelExcelRowErr(rows, userMap, equityUserMap, req.IsCreate)
 
 	items.HaveErr = haveErr
@@ -394,10 +398,10 @@ func (s *adminEquity) HandelExcelRowErr(rows [][]string, userMap map[string]prov
 		mobileRow := string(value[0])
 		num, _ := strconv.Atoi(value[1])
 
+		// 导入用户总购买数量
 		number += num
 
 		errMessage := ""
-
 		result, _ := regexp.MatchString(`^(1[3|4|5|6|7|8|9][0-9]\d{4,8})$`, mobileRow)
 		if !result {
 			errMessage = errMessage + "[手机号格式异常]"
