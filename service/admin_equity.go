@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"meta_launchpad/model"
 	"meta_launchpad/provider"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -22,36 +23,27 @@ type adminEquity struct {
 var AdminEquity = new(adminEquity)
 
 func (s *adminEquity) Create(in model.CreateEquityActivityReq) (err error) {
-	// 如果是白名单 校验白名单导入数据
-	equityUserItems := []model.ImportItem{}
-	if in.LimitType == model.EQUITY_ACTIVITY_LIMIT_TYPE2 {
-		items, err2 := AdminEquity.HandelExcelUser(in)
-		if err2 != nil {
-			err = fmt.Errorf(err2.Error())
-			return
-		}
-		if items.HaveErr {
-			err = fmt.Errorf("表格数据存在异常数据，检查后重试")
-			return
-		}
-		if items.SuccItems == nil {
-			err = fmt.Errorf("导入数据为空，请重新输入")
-			return
-		}
-		equityUserItems = items.SuccItems
-	}
-	// 校验导入数据结束
-
 	// 获取详情
-	equityItem, err2 := AdminEquity.Item(in.TemplateId)
-
+	var equityItem *model.EquityActivity
+	m := g.DB().Model("equity_activity")
+	err = m.Where("template_id", in.TemplateId).Scan(&equityItem)
+	if err != nil {
+		err = fmt.Errorf("权益活动信息获取异常")
+		return
+	}
+	if equityItem.Status == model.EQUITY_ACTIVITY_STATUS1 {
+		//err = fmt.Errorf("权益活动信息上架中，请勿重复上架")
+		//return
+	}
 	// 插入数据
 	var tx *gdb.TX
 	tx, err = g.DB().Begin()
 	if err != nil {
+		tx.Rollback()
 		return
 	}
-	if err2 != nil {
+
+	if equityItem == nil {
 		insterItem, insertEerr := tx.Model("equity_activity").Insert(&in)
 		if insertEerr != nil {
 			err = fmt.Errorf(insertEerr.Error())
@@ -72,27 +64,10 @@ func (s *adminEquity) Create(in model.CreateEquityActivityReq) (err error) {
 			tx.Rollback()
 			return
 		}
-	} else {
-		_, err = tx.Model("equity_activity").Where("template_id", in.TemplateId).Update(g.Map{
-			"name":                in.Name,
-			"price":               in.Price,
-			"time_type":           in.TimeType,
-			"activity_start_time": in.ActivityStartTime,
-			"activity_end_time":   in.ActivityEndTime,
-			"limit_type":          in.LimitType,
-			"sub_limit_type":      in.SubLimitType,
-			"limit_buy":           in.LimitBuy,
-			"number":              in.Number,
-			"status":              in.Status,
-		})
-		if err != nil {
-			tx.Rollback()
-			return
-		}
 	}
 	tx.Commit()
 	if in.LimitType == model.EQUITY_ACTIVITY_LIMIT_TYPE2 {
-		go AdminEquity.CreateEquityUser(in.PublisherId, equityItem.Id, equityUserItems)
+		go AdminEquity.CreateEquityUser(in.PublisherId, equityItem.Id, in)
 	}
 	return
 }
@@ -103,7 +78,7 @@ func (s *adminEquity) Create(in model.CreateEquityActivityReq) (err error) {
 	判断是否有重复
 	{
 		"have_err" : false,是否有异常
-		"items" : [ 数据集合
+		"items" : [ 错误数据集合
 			{
 				"phone":"",
 				"user_id":""
@@ -112,74 +87,72 @@ func (s *adminEquity) Create(in model.CreateEquityActivityReq) (err error) {
 		],
 		"total": 总条数
 		"number": 总库存数
-		"err_excel_url":"" 错误表格下载链接
+		"errTotal":总错误条数
+		"errNumber":总异常库存
 	}
-	如果有异常数据 写入 err_excel_url 返回表格链接
 */
 func (s *adminEquity) HandelExcelUser(req model.CreateEquityActivityReq) (items model.ImportItems, err error) {
 
-	req.ExcelFile = "https://website-cdn.gfanx.com/developer/meta_world_id/2034071736501234567.xlsx"
+	//req.ExcelFile = "https://website-cdn.gfanx.com/developer/meta_world_id/20340810435412345678911.xlsx"
 	if req.ExcelFile == "" {
 		err = fmt.Errorf("请上传文件")
+		g.Log().Error(req.PublisherId + "导入白名单异常!" + "请上传文件")
 		return
 	}
 	_, bs, errs := gorequest.New().Get(req.ExcelFile).EndBytes()
 	if len(errs) != 0 {
 		err = fmt.Errorf("导入文件地址有误")
+		g.Log().Error(req.PublisherId + "导入白名单异常!" + "导入文件地址有误" + "[" + req.ExcelFile + "]")
 		return
 	}
 	f, e := excelize.OpenReader(bytes.NewReader(bs))
 	if e != nil {
 		err = fmt.Errorf("获取文件内容异常")
+		g.Log().Error(req.PublisherId + "导入白名单异常!获取文件内容异常" + e.Error())
 		return
 	}
 	rows, e := f.GetRows("Sheet1")
 	if e != nil {
-		err = fmt.Errorf("文件读取错误[解析手机/数量异常]")
+		err = fmt.Errorf("文件读取错误[解析Sheet1手机/数量异常]")
+		g.Log().Error(req.PublisherId + "导入白名单异常!文件读取错误[解析Sheet1手机/数量异常]" + e.Error())
 		return
 	}
 
-	phoneItems, countItems := []string{}, []string{}
+	phoneItems, _ := []string{}, []string{}
 	for dx, v := range rows {
 		if dx == 0 {
 			continue
 		}
-		if len(v) != 2 {
+		if len(v) < 2 {
 			err = fmt.Errorf("列文件数据错误[两列长度不匹配]")
 			return
 		}
-		s2 := strings.TrimSpace(v[1])
-		if s2 == "" {
+		n := strings.TrimSpace(v[1])
+		if n == "" {
 			continue
 		}
-		countItems = append(phoneItems, v[1])
+		//countItems = append(phoneItems, v[1])
 		p := strings.TrimSpace(v[0])
 		if p == "" {
 			continue
 		}
 		phoneItems = append(phoneItems, p)
 	}
-	if len(phoneItems) <= 0 {
-		err = fmt.Errorf("请输入手机号")
-		return
-	}
-	if len(countItems) <= 0 {
-		err = fmt.Errorf("请输入库存")
-		return
-	}
-	if len(phoneItems) != len(countItems) {
-		err = fmt.Errorf("手机号列数与库存列数不匹配")
-		return
-	}
 
 	// 查询用户详情
-	userMap, equityUserMap, userErr := AdminEquity.HandelUserItems(phoneItems)
-	if userErr != nil {
-		return items, userErr
+	var userMap map[string]provider.GetUserInfoRet
+	var equityUserMap map[string]model.EquityUser
+
+	// 如果是创建 校验用户信息
+	if req.IsCreate {
+		userMap, equityUserMap, err = AdminEquity.HandelUserItems(phoneItems)
+		if err != nil {
+			return items, err
+		}
 	}
 
 	// 校验表格每行数据
-	haveErr, number, succItems, errItems := AdminEquity.HandelExcelRowErr(rows, userMap, equityUserMap)
+	haveErr, number, succItems, errItems := AdminEquity.HandelExcelRowErr(rows, userMap, equityUserMap, req.IsCreate)
 
 	items.HaveErr = haveErr
 	items.Total = len(rows) - 1
@@ -190,16 +163,60 @@ func (s *adminEquity) HandelExcelUser(req model.CreateEquityActivityReq) (items 
 }
 
 // 创建白名单用户数据
-func (s *adminEquity) CreateEquityUser(PublishedId string, activityId int, equityUser []model.ImportItem) {
-	for _, value := range equityUser {
-		g.DB().Model("equity_user").Insert(g.Map{
+func (s *adminEquity) CreateEquityUser(PublishedId string, activityId int, in model.CreateEquityActivityReq) {
+	equityUserItems := []model.ImportItem{}
+	if in.LimitType == model.EQUITY_ACTIVITY_LIMIT_TYPE2 {
+		in.IsCreate = true
+		items, err2 := AdminEquity.HandelExcelUser(in)
+		if err2 != nil {
+			g.Log().Error(PublishedId + "导入白名单异常!" + err2.Error())
+			return
+		}
+		if items.HaveErr {
+			g.Log().Error(PublishedId + "导入白名单异常!表格数据存在异常数据，检查后重试")
+			return
+		}
+		if items.SuccItems == nil {
+			g.Log().Error(PublishedId + "导入白名单异常!导入数据为空，请重新输入")
+			return
+		}
+		equityUserItems = append(items.SuccItems, items.ErrItems...)
+		in.Number = items.Number
+	}
+	// 校验导入数据结束
+	number := 0
+
+	var tx *gdb.TX
+	tx, err := g.DB().Begin()
+	if err != nil {
+		tx.Rollback()
+		return
+	}
+	for _, value := range equityUserItems {
+		_, err := tx.Model("equity_user").Insert(g.Map{
 			"publisher_id": PublishedId,
 			"activity_id":  activityId,
 			"user_id":      value.UserId,
 			"phone":        value.Phone,
 			"limit_num":    value.LimitNum,
 		})
+		if err != nil {
+			tx.Rollback()
+			return
+		}
+		number += value.LimitNum
 	}
+	_, err = tx.Model("equity_activity").Where(g.Map{
+		"publisher_id": PublishedId,
+		"id":           activityId,
+	}).Update(g.Map{
+		"number": number,
+	})
+	if err != nil {
+		tx.Rollback()
+		return
+	}
+	tx.Commit()
 }
 
 // 获取详情
@@ -224,6 +241,7 @@ func (s *adminEquity) Invalid(EquityId int) (err error) {
 	return
 }
 
+// 用户明细
 func (s *adminEquity) UserItems(in model.EquityUserReq) (list model.EquityUserFull, err error) {
 	m := g.DB().Model("equity_user").Where("publisher_id", in.PublisherId).Where("activity_id", in.EquityId)
 	if in.Phone > 0 {
@@ -238,12 +256,51 @@ func (s *adminEquity) UserItems(in model.EquityUserReq) (list model.EquityUserFu
 		return
 	}
 	list.Total = total
-	rs := make([]model.EquityUser, 0)
+	userList := make([]model.EquityUser, 0)
+	err = m.Order("id DESC").Page(in.Page, in.PageSize).Scan(&userList)
+	if err != nil {
+		return
+	}
+	list.List = userList
+	if err != nil {
+		return
+	}
+	return
+}
+
+// 权益活动记录
+func (s *adminEquity) EquityActivityItems(in model.AdminEquityReq) (ret model.EquityActivityList, err error) {
+	m := g.DB().Model("equity_activity").Where("publisher_id", in.PublisherId)
+	if in.Status > 0 {
+		m = m.Where("status", in.Status)
+	}
+	if in.TemplateId != "" {
+		m = m.Where("template_id", in.TemplateId)
+	}
+	if in.StartDate != "" {
+		m = m.Where("created_at >= ", in.StartDate)
+	}
+
+	if in.EndDate != "" {
+		m = m.Where("created_at <= ", in.EndDate)
+	}
+
+	if in.Name != "" {
+		m = m.WhereLike("name", "%"+in.Name+"%")
+	}
+
+	total, err := m.Count()
+	if err != nil {
+		err = gerror.New("获取总行数失败")
+		return
+	}
+	ret.Total = total
+	rs := make([]*model.EquityActivity, 0)
 	err = m.Order("id DESC").Page(in.Page, in.PageSize).Scan(&rs)
 	if err != nil {
 		return
 	}
-	list.List = rs
+	ret.List = rs
 	if err != nil {
 		return
 	}
@@ -309,6 +366,7 @@ func (s *adminEquity) HandelUserItems(phoneItems []string) (userMap map[string]p
 		"phoneArr": phoneArr,
 	})
 	if err != nil {
+		g.Log().Error("导入白名单异常!rpc获取用户数据异常" + err.Error())
 		return
 	}
 
@@ -316,16 +374,17 @@ func (s *adminEquity) HandelUserItems(phoneItems []string) (userMap map[string]p
 	var users []model.EquityUser
 	err = g.DB().Model("equity_user").Where("status", 1).Where("phone IN (?)", phoneArr).Scan(&users)
 	if err != nil {
+		g.Log().Error("导入白名单异常!权益活动id获取用户异常" + err.Error())
 		return
 	}
 	equityTempUserMap := make(map[string]model.EquityUser)
 	for _, v := range users {
 		equityTempUserMap[v.Phone] = v
 	}
-	return
+	return userMap, equityTempUserMap, err
 }
 
-func (s *adminEquity) HandelExcelRowErr(rows [][]string, userMap map[string]provider.GetUserInfoRet, equityUserMap map[string]model.EquityUser) (haveErr bool, number int, succItems, errItems []model.ImportItem) {
+func (s *adminEquity) HandelExcelRowErr(rows [][]string, userMap map[string]provider.GetUserInfoRet, equityUserMap map[string]model.EquityUser, isCreate bool) (haveErr bool, number int, succItems, errItems []model.ImportItem) {
 	m := make(map[interface{}]interface{})
 
 	for key, value := range rows {
@@ -339,6 +398,11 @@ func (s *adminEquity) HandelExcelRowErr(rows [][]string, userMap map[string]prov
 
 		errMessage := ""
 
+		result, _ := regexp.MatchString(`^(1[3|4|5|6|7|8|9][0-9]\d{4,8})$`, mobileRow)
+		if !result {
+			errMessage = errMessage + "[手机号格式异常]"
+		}
+
 		_, ok := m[mobileRow]
 		if ok {
 			errMessage = errMessage + "[手机号重复]"
@@ -348,18 +412,20 @@ func (s *adminEquity) HandelExcelRowErr(rows [][]string, userMap map[string]prov
 		if num <= 0 {
 			errMessage = errMessage + "[数量异常]"
 		}
-		// 用户存在
 		userItem := userMap[mobileRow]
-		if userItem.UserId == "" {
-			errMessage = errMessage + "[用户不存在]"
-		}
 
-		// 用户在白名单已经存在
-		equityUserItem := equityUserMap[mobileRow]
-		if equityUserItem.Phone != "" {
-			errMessage = errMessage + "[用户已经在白名单]"
+		//如果是创建校验用户+创建用户
+		if isCreate {
+			// 用户存在
+			if userItem.UserId == "" {
+				errMessage = errMessage + "[用户不存在]"
+			}
+			// 用户在白名单已经存在
+			equityUserItem := equityUserMap[mobileRow]
+			if equityUserItem.Phone != "" {
+				errMessage = errMessage + "[用户已经在白名单]"
+			}
 		}
-
 		if errMessage != "" {
 			haveErr = true
 			errItem := model.ImportItem{
@@ -377,6 +443,5 @@ func (s *adminEquity) HandelExcelRowErr(rows [][]string, userMap map[string]prov
 			succItems = append(succItems, succItem)
 		}
 	}
-
 	return
 }

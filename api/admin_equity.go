@@ -28,6 +28,11 @@ func (s *adminEquity) Create(r *ghttp.Request) {
 		s.FailJsonExit(r, "参数错误")
 		return
 	}
+	if req.LimitType == model.EQUITY_ACTIVITY_LIMIT_TYPE1 {
+		if req.LimitType == 1 {
+			req.LimitBuy = 999
+		}
+	}
 	decimalValue, err := decimal.NewFromString(req.PriceYuan)
 	if err != nil {
 		s.FailJsonExit(r, "价格参数错误")
@@ -56,6 +61,7 @@ func (s *adminEquity) Create(r *ghttp.Request) {
 // 用户导入解析
 func (s *adminEquity) Import(r *ghttp.Request) {
 	var req model.CreateEquityActivityReq
+	req.IsCreate = false
 	result, err := service.AdminEquity.HandelExcelUser(req)
 	if err != nil {
 		s.FailJsonExit(r, err.Error())
@@ -106,7 +112,7 @@ func (s *adminEquity) UserItems(r *ghttp.Request) {
 	//获取参数
 	req.PublisherId = s.GetPublisherId(r)
 	if req.EquityId <= 0 {
-		s.FailJsonExit(r, "活动标识为空")
+		s.FailJsonExit(r, "权益活动id异常")
 		return
 	}
 	if req.Page <= 0 {
@@ -117,6 +123,31 @@ func (s *adminEquity) UserItems(r *ghttp.Request) {
 	}
 
 	ret, err := service.AdminEquity.UserItems(req)
+	if err != nil {
+		s.FailJsonExit(r, err.Error())
+		return
+	}
+	s.SusJsonExit(r, ret)
+}
+
+// 获取发行商发售权益活动明细
+func (s *adminEquity) EquityItems(r *ghttp.Request) {
+	var req model.AdminEquityReq
+	if err := r.Parse(&req); err != nil {
+		s.FailJsonExit(r, err.(gvalid.Error).FirstString())
+		return
+	}
+	//获取参数
+	req.PublisherId = s.GetPublisherId(r)
+
+	if req.Page <= 0 {
+		req.Page = 1
+	}
+	if req.PageSize <= 0 {
+		req.PageSize = 20
+	}
+
+	ret, err := service.AdminEquity.EquityActivityItems(req)
 	if err != nil {
 		s.FailJsonExit(r, err.Error())
 		return

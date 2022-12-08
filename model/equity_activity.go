@@ -38,6 +38,18 @@ type CreateEquityActivityReq struct {
 	EquityActivity
 	PriceYuan string `json:"priceYuan"`
 	ExcelFile string `json:"excelFile"` //导入名单集合
+	IsCreate  bool   `json:"isCreate"`
+}
+
+type AdminEquityReq struct {
+	PublisherId string `json:"publisherId"`
+	TemplateId  string `json:"templateId"`
+	Page        int    `json:"pageNum"`
+	PageSize    int    `json:"pageSize"`
+	Name        string `json:"name"`
+	Status      int    `json:"status"`
+	StartDate   string `json:"startDate"`
+	EndDate     string `json:"endDate"`
 }
 
 type EquityActivityList struct {
