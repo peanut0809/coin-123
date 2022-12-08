@@ -24,10 +24,11 @@ func (s *adminEquity) Create(r *ghttp.Request) {
 		return
 	}
 	req.PublisherId = s.GetPublisherId(r)
-	if req.Name == "" || req.TimeType <= 0 || req.SubLimitType <= 0 || req.TemplateId == "" || req.Number <= 0 || req.LimitBuy <= 0 || req.LimitType <= 0 || req.ActivityStartTime == nil || req.ActivityEndTime == nil {
+	if req.Name == "" || req.TimeType <= 0 || req.SubLimitType <= 0 || req.TemplateId == "" || req.AppId == "" || req.Number <= 0 || req.LimitBuy <= 0 || req.LimitType <= 0 || req.ActivityStartTime == nil || req.ActivityEndTime == nil {
 		s.FailJsonExit(r, "参数错误")
 		return
 	}
+
 	if req.CoverImgUrl == "" {
 		s.FailJsonExit(r, "请上传图片")
 		return
