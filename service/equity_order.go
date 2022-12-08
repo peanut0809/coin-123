@@ -12,6 +12,7 @@ import (
 	"github.com/gogf/gf/util/gconv"
 	"meta_launchpad/cache"
 	"meta_launchpad/model"
+	"meta_launchpad/provider"
 	"time"
 )
 
@@ -84,6 +85,31 @@ func (c *equityOrder) Create(req *model.EquityOrderReq, activityInfo *model.Equi
 	})
 	if err != nil {
 		err = tx.Rollback()
+		return
+	}
+	// 生成预支付订单
+	orderReq := new(provider.CreateOrderReq)
+	orderReq.ClientIp = req.ClientIp
+	orderReq.UserId = req.UserId
+	orderReq.AppType = "launchpad_equity"
+	orderReq.PayAmount = activityInfo.Price * req.Num
+	orderReq.PayExpire = gtime.Now().Add(time.Minute * 10)
+	orderReq.Subject = "权益活动"
+	orderReq.Description = "权益活动"
+	orderReq.SuccessRedirectUrl = req.SuccessRedirectUrl
+	orderReq.ExitRedirectUrl = req.ExitRedirectUrl
+	orderReq.AppOrderNo = req.OrderNo
+	orderReq.PublisherId = req.PublisherId
+	orderReq.PlatformAppId = req.PlatformAppId
+	e = provider.Payment.CreateOrder(orderReq)
+	if e != nil {
+		err = tx.Rollback()
+		c.SetSubResult(model.EquitySubResult{
+			Reason:  "下单失败",
+			Step:    "fail",
+			OrderNo: req.OrderNo,
+		})
+		g.Log().Errorf("equity err:%v", e)
 		return
 	}
 	err = tx.Commit()
