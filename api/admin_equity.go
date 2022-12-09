@@ -75,6 +75,10 @@ func (s *adminEquity) Import(r *ghttp.Request) {
 		s.FailJsonExit(r, err.Error())
 		return
 	}
+	if req.AppId == "" || req.TemplateId == "" {
+		s.FailJsonExit(r, "参数异常")
+		return
+	}
 	req.IsCreate = false
 	result, err := service.AdminEquity.HandelExcelUser(req)
 	if err != nil {

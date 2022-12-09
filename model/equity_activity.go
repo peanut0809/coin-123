@@ -79,15 +79,20 @@ type EquityOrderReq struct {
 }
 
 type ImportItems struct {
-	ErrItems  []ImportItem
-	SuccItems []ImportItem
-	HaveErr   bool
-	Total     int
-	Number    int
+	ErrItems    []ImportItem
+	SuccItems   []ImportItem
+	HaveErr     bool
+	Total       int
+	Number      int
+	AssetsCount int
 }
 type ImportItem struct {
 	Phone      string `orm:"phone" json:"phone"`
 	LimitNum   int    `orm:"limit_num" json:"limitNum"`
 	ErrMessage string
 	UserId     string `orm:"user_id" json:"userId"`
+}
+
+type AssetItems struct {
+	Count int `json:"count"` //
 }
