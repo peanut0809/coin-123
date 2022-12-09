@@ -113,6 +113,11 @@ func (c *equityOrder) Create(req *model.EquityOrderReq, activityInfo *model.Equi
 		return
 	}
 	err = tx.Commit()
+	c.SetSubResult(model.EquitySubResult{
+		Reason:  "success",
+		Step:    "success",
+		OrderNo: req.OrderNo,
+	})
 	return
 }
 

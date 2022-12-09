@@ -29,11 +29,17 @@ type EquityActivity struct {
 	LimitType         int         `orm:"limit_type" json:"limitType"`                  // 限购类型 1 按每人限购 2 白名单限购
 	TimeType          int         `orm:"time_type" json:"timeType"`                    // 时间类型 1 立即上架 2 按自定义时间
 	SubLimitType      int         `orm:"sub_limit_type" json:"subLimitType"`           // 子类型限购 当limit_type = 1时候 分 不限购最大999/限购数量
-	Number            int         `orm:"number" json:"number"`                         // 总数量
+	Number            int         `orm:"number" json:"number"`                         // 库存
+	TotalNumber       int         `orm:"total_number" json:"totalNumber"`              // 总库存
 	CoverImgUrl       string      `orm:"cover_img_url" json:"coverImgUrl"`
 	Status            int         `orm:"status" json:"status"`        // 活动状态1:上架 2:下架
 	CreatedAt         *gtime.Time `orm:"created_at" json:"createdAt"` // 新建时间
 	UpdatedAt         *gtime.Time `orm:"updated_at" json:"updatedAt"` // 更新时间
+}
+
+type EquityActivityFull struct {
+	EquityActivity
+	LastSec int64 `json:"lastSec"`
 }
 
 type CreateEquityActivityReq struct {
