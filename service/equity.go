@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gogf/gf/frame/g"
 	"meta_launchpad/model"
+	"meta_launchpad/provider"
 	"time"
 )
 
@@ -55,6 +56,7 @@ func (c *equity) Info(activityId int) (res model.EquityActivityFull, err error) 
 	m.Where("id = ?", activityId)
 	err = m.Scan(&res)
 	res.LastSec = res.ActivityStartTime.Unix() - time.Now().Unix()
+	res.PriceYuan = fmt.Sprintf("%.2f", float64(res.Price)/100)
 	if res.LastSec < 0 {
 		res.LastSec = 0
 	}
@@ -70,6 +72,39 @@ func (c *equity) Info(activityId int) (res model.EquityActivityFull, err error) 
 	if timeNow.Unix() > res.ActivityEndTime.Unix() {
 		res.ActivityStatus = 2
 		res.ActivityStatusTxt = "已结束"
+	}
+	//获取应用信息
+	appInfo, _ := provider.Developer.GetAppInfo(res.AppId)
+	res.AssetCateString = appInfo.Data.CnName
+	//获取资产分类
+	templateInfo, _ := provider.Developer.GetAssetsTemplate(res.AppId, res.TemplateId)
+	for _, v := range templateInfo.CateList {
+		res.AssetCateString += fmt.Sprintf("-%s", v.CnName)
+	}
+	assetDetail, e := provider.Asset.GetMateDataByAm(&map[string]interface{}{
+		"appId":      res.AppId,
+		"templateId": res.TemplateId,
+	})
+	if e != nil {
+		g.Log().Errorf("资产详情错误：%v", e)
+		err = fmt.Errorf("获取资产信息失败")
+		return
+	}
+	publisherInfo, e := provider.Developer.GetPublishInfo(res.PublisherId)
+	if e != nil {
+		g.Log().Errorf("发行商异常：%v，%s", e, res.PublisherId)
+		err = fmt.Errorf("获取发行商失败")
+		return
+	}
+	res.AssetPic = assetDetail.AssetPic
+	res.ChainName = publisherInfo.ChainName
+	res.ChainAddr = publisherInfo.ChainAddr
+	res.ChainType = publisherInfo.ChainType
+	res.AssetTotal = assetDetail.Total
+	res.AssetCreateAt = assetDetail.CreateTime
+	res.AssetDetailImg = templateInfo.DetailImg
+	if templateInfo.CopyrightOpen == 1 {
+		res.CopyrightInfo = templateInfo.CopyrightInfoJson
 	}
 	if err != nil {
 		return

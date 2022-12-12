@@ -2,6 +2,7 @@ package model
 
 import (
 	"github.com/gogf/gf/os/gtime"
+	"meta_launchpad/provider"
 )
 
 const EQUITY_ACTIVITY_STATUS1 = 1 // 上架
@@ -41,7 +42,17 @@ type EquityActivity struct {
 
 type EquityActivityFull struct {
 	EquityActivity
-	LastSec int64 `json:"lastSec"`
+	LastSec         int64                       `json:"lastSec"`
+	PriceYuan       string                      `json:"priceYuan"`
+	AssetCateString string                      `json:"assetCateString"`
+	AssetTotal      int                         `json:"assetTotal"`
+	AssetCreateAt   *gtime.Time                 `json:"assetCreateAt"`
+	AssetDetailImg  string                      `json:"assetDetailImg"`
+	AssetPic        string                      `json:"assetPic"`
+	ChainName       string                      `json:"chainName"`
+	ChainAddr       string                      `json:"chainAddr"`
+	ChainType       int                         `json:"chainType"`
+	CopyrightInfo   []provider.TplCopyrightInfo `json:"copyrightInfo"`
 }
 
 type CreateEquityActivityReq struct {
