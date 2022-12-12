@@ -338,20 +338,20 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string) (ticketInf
 			err = e
 			return
 		}
-		if userBalance == nil {
-			err = gerror.New("用户暂未开通店铺余额，暂时不能认购")
-			return
-		}
 		//yuan := Penny2Yuan(int64(userBalance.Balance))
 		//balance := gconv.Int(yuan)
-		wallerRet = new(provider.WalletAuthentication)
-		wallerRet.Account = userBalance.Balance
 
 		var isShare int
 		for k, v := range ticketInfo {
 			if v.Type == model.TICKET_MONEY {
 				ticketInfo[k].MaxBuyNum = as.GeneralBuyNum
 				if as.GeneralNumMethod == 1 {
+					if userBalance == nil {
+						err = gerror.New("用户暂未开通店铺余额，暂时不能认购")
+						return
+					}
+					wallerRet = new(provider.WalletAuthentication)
+					wallerRet.Account = userBalance.Balance
 					var count int
 					count, isShare, err = s.GetMaxCount(wallerRet.Account, userId, as)
 					if err != nil {
@@ -368,6 +368,12 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string) (ticketInf
 				} else {
 					ticketInfo[k].MaxBuyNum = as.GeneralBuyNum
 					if as.GeneralNumMethod == 1 {
+						if userBalance == nil {
+							err = gerror.New("用户暂未开通店铺余额，暂时不能认购")
+							return
+						}
+						wallerRet = new(provider.WalletAuthentication)
+						wallerRet.Account = userBalance.Balance
 						var count int
 						count, isShare, err = s.GetMaxCount(wallerRet.Account, userId, as)
 						if err != nil {
@@ -385,6 +391,12 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string) (ticketInf
 				} else {
 					ticketInfo[k].MaxBuyNum = as.GeneralBuyNum
 					if as.GeneralNumMethod == 1 {
+						if userBalance == nil {
+							err = gerror.New("用户暂未开通店铺余额，暂时不能认购")
+							return
+						}
+						wallerRet = new(provider.WalletAuthentication)
+						wallerRet.Account = userBalance.Balance
 						var count int
 						count, isShare, err = s.GetMaxCount(wallerRet.Account, userId, as)
 						if err != nil {
