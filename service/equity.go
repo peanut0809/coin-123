@@ -2,10 +2,11 @@ package service
 
 import (
 	"fmt"
-	"github.com/gogf/gf/frame/g"
 	"meta_launchpad/model"
 	"meta_launchpad/provider"
 	"time"
+
+	"github.com/gogf/gf/frame/g"
 )
 
 type equity struct{}
@@ -103,6 +104,7 @@ func (c *equity) Info(activityId int) (res model.EquityActivityFull, err error) 
 	res.AssetTotal = assetDetail.Total
 	res.AssetCreateAt = assetDetail.CreateTime
 	res.AssetDetailImg = templateInfo.DetailImg
+	res.NfrDay = res.NfrSec / 3600 / 24
 	if templateInfo.CopyrightOpen == 1 {
 		res.CopyrightInfo = templateInfo.CopyrightInfoJson
 	}

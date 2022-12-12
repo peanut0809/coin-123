@@ -1,15 +1,16 @@
 package task
 
 import (
-	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/client"
 	"encoding/json"
-	"github.com/gogf/gf/frame/g"
-	"github.com/gogf/gf/os/gtime"
-	"github.com/gogf/gf/util/gconv"
 	"meta_launchpad/model"
 	"meta_launchpad/provider"
 	"meta_launchpad/service"
 	"strings"
+
+	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/client"
+	"github.com/gogf/gf/frame/g"
+	"github.com/gogf/gf/os/gtime"
+	"github.com/gogf/gf/util/gconv"
 )
 
 func RunEquityOrderPayTask() {
@@ -62,6 +63,7 @@ func RunEquityOrderPayTask() {
 				"userId":     orderInfo.UserId,
 				"optType":    "LAUNCHPAD",
 				"optRemark":  "元初发射台权益发放资产",
+				"nfrTime":    activityInfo.NfrSec,
 			})
 			if err != nil {
 				if strings.Contains(err.Error(), "timeout") {
