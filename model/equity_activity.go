@@ -25,6 +25,8 @@ type EquityActivity struct {
 	Price             int         `orm:"price" json:"price"`                           // 发售价,单位：分
 	ActivityStartTime *gtime.Time `orm:"activity_start_time" json:"activityStartTime"` // 活动开始时间
 	ActivityEndTime   *gtime.Time `orm:"activity_end_time" json:"activityEndTime"`     // 活动结束时间
+	ActivityStatus    int         `json:"activityStatus"`                              // 活动状态
+	ActivityStatusTxt string      `json:"activityStatusTxt"`                           // 活动状态中文
 	LimitBuy          int         `orm:"limit_buy" json:"limitBuy"`                    // 限购类型 1 按每人限购 2 白名单限购  1 每人限购数量
 	LimitType         int         `orm:"limit_type" json:"limitType"`                  // 限购类型 1 按每人限购 2 白名单限购
 	TimeType          int         `orm:"time_type" json:"timeType"`                    // 时间类型 1 立即上架 2 按自定义时间
