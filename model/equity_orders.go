@@ -28,6 +28,7 @@ type EquityOrder struct {
 	PayExpireAt  *gtime.Time `orm:"pay_expire_at" json:"payExpireAt"`  // 支付过期时间
 	CreatedAt    *gtime.Time `orm:"created_at" json:"createdAt"`       // 新建时间
 	UpdatedAt    *gtime.Time `orm:"updated_at" json:"updatedAt"`       // 更新时间
+	LimitType    int         `orm:"limit_type" json:"limitType"`       // 限购类型 1 按每人限购 2 白名单限购
 }
 
 type EquityOrderFull struct {

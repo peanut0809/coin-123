@@ -1,19 +1,20 @@
 package service
 
 import (
-	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/utils"
-	userModel "brq5j1d.gfanx.pro/meta_cloud/meta_service/app/user/model"
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/gogf/gf/database/gdb"
-	"github.com/gogf/gf/frame/g"
-	"github.com/gogf/gf/os/gtime"
-	"github.com/gogf/gf/util/gconv"
 	"meta_launchpad/cache"
 	"meta_launchpad/model"
 	"meta_launchpad/provider"
 	"time"
+
+	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/utils"
+	userModel "brq5j1d.gfanx.pro/meta_cloud/meta_service/app/user/model"
+	"github.com/gogf/gf/database/gdb"
+	"github.com/gogf/gf/frame/g"
+	"github.com/gogf/gf/os/gtime"
+	"github.com/gogf/gf/util/gconv"
 )
 
 type equityOrder struct{}
@@ -82,6 +83,7 @@ func (c *equityOrder) Create(req *model.EquityOrderReq, activityInfo *model.Equi
 		Status:       model.WAIT_PAY,
 		Price:        activityInfo.Price,
 		PayExpireAt:  gtime.Now().Add(time.Minute * 10),
+		LimitType:    activityInfo.LimitType,
 	})
 	if err != nil {
 		err = tx.Rollback()
