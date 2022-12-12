@@ -2,6 +2,8 @@ package service
 
 import (
 	"bytes"
+	"context"
+	"encoding/json"
 	"fmt"
 	"meta_launchpad/model"
 	"meta_launchpad/provider"
@@ -10,9 +12,12 @@ import (
 	"strings"
 	"time"
 
+	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/utils"
+	userModel "brq5j1d.gfanx.pro/meta_cloud/meta_service/app/user/model"
 	"github.com/gogf/gf/database/gdb"
 	"github.com/gogf/gf/errors/gerror"
 	"github.com/gogf/gf/frame/g"
+	"github.com/gogf/gf/util/gconv"
 	"github.com/parnurzeal/gorequest"
 	"github.com/xuri/excelize/v2"
 )
@@ -93,6 +98,15 @@ func (s *adminEquity) Create(in model.CreateEquityActivityReq) (err error) {
 */
 func (s *adminEquity) HandelExcelUser(req model.CreateEquityActivityReq) (items model.ImportItems, err error) {
 
+	// 获取总资产数
+	// UsedAssets := 0
+	// ai, err2 := AdminEquity.GetCanUsedAssetsCountByTemplate(req.AppId, req.TemplateId)
+	// if err2 != nil {
+	// 	err = fmt.Errorf("获取资产库存异常")
+	// 	return
+	// }
+	// UsedAssets = ai.Count
+
 	if req.ExcelFile == "" {
 		err = fmt.Errorf("请上传文件")
 		g.Log().Error(req.PublisherId + "导入白名单异常!" + "请上传文件")
@@ -163,6 +177,7 @@ func (s *adminEquity) HandelExcelUser(req model.CreateEquityActivityReq) (items 
 	items.Number = number
 	items.ErrItems = errItems
 	items.SuccItems = succItems
+	//items.AssetsCount = UsedAssets
 	return
 }
 
@@ -214,7 +229,8 @@ func (s *adminEquity) CreateEquityUser(PublishedId string, activityId int, in mo
 		"publisher_id": PublishedId,
 		"id":           activityId,
 	}).Update(g.Map{
-		"number": number,
+		"number":       number,
+		"total_number": number,
 	})
 	if err != nil {
 		tx.Rollback()
@@ -242,6 +258,17 @@ func (s *adminEquity) Invalid(EquityId int) (err error) {
 	if err != nil {
 		return
 	}
+	return
+}
+
+func (s *adminEquity) AssetsCount(req model.CreateEquityActivityReq) (count map[string]int, err error) {
+	ai, err2 := AdminEquity.GetCanUsedAssetsCountByTemplate(req.AppId, req.TemplateId)
+	if err2 != nil {
+		err = fmt.Errorf(err2.Error())
+		return
+	}
+	count = make(map[string]int)
+	count["AssetsCount"] = ai.Count
 	return
 }
 
@@ -361,6 +388,22 @@ func (s *adminEquity) OrderItems(in model.AdminEquityOrderReq) (ret model.Equity
 	return
 }
 
+// 定时任务到期活动下架
+func (s *adminEquity) OffShelvesEquityActivity(ctx context.Context, req interface{}, result *interface{}) (err error) {
+	var items []*model.EquityActivity
+	timeCrv := time.Now().Unix()
+	nowTime := time.Unix(timeCrv, 0).Format("2006-01-02 15:04:05")
+	m := g.DB().Model("equity_activity").Where("activity_end_time", nowTime)
+	m.Scan(&items)
+	if items != nil {
+		g.DB().Model("equity_activity").Where("activity_end_time", nowTime).Limit(len(items)).Update(g.Map{
+			"status": model.EQUITY_ACTIVITY_STATUS2,
+		})
+		return
+	}
+	return
+}
+
 // 获取导入表格用户信息
 func (s *adminEquity) HandelUserItems(phoneItems []string) (userMap map[string]provider.GetUserInfoRet, equityUserMap map[string]model.EquityUser, err error) {
 	mobileString := strings.Join(phoneItems, ",")
@@ -390,7 +433,6 @@ func (s *adminEquity) HandelUserItems(phoneItems []string) (userMap map[string]p
 
 func (s *adminEquity) HandelExcelRowErr(rows [][]string, userMap map[string]provider.GetUserInfoRet, equityUserMap map[string]model.EquityUser, isCreate bool) (haveErr bool, number int, succItems, errItems []model.ImportItem) {
 	m := make(map[interface{}]interface{})
-
 	for key, value := range rows {
 		if key == 0 {
 			continue
@@ -420,9 +462,13 @@ func (s *adminEquity) HandelExcelRowErr(rows [][]string, userMap map[string]prov
 
 		//如果是创建校验用户+创建用户
 		if isCreate {
-			// 用户存在
 			if userItem.UserId == "" {
-				errMessage = errMessage + "[用户不存在]"
+				creatUserInfo, createUserErr := AdminEquity.UsersRegistUserByPhone(mobileRow)
+				if createUserErr != nil {
+					errMessage = errMessage + createUserErr.Error()
+				} else {
+					userItem.UserId = creatUserInfo.UserId
+				}
 			}
 			// 用户在白名单已经存在
 			equityUserItem := equityUserMap[mobileRow]
@@ -448,4 +494,47 @@ func (s *adminEquity) HandelExcelRowErr(rows [][]string, userMap map[string]prov
 		}
 	}
 	return
+}
+
+// rpc查询资产库存
+func (s *adminEquity) GetCanUsedAssetsCountByTemplate(appId, templateId string) (ret *model.AssetItems, err error) {
+
+	userAsset := &model.AssetItems{}
+	params := &map[string]interface{}{
+		"appId":      appId,
+		"templateId": templateId,
+	}
+	result, err := utils.SendJsonRpc(context.Background(), "asset", "Asset.GetCanUsedAssetsCountByTemplate", params)
+
+	if err != nil {
+		g.Log().Errorf("GetCanUsedAssetsCountByTemplate err:%v", err)
+		return
+	}
+	err = json.Unmarshal([]byte(gconv.String(result)), userAsset)
+	if err != nil {
+		g.Log().Error(err)
+		return nil, err
+	}
+	return userAsset, nil
+}
+
+// rpc创建注册用户
+func (s *adminEquity) UsersRegistUserByPhone(phone string) (ret *userModel.Users, err error) {
+	// 用户信息
+	user := &userModel.Users{}
+	params := &map[string]interface{}{
+		"phone": phone,
+	}
+	// 获取用户信息
+	result, err := utils.SendJsonRpc(context.Background(), "ucenter", "Users.UsersRegistUserByPhone", params)
+	if err != nil {
+		g.Log().Error(err)
+		return
+	}
+	err = json.Unmarshal([]byte(gconv.String(result)), user)
+	if err != nil {
+		g.Log().Error(err)
+		return
+	}
+	return user, nil
 }
