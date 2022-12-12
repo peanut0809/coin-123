@@ -391,16 +391,19 @@ func (s *adminEquity) OrderItems(in model.AdminEquityOrderReq) (ret model.Equity
 }
 
 // 定时任务到期活动下架
-func (s *adminEquity) OffShelvesEquityActivity(ctx context.Context, req interface{}, result *interface{}) (err error) {
+func (s *adminEquity) OffShelvesEquityActivity() (err error) {
 	var items []*model.EquityActivity
 	timeCrv := time.Now().Unix()
 	nowTime := time.Unix(timeCrv, 0).Format("2006-01-02 15:04:05")
-	m := g.DB().Model("equity_activity").Where("activity_end_time", nowTime)
+	m := g.DB().Model("equity_activity").Where("activity_end_time < ", nowTime)
 	m.Scan(&items)
 	if items != nil {
-		g.DB().Model("equity_activity").Where("activity_end_time", nowTime).Limit(len(items)).Update(g.Map{
+		_, err = g.DB().Model("equity_activity").Where("activity_end_time < ", nowTime).Limit(len(items)).Update(g.Map{
 			"status": model.EQUITY_ACTIVITY_STATUS2,
 		})
+		if err != nil {
+			return
+		}
 		return
 	}
 	return

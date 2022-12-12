@@ -6,6 +6,7 @@ import (
 	"meta_launchpad/model"
 	"meta_launchpad/service"
 	"reflect"
+	"time"
 
 	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/aop"
 	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/rpcx"
@@ -47,7 +48,9 @@ type GetEquityByTemplateIdsReq struct {
 
 func (t *Launchpad) GetEquityByTemplateIds(ctx context.Context, req *GetEquityByTemplateIdsReq, result *interface{}) (err error) {
 	var equityActivity []model.EquityActivity
-	err = g.DB().Model("equity_activity").Where("template_id IN (?)", req.TemplateIds).Scan(&equityActivity)
+	timeCrv := time.Now().Unix()
+	nowTime := time.Unix(timeCrv, 0).Format("2006-01-02 15:04:05")
+	err = g.DB().Model("equity_activity").Where("template_id IN (?)", req.TemplateIds).Where("activity_end_time > ", nowTime).Scan(&equityActivity)
 	if err != nil {
 		return
 	}
@@ -56,5 +59,10 @@ func (t *Launchpad) GetEquityByTemplateIds(ctx context.Context, req *GetEquityBy
 		equityInfoMap[v.TemplateId] = v
 	}
 	*result = equityInfoMap
+	return
+}
+
+func (t *Launchpad) OffShelvesEquityActivity(ctx context.Context, req interface{}, result *interface{}) (err error) {
+	err = service.AdminEquity.OffShelvesEquityActivity()
 	return
 }
