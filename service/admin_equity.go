@@ -528,7 +528,7 @@ func (s *adminEquity) UsersRegistUserByPhone(phone string) (ret *userModel.Users
 		"phone": phone,
 	}
 	// 获取用户信息
-	result, err := utils.SendJsonRpc(context.Background(), "ucenter", "Users.UsersRegistUserByPhone", params)
+	result, err := utils.SendJsonRpc(context.Background(), "ucenter", "Users.RegistUserByPhone", params)
 	if err != nil {
 		g.Log().Error(err)
 		return
