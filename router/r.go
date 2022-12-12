@@ -158,6 +158,7 @@ func InitRouter() *ghttp.Server {
 		group.GET("/synthetic/record", api.Synthetic.GetSyntheticRecord)
 
 		// 权益活动后台@段昀彤
+		group.GET("/equity/assets/count", api.AdminEquity.AssetsCount)      //获取可用资产数
 		group.POST("/equity/activity/create", api.AdminEquity.Create)       //白名单活动创建
 		group.POST("/equity/activity/invalid", api.AdminEquity.Invalid)     //下架更新
 		group.POST("/equity/activity/user/import", api.AdminEquity.Import)  //用户导入

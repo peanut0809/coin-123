@@ -119,6 +119,26 @@ func (s *adminEquity) Invalid(r *ghttp.Request) {
 	s.SusJsonExit(r)
 }
 
+//AssetsCount 获取资产剩余数量
+func (s *adminEquity) AssetsCount(r *ghttp.Request) {
+	var req model.CreateEquityActivityReq
+	err := r.Parse(&req)
+	if err != nil {
+		s.FailJsonExit(r, err.Error())
+		return
+	}
+	if req.AppId == "" || req.TemplateId == "" {
+		s.FailJsonExit(r, "参数异常")
+		return
+	}
+	count, err2 := service.AdminEquity.AssetsCount(req)
+	if err2 != nil {
+		s.FailJsonExit(r, err2.Error())
+		return
+	}
+	s.SusJsonExit(r, count)
+}
+
 // 获取专属活动用户明细
 func (s *adminEquity) UserItems(r *ghttp.Request) {
 

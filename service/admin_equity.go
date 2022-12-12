@@ -99,13 +99,13 @@ func (s *adminEquity) Create(in model.CreateEquityActivityReq) (err error) {
 func (s *adminEquity) HandelExcelUser(req model.CreateEquityActivityReq) (items model.ImportItems, err error) {
 
 	// 获取总资产数
-	UsedAssets := 0
-	ai, err2 := AdminEquity.GetCanUsedAssetsCountByTemplate(req.AppId, req.TemplateId)
-	if err2 != nil {
-		err = fmt.Errorf("获取资产库存异常")
-		return
-	}
-	UsedAssets = ai.Count
+	// UsedAssets := 0
+	// ai, err2 := AdminEquity.GetCanUsedAssetsCountByTemplate(req.AppId, req.TemplateId)
+	// if err2 != nil {
+	// 	err = fmt.Errorf("获取资产库存异常")
+	// 	return
+	// }
+	// UsedAssets = ai.Count
 
 	if req.ExcelFile == "" {
 		err = fmt.Errorf("请上传文件")
@@ -177,7 +177,7 @@ func (s *adminEquity) HandelExcelUser(req model.CreateEquityActivityReq) (items 
 	items.Number = number
 	items.ErrItems = errItems
 	items.SuccItems = succItems
-	items.AssetsCount = UsedAssets
+	//items.AssetsCount = UsedAssets
 	return
 }
 
@@ -258,6 +258,17 @@ func (s *adminEquity) Invalid(EquityId int) (err error) {
 	if err != nil {
 		return
 	}
+	return
+}
+
+func (s *adminEquity) AssetsCount(req model.CreateEquityActivityReq) (count map[string]int, err error) {
+	ai, err2 := AdminEquity.GetCanUsedAssetsCountByTemplate(req.AppId, req.TemplateId)
+	if err2 != nil {
+		err = fmt.Errorf(err2.Error())
+		return
+	}
+	count = make(map[string]int)
+	count["AssetsCount"] = ai.Count
 	return
 }
 
@@ -373,6 +384,22 @@ func (s *adminEquity) OrderItems(in model.AdminEquityOrderReq) (ret model.Equity
 			RealFeeYuan: fmt.Sprintf("%.2f", float64(v.RealFee)/100),
 			LastSec:     lastSec,
 		})
+	}
+	return
+}
+
+// 定时任务到期活动下架
+func (s *adminEquity) OffShelvesEquityActivity(ctx context.Context, req interface{}, result *interface{}) (err error) {
+	var items []*model.EquityActivity
+	timeCrv := time.Now().Unix()
+	nowTime := time.Unix(timeCrv, 0).Format("2006-01-02 15:04:05")
+	m := g.DB().Model("equity_activity").Where("activity_end_time", nowTime)
+	m.Scan(&items)
+	if items != nil {
+		g.DB().Model("equity_activity").Where("activity_end_time", nowTime).Limit(len(items)).Update(g.Map{
+			"status": model.EQUITY_ACTIVITY_STATUS2,
+		})
+		return
 	}
 	return
 }
