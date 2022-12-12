@@ -30,8 +30,21 @@ func (c *equity) List(publisherId string, pageNum int, pageSize int) (res model.
 	if err != nil {
 		return
 	}
+	timeNow := time.Now()
 	for _, v := range equity {
 		res.List = append(res.List, v)
+		if v.ActivityStartTime.Unix() > timeNow.Unix() {
+			v.ActivityStatus = 0
+			v.ActivityStatusTxt = "未开始"
+		}
+		if timeNow.Unix() > v.ActivityStartTime.Unix() && timeNow.Unix() < v.ActivityEndTime.Unix() {
+			v.ActivityStatus = 1
+			v.ActivityStatusTxt = "进行中"
+		}
+		if timeNow.Unix() > v.ActivityEndTime.Unix() {
+			v.ActivityStatus = 2
+			v.ActivityStatusTxt = "已结束"
+		}
 	}
 	return
 }
