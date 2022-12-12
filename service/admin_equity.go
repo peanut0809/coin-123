@@ -36,9 +36,11 @@ func (s *adminEquity) Create(in model.CreateEquityActivityReq) (err error) {
 		err = fmt.Errorf("权益活动信息获取异常")
 		return
 	}
-	if equityItem.Status == model.EQUITY_ACTIVITY_STATUS1 {
-		err = fmt.Errorf("权益活动信息上架中，请勿重复上架")
-		return
+	if equityItem != nil {
+		if equityItem.Status == model.EQUITY_ACTIVITY_STATUS1 {
+			err = fmt.Errorf("权益活动信息上架中，请勿重复上架")
+			return
+		}
 	}
 	// 插入数据
 	var tx *gdb.TX
@@ -56,13 +58,13 @@ func (s *adminEquity) Create(in model.CreateEquityActivityReq) (err error) {
 			return
 		}
 		i, _ := insterItem.LastInsertId()
-		equityItem.Id = int(i)
+		in.Id = int(i)
 		_, err = tx.Model("activity").Insert(g.Map{
 			"name":          in.Name,
 			"start_time":    in.ActivityStartTime,
 			"end_time":      in.ActivityEndTime,
 			"publisher_id":  in.PublisherId,
-			"activity_id":   equityItem.Id,
+			"activity_id":   in.Id,
 			"activity_type": model.ACTIVITY_TYPE_4,
 		})
 		if err != nil {
@@ -73,7 +75,7 @@ func (s *adminEquity) Create(in model.CreateEquityActivityReq) (err error) {
 	tx.Commit()
 	// 如果是白名单 创建用户
 	if in.LimitType == model.EQUITY_ACTIVITY_LIMIT_TYPE2 {
-		go AdminEquity.CreateEquityUser(in.PublisherId, equityItem.Id, in)
+		go AdminEquity.CreateEquityUser(in.PublisherId, in.Id, in)
 	}
 	return
 }
@@ -526,7 +528,7 @@ func (s *adminEquity) UsersRegistUserByPhone(phone string) (ret *userModel.Users
 		"phone": phone,
 	}
 	// 获取用户信息
-	result, err := utils.SendJsonRpc(context.Background(), "ucenter", "Users.UsersRegistUserByPhone", params)
+	result, err := utils.SendJsonRpc(context.Background(), "ucenter", "Users.RegistUserByPhone", params)
 	if err != nil {
 		g.Log().Error(err)
 		return

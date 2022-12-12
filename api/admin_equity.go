@@ -24,7 +24,7 @@ func (s *adminEquity) Create(r *ghttp.Request) {
 		return
 	}
 	req.PublisherId = s.GetPublisherId(r)
-	if req.Name == "" || req.TimeType <= 0 || req.SubLimitType <= 0 || req.TemplateId == "" || req.AppId == "" || req.Number <= 0 || req.LimitBuy <= 0 || req.LimitType <= 0 || req.ActivityStartTime == nil || req.ActivityEndTime == nil {
+	if req.Name == "" || req.TimeType <= 0 || req.TemplateId == "" || req.AppId == "" || req.Number <= 0 || req.LimitType <= 0 || req.ActivityStartTime == nil || req.ActivityEndTime == nil {
 		s.FailJsonExit(r, "参数错误")
 		return
 	}
@@ -39,8 +39,15 @@ func (s *adminEquity) Create(r *ghttp.Request) {
 			req.LimitBuy = model.EQUITY_LIMITBUY
 		}
 	}
-	if req.TimeType == model.EQUITY_ACTIVITY_LIMIT_TYPE1 {
-
+	if req.LimitType == model.EQUITY_ACTIVITY_LIMIT_TYPE1 {
+		if req.LimitBuy <= 0 {
+			s.FailJsonExit(r, "限购数量异常")
+			return
+		}
+		if req.SubLimitType <= 0 {
+			s.FailJsonExit(r, "限购子类型异常")
+			return
+		}
 	}
 	decimalValue, err := decimal.NewFromString(req.PriceYuan)
 	if err != nil {
@@ -121,6 +128,7 @@ func (s *adminEquity) Invalid(r *ghttp.Request) {
 
 //AssetsCount 获取资产剩余数量
 func (s *adminEquity) AssetsCount(r *ghttp.Request) {
+
 	var req model.CreateEquityActivityReq
 	err := r.Parse(&req)
 	if err != nil {
