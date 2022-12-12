@@ -56,6 +56,7 @@ func (c *equity) Info(activityId int) (res model.EquityActivityFull, err error) 
 	m.Where("id = ?", activityId)
 	err = m.Scan(&res)
 	res.LastSec = res.ActivityStartTime.Unix() - time.Now().Unix()
+	res.PriceYuan = fmt.Sprintf("%.2f", float64(res.Price)/100)
 	if res.LastSec < 0 {
 		res.LastSec = 0
 	}

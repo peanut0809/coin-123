@@ -42,8 +42,8 @@ type EquityActivity struct {
 
 type EquityActivityFull struct {
 	EquityActivity
-	LastSec int64 `json:"lastSec"`
-
+	LastSec         int64                       `json:"lastSec"`
+	PriceYuan       string                      `json:"priceYuan"`
 	AssetCateString string                      `json:"assetCateString"`
 	AssetTotal      int                         `json:"assetTotal"`
 	AssetCreateAt   *gtime.Time                 `json:"assetCreateAt"`
