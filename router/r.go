@@ -47,6 +47,10 @@ func InitRouter() *ghttp.Server {
 		//活动合集详情
 		group.GET("/sass/activity/collection/detail", api.ActivityCollection.ListByDetail)
 
+		// 权益购
+		group.GET("/activity/equity/list", api.Equity.List) // 活动列表
+		group.GET("/activity/equity/info", api.Equity.Info) // 活动详情
+
 		group.GET("/temp/del", func(r *ghttp.Request) {
 			//检查超时行为
 			userId := r.GetQueryString("userId")
@@ -96,13 +100,12 @@ func InitRouter() *ghttp.Server {
 		group.GET("/synthetic/record/list", api.Synthetic.GetRecordList)
 		group.GET("/synthetic/record/detail", api.Synthetic.GetRecordDetail)
 		// 权益活动
-		group.GET("/activity/equity/list", api.Equity.List)                                // 活动列表
-		group.GET("/activity/equity/info", api.Equity.Info)                                // 活动详情
 		group.POST("/activity/equity/order/create", api.Equity.CreateOrder)                // 活动下单
 		group.POST("/activity/equity/order/cancel", api.Equity.CancelOrder)                // 取消订单
 		group.GET("/activity/equity/order/create/result", api.Equity.GetCreateOrderResult) // 下单结果
 		group.GET("/activity/equity/order/list", api.Equity.GetOrderList)                  // 订单列表
 		group.GET("/activity/equity/order/detail", api.Equity.GetOrderDetail)              // 订单详情
+		group.GET("/activity/equity/order/buynum", api.Equity.CanBuyNum)                   // 可购买数量
 	})
 
 	s.Group("/admin", func(group *ghttp.RouterGroup) {

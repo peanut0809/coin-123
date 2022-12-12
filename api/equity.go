@@ -1,15 +1,16 @@
 package api
 
 import (
-	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/api"
-	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/client"
-	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/utils"
 	"fmt"
-	"github.com/gogf/gf/frame/g"
-	"github.com/gogf/gf/net/ghttp"
 	"meta_launchpad/model"
 	"meta_launchpad/service"
 	"time"
+
+	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/api"
+	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/client"
+	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/utils"
+	"github.com/gogf/gf/frame/g"
+	"github.com/gogf/gf/net/ghttp"
 )
 
 type equity struct {
@@ -46,6 +47,30 @@ func (c *equity) Info(r *ghttp.Request) {
 	c.SusJsonExit(r, ret)
 }
 
+// 可购买数量
+func (c *equity) CanBuyNum(r *ghttp.Request) {
+	activityId := r.GetInt("id", 1)
+	if activityId < 0 {
+		c.FailJsonExit(r, "活动id错误")
+		return
+	}
+	userId := c.GetUserId(r)
+	activityInfo, err := service.Equity.GetValidDetail(activityId)
+	if err != nil {
+		c.FailJsonExit(r, err.Error())
+		return
+	}
+	limitNum, err := service.Equity.GetCanBuyCount(activityInfo, userId)
+	if err != nil {
+		c.FailJsonExit(r, err.Error())
+		return
+	}
+	ret := map[string]interface{}{
+		"limitNum": limitNum,
+	}
+	c.SusJsonExit(r, ret)
+}
+
 // CreateOrder 下单
 func (c *equity) CreateOrder(r *ghttp.Request) {
 	var req model.EquityOrderReq
@@ -60,6 +85,10 @@ func (c *equity) CreateOrder(r *ghttp.Request) {
 	}
 	// 活动详情
 	activityInfo, err := service.Equity.GetValidDetail(req.Id)
+	if err != nil {
+		c.FailJsonExit(r, err.Error())
+		return
+	}
 	currentTime := time.Now().Unix()
 	if currentTime < activityInfo.ActivityStartTime.Unix() {
 		c.FailJsonExit(r, "暂未开始")
@@ -74,37 +103,13 @@ func (c *equity) CreateOrder(r *ghttp.Request) {
 		c.FailJsonExit(r, "库存不足")
 		return
 	}
-	// 定义限购数量
-	limitNum := 0
-	// 判断白名单
-	if activityInfo.LimitType == model.EQUITY_ACTIVITY_LIMIT_TYPE2 {
-		var user *model.EquityUser
-		err := g.DB().Model("equity_user").
-			Where("activity_id = ?", req.Id).
-			Where("user_id = ?", req.UserId).
-			Scan(&user)
-		if err != nil {
-			c.FailJsonExit(r, "网络繁忙")
-			return
-		}
-		if user == nil {
-			c.FailJsonExit(r, "不在限购白名单中")
-			return
-		}
-		limitNum = user.LimitNum
-	} else {
-		limitNum = activityInfo.LimitBuy
-	}
-	// 判断购买数量
-	alreadyBuyNum, err := g.DB().Model("equity_orders").
-		Where("user_id = ?", req.UserId).
-		Where("activity_id = ?", req.Id).
-		Count()
+	userId := c.GetUserId(r)
+	limitNum, err := service.Equity.GetCanBuyCount(activityInfo, userId)
 	if err != nil {
-		c.FailJsonExit(r, "网络繁忙")
+		c.FailJsonExit(r, err.Error())
 		return
 	}
-	if alreadyBuyNum >= limitNum {
+	if limitNum <= 0 {
 		c.FailJsonExit(r, "超过限定购买数量")
 		return
 	}

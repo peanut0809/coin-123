@@ -2,10 +2,12 @@ package service
 
 import (
 	"fmt"
-	"github.com/gogf/gf/frame/g"
 	"meta_launchpad/model"
 	"meta_launchpad/provider"
 	"time"
+
+	"github.com/gogf/gf/errors/gerror"
+	"github.com/gogf/gf/frame/g"
 )
 
 type equity struct{}
@@ -103,6 +105,7 @@ func (c *equity) Info(activityId int) (res model.EquityActivityFull, err error) 
 	res.AssetTotal = assetDetail.Total
 	res.AssetCreateAt = assetDetail.CreateTime
 	res.AssetDetailImg = templateInfo.DetailImg
+	res.NfrDay = res.NfrSec / 3600 / 24
 	if templateInfo.CopyrightOpen == 1 {
 		res.CopyrightInfo = templateInfo.CopyrightInfoJson
 	}
@@ -161,4 +164,42 @@ func (c *equity) GetValidDetail(id int) (ret *model.EquityActivity, err error) {
 		}
 	}
 	return ret, err
+}
+
+func (c *equity) GetCanBuyCount(activityInfo *model.EquityActivity, userId string) (limitNum int, err error) {
+	// 定义限购数量
+	// limitNum := 0
+	// 判断白名单
+	if activityInfo.LimitType == model.EQUITY_ACTIVITY_LIMIT_TYPE2 {
+		var user *model.EquityUser
+		err = g.DB().Model("equity_user").
+			Where("activity_id = ?", activityInfo.Id).
+			Where("user_id = ?", userId).
+			Scan(&user)
+		if err != nil {
+			// c.FailJsonExit(r, "网络繁忙")
+			err = gerror.New("网络繁忙")
+			return
+		}
+		if user == nil {
+			// c.FailJsonExit(r, "不在限购白名单中")
+			err = gerror.New("不在限购白名单中")
+			return
+		}
+		limitNum = user.LimitNum
+	} else {
+		limitNum = activityInfo.LimitBuy
+	}
+	// 判断购买数量
+	alreadyBuyNum, err := g.DB().Model("equity_orders").
+		Where("user_id = ?", userId).
+		Where("activity_id = ?", activityInfo.Id).
+		Count()
+	if err != nil {
+		// c.FailJsonExit(r, "网络繁忙")
+		err = gerror.New("网络繁忙")
+		return
+	}
+	limitNum = limitNum - alreadyBuyNum
+	return
 }
