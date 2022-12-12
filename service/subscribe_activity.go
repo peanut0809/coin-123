@@ -333,11 +333,6 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string) (ticketInf
 		// 兼容之前代码
 		var wallerRet *provider.WalletAuthentication
 		// 根据店铺余额获取认购份数
-		userBalance, e := provider.User.GetStoreBalance(userId, as.PublisherId)
-		if e != nil {
-			err = e
-			return
-		}
 		//yuan := Penny2Yuan(int64(userBalance.Balance))
 		//balance := gconv.Int(yuan)
 
@@ -346,6 +341,11 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string) (ticketInf
 			if v.Type == model.TICKET_MONEY {
 				ticketInfo[k].MaxBuyNum = as.GeneralBuyNum
 				if as.GeneralNumMethod == 1 {
+					userBalance, e := provider.User.GetStoreBalance(userId, as.PublisherId)
+					if e != nil {
+						err = e
+						return
+					}
 					if userBalance == nil {
 						err = gerror.New("用户暂未开通店铺余额，暂时不能认购")
 						return
@@ -368,6 +368,11 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string) (ticketInf
 				} else {
 					ticketInfo[k].MaxBuyNum = as.GeneralBuyNum
 					if as.GeneralNumMethod == 1 {
+						userBalance, e := provider.User.GetStoreBalance(userId, as.PublisherId)
+						if e != nil {
+							err = e
+							return
+						}
 						if userBalance == nil {
 							err = gerror.New("用户暂未开通店铺余额，暂时不能认购")
 							return
@@ -391,6 +396,11 @@ func (s *subscribeActivity) GetMaxBuyNum(alias string, userId string) (ticketInf
 				} else {
 					ticketInfo[k].MaxBuyNum = as.GeneralBuyNum
 					if as.GeneralNumMethod == 1 {
+						userBalance, e := provider.User.GetStoreBalance(userId, as.PublisherId)
+						if e != nil {
+							err = e
+							return
+						}
 						if userBalance == nil {
 							err = gerror.New("用户暂未开通店铺余额，暂时不能认购")
 							return
