@@ -128,7 +128,6 @@ func (s *adminEquity) Invalid(r *ghttp.Request) {
 
 //AssetsCount 获取资产剩余数量
 func (s *adminEquity) AssetsCount(r *ghttp.Request) {
-
 	var req model.CreateEquityActivityReq
 	err := r.Parse(&req)
 	if err != nil {
@@ -226,4 +225,15 @@ func (s *adminEquity) OrderItems(r *ghttp.Request) {
 // 订单导出
 func (s *adminEquity) OrderExport(r *ghttp.Request) {
 
+}
+
+//获取已上架活动
+func (s *adminEquity) EquityPutItems(r *ghttp.Request) {
+	PublisherId := s.GetPublisherId(r)
+	ret, err := service.AdminEquity.EquityPutItems(PublisherId)
+	if err != nil {
+		s.FailJsonExit(r, err.Error())
+		return
+	}
+	s.SusJsonExit(r, ret)
 }

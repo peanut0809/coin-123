@@ -1,8 +1,9 @@
 package model
 
 import (
-	"github.com/gogf/gf/os/gtime"
 	"meta_launchpad/provider"
+
+	"github.com/gogf/gf/os/gtime"
 )
 
 const EQUITY_ACTIVITY_STATUS1 = 1 // 上架
@@ -114,4 +115,9 @@ type ImportItem struct {
 
 type AssetItems struct {
 	Count int `json:"count"` //
+}
+
+type EquityPutItems struct {
+	TemplateId string `orm:"templateId" json:"templateId"`
+	Status     int    `orm:"status" json:"status"`
 }

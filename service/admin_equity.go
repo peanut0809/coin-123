@@ -395,10 +395,10 @@ func (s *adminEquity) OffShelvesEquityActivity() (err error) {
 	var items []*model.EquityActivity
 	timeCrv := time.Now().Unix()
 	nowTime := time.Unix(timeCrv, 0).Format("2006-01-02 15:04:05")
-	m := g.DB().Model("equity_activity").Where("activity_end_time < ", nowTime)
+	m := g.DB().Model("equity_activity").Where("status", 1).Where("activity_end_time < ", nowTime)
 	m.Scan(&items)
 	if items != nil {
-		_, err = g.DB().Model("equity_activity").Where("activity_end_time < ", nowTime).Limit(len(items)).Update(g.Map{
+		_, err = g.DB().Model("equity_activity").Where("status", 1).Where("activity_end_time < ", nowTime).Limit(len(items)).Update(g.Map{
 			"status": model.EQUITY_ACTIVITY_STATUS2,
 		})
 		if err != nil {
@@ -407,6 +407,18 @@ func (s *adminEquity) OffShelvesEquityActivity() (err error) {
 		return
 	}
 	return
+}
+
+func (s *adminEquity) EquityPutItems(publishId string) (ret []model.EquityPutItems, err error) {
+	items := make([]model.EquityPutItems, 0)
+	timeCrv := time.Now().Unix()
+	nowTime := time.Unix(timeCrv, 0).Format("2006-01-02 15:04:05")
+	m := g.DB().Model("equity_activity").Where("status", model.EQUITY_ACTIVITY_STATUS1).Where("activity_end_time > ", nowTime)
+	err2 := m.Scan(&items)
+	if err2 != nil {
+		return
+	}
+	return items, nil
 }
 
 // 获取导入表格用户信息
