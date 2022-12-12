@@ -28,7 +28,10 @@ func (s *adminEquity) Create(r *ghttp.Request) {
 		s.FailJsonExit(r, "参数错误")
 		return
 	}
-
+	if req.NfrSec <= 0 {
+		s.FailJsonExit(r, "禁售期异常")
+		return
+	}
 	if req.CoverImgUrl == "" {
 		s.FailJsonExit(r, "请上传图片")
 		return

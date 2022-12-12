@@ -39,6 +39,7 @@ type EquityActivity struct {
 	Status            int         `orm:"status" json:"status"`        // 活动状态1:上架 2:下架
 	CreatedAt         *gtime.Time `orm:"created_at" json:"createdAt"` // 新建时间
 	UpdatedAt         *gtime.Time `orm:"updated_at" json:"updatedAt"` // 更新时间
+	NfrSec            int         `orn:"nfr_sec" json:"nfrSec"`
 }
 
 type EquityActivityFull struct {
