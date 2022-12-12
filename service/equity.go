@@ -58,6 +58,19 @@ func (c *equity) Info(activityId int) (res model.EquityActivityFull, err error) 
 	if res.LastSec < 0 {
 		res.LastSec = 0
 	}
+	timeNow := time.Now()
+	if res.ActivityStartTime.Unix() > timeNow.Unix() {
+		res.ActivityStatus = 0
+		res.ActivityStatusTxt = "未开始"
+	}
+	if timeNow.Unix() > res.ActivityStartTime.Unix() && timeNow.Unix() < res.ActivityEndTime.Unix() {
+		res.ActivityStatus = 1
+		res.ActivityStatusTxt = "进行中"
+	}
+	if timeNow.Unix() > res.ActivityEndTime.Unix() {
+		res.ActivityStatus = 2
+		res.ActivityStatusTxt = "已结束"
+	}
 	if err != nil {
 		return
 	}
