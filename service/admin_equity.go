@@ -161,7 +161,7 @@ func (s *adminEquity) HandelExcelUser(req model.CreateEquityActivityReq) (items 
 
 	// 如果是创建 校验用户信息
 	if req.IsCreate {
-		userMap, equityUserMap, err = AdminEquity.HandelUserItems(phoneItems)
+		userMap, equityUserMap, err = AdminEquity.HandelUserItems(phoneItems, req.Id)
 		if err != nil {
 			return items, err
 		}
@@ -190,6 +190,7 @@ func (s *adminEquity) CreateEquityUser(PublishedId string, activityId int, in mo
 	if in.LimitType == model.EQUITY_ACTIVITY_LIMIT_TYPE2 {
 		in.IsCreate = true
 		items, err2 := AdminEquity.HandelExcelUser(in)
+		fmt.Println(items)
 		if err2 != nil {
 			g.Log().Error(PublishedId + "导入白名单异常!" + err2.Error())
 			return
@@ -423,7 +424,7 @@ func (s *adminEquity) EquityPutItems(publishId string) (ret []model.EquityPutIte
 }
 
 // 获取导入表格用户信息
-func (s *adminEquity) HandelUserItems(phoneItems []string) (userMap map[string]provider.GetUserInfoRet, equityUserMap map[string]model.EquityUser, err error) {
+func (s *adminEquity) HandelUserItems(phoneItems []string, activityId int) (userMap map[string]provider.GetUserInfoRet, equityUserMap map[string]model.EquityUser, err error) {
 	mobileString := strings.Join(phoneItems, ",")
 	mobileString = strings.Replace(mobileString, " ", "", -1)
 	phoneArr := strings.Split(mobileString, ",")
@@ -437,7 +438,7 @@ func (s *adminEquity) HandelUserItems(phoneItems []string) (userMap map[string]p
 
 	// 获取activity_id关联手机号用户信息
 	var users []model.EquityUser
-	err = g.DB().Model("equity_user").Where("status", 1).Where("phone IN (?)", phoneArr).Scan(&users)
+	err = g.DB().Model("equity_user").Where("status", 1).Where("activity_id", activityId).Where("phone IN (?)", phoneArr).Scan(&users)
 	if err != nil {
 		g.Log().Error("导入白名单异常!权益活动id获取用户异常" + err.Error())
 		return
