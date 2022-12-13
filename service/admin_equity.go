@@ -35,7 +35,6 @@ func (s *adminEquity) Create(in model.CreateEquityActivityReq) (err error) {
 	m := g.DB().Model("equity_activity")
 	err = m.Where("template_id", in.TemplateId).Where("activity_end_time > ", nowTime).Where("status", 1).Scan(&equityItem)
 	if err != nil {
-		err = fmt.Errorf("权益活动信息上架中，请勿重复上架")
 		return
 	}
 	if equityItem != nil {
@@ -259,13 +258,29 @@ func (s *adminEquity) Item(templateId string) (ret model.EquityActivity, err err
 
 // 下架活动
 func (s *adminEquity) Invalid(EquityId int) (err error) {
-	m := g.DB().Model("equity_activity")
-	_, err = m.Where("id", EquityId).Update(g.Map{
+
+	var tx *gdb.TX
+	tx, err = g.DB().Begin()
+	if err != nil {
+		tx.Rollback()
+		return
+	}
+	_, err = tx.Model("equity_activity").Where("id", EquityId).Update(g.Map{
 		"status": model.EQUITY_ACTIVITY_STATUS2,
 	})
 	if err != nil {
+		tx.Rollback()
 		return
 	}
+	_, err = tx.Model("activity").Where("activity_type", 4).Where("activity_id", EquityId).Update(g.Map{
+		"disable": 1,
+	})
+	if err != nil {
+		tx.Rollback()
+		return
+	}
+	//}
+	tx.Commit()
 	return
 }
 
