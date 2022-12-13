@@ -17,7 +17,7 @@ var Equity = new(equity)
 // 活动列表
 func (c *equity) List(publisherId string, pageNum int, pageSize int) (res model.EquityActivityList, err error) {
 	var equity []*model.EquityActivity
-	m := g.DB().Model("equity_activity")
+	m := g.DB().Model("equity_activity").Where("status", model.EQUITY_ACTIVITY_STATUS1)
 	if publisherId != "" {
 		m = m.Where("publisher_id = ?", publisherId)
 	}
@@ -54,7 +54,7 @@ func (c *equity) List(publisherId string, pageNum int, pageSize int) (res model.
 
 // 活动详情
 func (c *equity) Info(activityId int) (res model.EquityActivityFull, err error) {
-	m := g.DB().Model("equity_activity")
+	m := g.DB().Model("equity_activity").Where("status", model.EQUITY_ACTIVITY_STATUS1)
 	m.Where("id = ?", activityId)
 	err = m.Scan(&res)
 	res.LastSec = res.ActivityStartTime.Unix() - time.Now().Unix()
