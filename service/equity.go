@@ -183,7 +183,7 @@ func (c *equity) GetCanBuyCount(activityInfo *model.EquityActivity, userId strin
 		}
 		if user == nil {
 			// c.FailJsonExit(r, "不在限购白名单中")
-			err = gerror.New("不在限购白名单中")
+			// err = gerror.New("不在限购白名单中")
 			return
 		}
 		limitBuy = user.LimitNum
