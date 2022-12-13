@@ -203,3 +203,13 @@ func (c *equity) GetCanBuyCount(activityInfo *model.EquityActivity, userId strin
 	limitNum = limitBuy - alreadyBuyNum
 	return
 }
+
+func (c *equity) GetByIds(ids []int) (ret map[int]model.EquityActivity) {
+	ret = make(map[int]model.EquityActivity)
+	var as []model.EquityActivity
+	g.DB().Model("equity_activity").Where("id IN (?)", ids).Scan(&as)
+	for _, v := range as {
+		ret[v.Id] = v
+	}
+	return
+}
