@@ -150,6 +150,12 @@ func (s *activity) List(activityIds []int, pageNum int, pageSize int, startTime,
 			item.Cover = secKillAcMap[v.ActivityId].CoverImgUrl
 			item.ActivityTypeString = "秒杀"
 			item.Alias = secKillAcMap[v.ActivityId].Alias
+		} else if v.ActivityType == 4 {
+			item.SumNum = secKillAcMap[v.ActivityId].SumNum
+			item.Price = fmt.Sprintf("%.2f", float64(secKillAcMap[v.ActivityId].Price)/100)
+			item.Cover = secKillAcMap[v.ActivityId].CoverImgUrl
+			item.ActivityTypeString = "权益购"
+			item.Alias = secKillAcMap[v.ActivityId].Alias
 		} else {
 			item.SumNum = subAcMap[v.ActivityId].SumNum
 			item.Price = fmt.Sprintf("%.2f", float64(subAcMap[v.ActivityId].Price)/100)
