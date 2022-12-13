@@ -38,7 +38,7 @@ func (s *adminEquity) Create(r *ghttp.Request) {
 	}
 	// 如果是每个人 不限购 默认值 999
 	if req.LimitType == model.EQUITY_ACTIVITY_LIMIT_TYPE1 {
-		if req.LimitType == model.EQUITY_ACTIVITY_LIMIT_TYPE1 {
+		if req.SubLimitType == model.EQUITY_ACTIVITY_LIMIT_TYPE1 {
 			req.LimitBuy = model.EQUITY_LIMITBUY
 		}
 	}
