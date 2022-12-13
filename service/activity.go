@@ -45,7 +45,7 @@ func (s *activity) GetCreatorRank(rankValue int, pageNum int, pageSize int, publ
 }
 
 func (s *activity) List(activityIds []int, pageNum int, pageSize int, startTime, endTime string, activityType int, status, searchVal, publisherId string, disable int) (ret model.AdminActivityList, err error) {
-	m := g.DB().Model("activity").Where("activity_type != ", model.ACTIVITY_TYPE_4)
+	m := g.DB().Model("activity")
 	if disable != -1 {
 		m = m.Where("disable = ?", disable)
 	}
@@ -91,9 +91,12 @@ func (s *activity) List(activityIds []int, pageNum int, pageSize int, startTime,
 	}
 	subIds := make([]int, 0)
 	secKillIds := make([]int, 0)
+	equityIds := make([]int, 0)
 	for _, v := range as {
 		if v.ActivityType == 3 {
 			secKillIds = append(secKillIds, v.ActivityId)
+		} else if v.ActivityType == 4 {
+			equityIds = append(equityIds, v.ActivityId)
 		} else {
 			subIds = append(subIds, v.ActivityId)
 		}
@@ -101,6 +104,7 @@ func (s *activity) List(activityIds []int, pageNum int, pageSize int, startTime,
 	var (
 		subAcMap     map[int]model.SubscribeActivity
 		secKillAcMap map[int]model.SeckillActivity
+		equityAcMap  map[int]model.EquityActivity
 	)
 	if len(subIds) != 0 {
 		subAcMap = SubscribeActivity.GetByIds(subIds)
@@ -108,7 +112,9 @@ func (s *activity) List(activityIds []int, pageNum int, pageSize int, startTime,
 	if len(secKillIds) != 0 {
 		secKillAcMap = SeckillActivity.GetByIds(secKillIds)
 	}
-
+	if len(equityIds) != 0 {
+		equityAcMap = Equity.GetByIds(equityIds)
+	}
 	type developers struct {
 		Id             int    `json:"id"`
 		RelationUserId string `json:"relationUserId"`
@@ -150,6 +156,11 @@ func (s *activity) List(activityIds []int, pageNum int, pageSize int, startTime,
 			item.Cover = secKillAcMap[v.ActivityId].CoverImgUrl
 			item.ActivityTypeString = "秒杀"
 			item.Alias = secKillAcMap[v.ActivityId].Alias
+		} else if v.ActivityType == 4 {
+			item.SumNum = equityAcMap[v.ActivityId].Number
+			item.Price = fmt.Sprintf("%.2f", float64(equityAcMap[v.ActivityId].Price)/100)
+			item.Cover = equityAcMap[v.ActivityId].CoverImgUrl
+			item.ActivityTypeString = "权益购"
 		} else {
 			item.SumNum = subAcMap[v.ActivityId].SumNum
 			item.Price = fmt.Sprintf("%.2f", float64(subAcMap[v.ActivityId].Price)/100)

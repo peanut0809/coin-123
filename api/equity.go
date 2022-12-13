@@ -60,13 +60,14 @@ func (c *equity) CanBuyNum(r *ghttp.Request) {
 		c.FailJsonExit(r, err.Error())
 		return
 	}
-	limitNum, err := service.Equity.GetCanBuyCount(activityInfo, userId)
+	limitNum, limitBuy, err := service.Equity.GetCanBuyCount(activityInfo, userId)
 	if err != nil {
 		c.FailJsonExit(r, err.Error())
 		return
 	}
 	ret := map[string]interface{}{
 		"limitNum": limitNum,
+		"limitBuy": limitBuy,
 	}
 	c.SusJsonExit(r, ret)
 }
@@ -104,7 +105,7 @@ func (c *equity) CreateOrder(r *ghttp.Request) {
 		return
 	}
 	userId := c.GetUserId(r)
-	limitNum, err := service.Equity.GetCanBuyCount(activityInfo, userId)
+	limitNum, _, err := service.Equity.GetCanBuyCount(activityInfo, userId)
 	if err != nil {
 		c.FailJsonExit(r, err.Error())
 		return

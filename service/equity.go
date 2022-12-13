@@ -166,7 +166,7 @@ func (c *equity) GetValidDetail(id int) (ret *model.EquityActivity, err error) {
 	return ret, err
 }
 
-func (c *equity) GetCanBuyCount(activityInfo *model.EquityActivity, userId string) (limitNum int, err error) {
+func (c *equity) GetCanBuyCount(activityInfo *model.EquityActivity, userId string) (limitNum, limitBuy int, err error) {
 	// 定义限购数量
 	// limitNum := 0
 	// 判断白名单
@@ -183,12 +183,12 @@ func (c *equity) GetCanBuyCount(activityInfo *model.EquityActivity, userId strin
 		}
 		if user == nil {
 			// c.FailJsonExit(r, "不在限购白名单中")
-			err = gerror.New("不在限购白名单中")
+			// err = gerror.New("不在限购白名单中")
 			return
 		}
-		limitNum = user.LimitNum
+		limitBuy = user.LimitNum
 	} else {
-		limitNum = activityInfo.LimitBuy
+		limitBuy = activityInfo.LimitBuy
 	}
 	// 判断购买数量
 	alreadyBuyNum, err := g.DB().Model("equity_orders").
@@ -200,6 +200,16 @@ func (c *equity) GetCanBuyCount(activityInfo *model.EquityActivity, userId strin
 		err = gerror.New("网络繁忙")
 		return
 	}
-	limitNum = limitNum - alreadyBuyNum
+	limitNum = limitBuy - alreadyBuyNum
+	return
+}
+
+func (c *equity) GetByIds(ids []int) (ret map[int]model.EquityActivity) {
+	ret = make(map[int]model.EquityActivity)
+	var as []model.EquityActivity
+	g.DB().Model("equity_activity").Where("id IN (?)", ids).Scan(&as)
+	for _, v := range as {
+		ret[v.Id] = v
+	}
 	return
 }
