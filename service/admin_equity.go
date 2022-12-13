@@ -30,10 +30,12 @@ var AdminEquity = new(adminEquity)
 func (s *adminEquity) Create(in model.CreateEquityActivityReq) (err error) {
 	// 获取详情
 	var equityItem *model.EquityActivity
+	timeCrv := time.Now().Unix()
+	nowTime := time.Unix(timeCrv, 0).Format("2006-01-02 15:04:05")
 	m := g.DB().Model("equity_activity")
-	err = m.Where("template_id", in.TemplateId).Scan(&equityItem)
+	err = m.Where("template_id", in.TemplateId).Where("activity_end_time > ", nowTime).Where("status", 1).Scan(&equityItem)
 	if err != nil {
-		err = fmt.Errorf("权益活动信息获取异常")
+		err = fmt.Errorf("权益活动信息上架中，请勿重复上架")
 		return
 	}
 	if equityItem != nil {
@@ -42,6 +44,7 @@ func (s *adminEquity) Create(in model.CreateEquityActivityReq) (err error) {
 			return
 		}
 	}
+
 	// 插入数据
 	var tx *gdb.TX
 	tx, err = g.DB().Begin()
@@ -250,6 +253,7 @@ func (s *adminEquity) Item(templateId string) (ret model.EquityActivity, err err
 	if err != nil {
 		return
 	}
+	ret.Price = ret.Price / 100
 	return
 }
 
