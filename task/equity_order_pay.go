@@ -74,7 +74,7 @@ func RunEquityOrderPayTask() {
 			}
 			// 更新发送资产的状态
 			if publishSuccess {
-				_, e = g.DB().Exec("UPDATE equity_orders SET publish_status = 1 WHERE order_no = ?", data.AppOrderNo)
+				_, e = tx.Exec("UPDATE equity_orders SET publish_status = 1 WHERE order_no = ?", data.AppOrderNo)
 				if e != nil {
 					g.Log().Info("RunSubLaunchpadPayTask err:%v", e)
 					return nil
@@ -89,7 +89,7 @@ func RunEquityOrderPayTask() {
 					})
 				}
 			} else {
-				_, e = g.DB().Exec("UPDATE equity_orders SET publish_status = 2 WHERE order_no = ?", data.AppOrderNo)
+				_, e = tx.Exec("UPDATE equity_orders SET publish_status = 2 WHERE order_no = ?", data.AppOrderNo)
 				if e != nil {
 					g.Log().Info("RunSubLaunchpadPayTask err:%v", e)
 					return nil
