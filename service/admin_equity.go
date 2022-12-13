@@ -50,28 +50,29 @@ func (s *adminEquity) Create(in model.CreateEquityActivityReq) (err error) {
 		return
 	}
 
-	if equityItem == nil {
-		insterItem, insertEerr := tx.Model("equity_activity").Insert(&in)
-		if insertEerr != nil {
-			err = fmt.Errorf(insertEerr.Error())
-			tx.Rollback()
-			return
-		}
-		i, _ := insterItem.LastInsertId()
-		in.Id = int(i)
-		_, err = tx.Model("activity").Insert(g.Map{
-			"name":          in.Name,
-			"start_time":    in.ActivityStartTime,
-			"end_time":      in.ActivityEndTime,
-			"publisher_id":  in.PublisherId,
-			"activity_id":   in.Id,
-			"activity_type": model.ACTIVITY_TYPE_4,
-		})
-		if err != nil {
-			tx.Rollback()
-			return
-		}
+	//if equityItem == nil {
+	in.TotalNumber = in.Number
+	insterItem, insertEerr := tx.Model("equity_activity").Insert(&in)
+	if insertEerr != nil {
+		err = fmt.Errorf(insertEerr.Error())
+		tx.Rollback()
+		return
 	}
+	i, _ := insterItem.LastInsertId()
+	in.Id = int(i)
+	_, err = tx.Model("activity").Insert(g.Map{
+		"name":          in.Name,
+		"start_time":    in.ActivityStartTime,
+		"end_time":      in.ActivityEndTime,
+		"publisher_id":  in.PublisherId,
+		"activity_id":   in.Id,
+		"activity_type": model.ACTIVITY_TYPE_4,
+	})
+	if err != nil {
+		tx.Rollback()
+		return
+	}
+	//}
 	tx.Commit()
 	// 如果是白名单 创建用户
 	if in.LimitType == model.EQUITY_ACTIVITY_LIMIT_TYPE2 {

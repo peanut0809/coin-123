@@ -50,7 +50,7 @@ func (t *Launchpad) GetEquityByTemplateIds(ctx context.Context, req *GetEquityBy
 	var equityActivity []model.EquityActivity
 	timeCrv := time.Now().Unix()
 	nowTime := time.Unix(timeCrv, 0).Format("2006-01-02 15:04:05")
-	err = g.DB().Model("equity_activity").Where("template_id IN (?)", req.TemplateIds).Where("activity_end_time > ", nowTime).Scan(&equityActivity)
+	err = g.DB().Model("equity_activity").Where("template_id IN (?)", req.TemplateIds).Where("status", 1).Where("activity_end_time > ", nowTime).Scan(&equityActivity)
 	if err != nil {
 		return
 	}
