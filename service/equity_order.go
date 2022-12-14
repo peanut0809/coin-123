@@ -247,7 +247,9 @@ func (c *equityOrder) InventoryRollback(tx *gdb.TX, activityId int, num int) (er
 }
 
 func (c *equityOrder) GetWaitPayOrder() (ret []model.EquityOrder, err error) {
-	err = g.DB().Model("equity_orders").Where("? > pay_expire_at", time.Now()).Scan(&ret)
+	err = g.DB().Model("equity_orders").
+		Where("status = ?", model.WAIT_PAY).
+		Where("? > pay_expire_at", time.Now()).Scan(&ret)
 	if err != nil {
 		return
 	}
