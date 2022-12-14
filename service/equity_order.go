@@ -84,7 +84,7 @@ func (c *equityOrder) Create(req *model.EquityOrderReq, activityInfo *model.Equi
 		Icon:         activityInfo.CoverImgUrl,
 		Status:       model.WAIT_PAY,
 		Price:        activityInfo.Price,
-		PayExpireAt:  gtime.Now().Add(time.Minute * 10),
+		PayExpireAt:  gtime.Now().Add(time.Minute * 5),
 		LimitType:    activityInfo.LimitType,
 	})
 	if err != nil {
@@ -243,5 +243,13 @@ func (c *equityOrder) GetInfoByOrderNo(orderNo string) (ret model.EquityOrder, e
 // 回退库存
 func (c *equityOrder) InventoryRollback(tx *gdb.TX, activityId int, num int) (err error) {
 	_, err = tx.Exec("UPDATE equity_activity SET number = number + ? WHERE id = ?", num, activityId)
+	return
+}
+
+func (c *equityOrder) GetWaitPayOrder() (ret []model.EquityOrder, err error) {
+	err = g.DB().Model("equity_orders").Where("? > pay_expire_at", time.Now()).Scan(&ret)
+	if err != nil {
+		return
+	}
 	return
 }

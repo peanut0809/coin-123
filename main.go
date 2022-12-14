@@ -43,6 +43,7 @@ func main() {
 	go task.RunLuckyDrawTask()
 	go task.CheckSubPayTimeout()
 	go task.CheckSeckillOrderTimeoutTask()
+	go task.CheckEquityOrderTimeoutTask()
 	go task.Banner()
 	go task.RunSeckillOrderPayTask()
 	s.Run()
