@@ -84,7 +84,7 @@ func (c *equityOrder) Create(req *model.EquityOrderReq, activityInfo *model.Equi
 		Icon:         activityInfo.CoverImgUrl,
 		Status:       model.WAIT_PAY,
 		Price:        activityInfo.Price,
-		PayExpireAt:  gtime.Now().Add(time.Minute * 2),
+		PayExpireAt:  gtime.Now().Add(time.Minute * 1),
 		LimitType:    activityInfo.LimitType,
 	})
 	if err != nil {
@@ -203,10 +203,10 @@ func (c *equityOrder) Cancel(userId string, orderNo string) (err error) {
 		return
 	}
 	now := time.Now()
-	if now.Unix() >= orderInfo.PayExpireAt.Unix() {
-		err = fmt.Errorf("订单已过期")
-		return
-	}
+	//if now.Unix() >= orderInfo.PayExpireAt.Unix() {
+	//	err = fmt.Errorf("订单已过期")
+	//	return
+	//}
 	if orderInfo.PayExpireAt.Unix()-now.Unix() < 300 { //超过5分钟了,算超时
 		//设置处罚时间
 		_, err := g.Redis().Do("SET", fmt.Sprintf(cache.EQUITY_DISCIPLINE, userId), 1, "ex", 3600*24*30)
