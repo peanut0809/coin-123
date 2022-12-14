@@ -84,7 +84,7 @@ func (c *equityOrder) Create(req *model.EquityOrderReq, activityInfo *model.Equi
 		Icon:         activityInfo.CoverImgUrl,
 		Status:       model.WAIT_PAY,
 		Price:        activityInfo.Price,
-		PayExpireAt:  gtime.Now().Add(time.Minute * 5),
+		PayExpireAt:  gtime.Now().Add(time.Minute * 2),
 		LimitType:    activityInfo.LimitType,
 	})
 	if err != nil {
