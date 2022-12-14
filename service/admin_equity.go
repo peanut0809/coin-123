@@ -248,7 +248,7 @@ func (s *adminEquity) CreateEquityUser(PublishedId string, activityId int, in mo
 // 获取详情
 func (s *adminEquity) Item(templateId string) (ret model.EquityActivity, err error) {
 	m := g.DB().Model("equity_activity")
-	err = m.Where("template_id", templateId).Scan(&ret)
+	err = m.Where("template_id", templateId).Where("status", model.EQUITY_ACTIVITY_STATUS1).Scan(&ret)
 	if err != nil {
 		return
 	}
