@@ -203,7 +203,7 @@ func (c *equityOrder) Cancel(userId string, orderNo string) (err error) {
 	}
 	now := time.Now()
 	status := 0
-	if orderInfo.PayExpireAt.Unix()-now.Unix() < 300 { //超过5分钟了,算超时
+	if orderInfo.PayExpireAt.Unix() > now.Unix() {
 		status = model.TIMEOUT
 	} else {
 		status = model.CANCEL
