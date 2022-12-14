@@ -157,7 +157,7 @@ func (s *activity) List(activityIds []int, pageNum int, pageSize int, startTime,
 			item.ActivityTypeString = "秒杀"
 			item.Alias = secKillAcMap[v.ActivityId].Alias
 		} else if v.ActivityType == 4 {
-			item.SumNum = equityAcMap[v.ActivityId].Number
+			item.SumNum = equityAcMap[v.ActivityId].TotalNumber
 			item.Price = fmt.Sprintf("%.2f", float64(equityAcMap[v.ActivityId].Price)/100)
 			item.Cover = equityAcMap[v.ActivityId].CoverImgUrl
 			item.ActivityTypeString = "权益购"
