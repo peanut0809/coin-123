@@ -486,7 +486,7 @@ func (s *adminEquity) HandelExcelRowErr(rows [][]string, userMap map[string]prov
 		number += num
 
 		errMessage := ""
-		result, _ := regexp.MatchString("^1[345789]{1}\\d{9}$", mobileRow)
+		result, _ := regexp.MatchString(`^1[345789]{1}\d{9}$`, mobileRow)
 		if !result {
 			errMessage = errMessage + "[手机号格式异常]"
 		}
