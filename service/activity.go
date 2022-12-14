@@ -47,7 +47,7 @@ func (s *activity) GetCreatorRank(rankValue int, pageNum int, pageSize int, publ
 func (s *activity) List(activityIds []int, pageNum int, pageSize int, startTime, endTime string, activityType int, status, searchVal, publisherId string, disable int) (ret model.AdminActivityList, err error) {
 	m := g.DB().Model("activity")
 	if searchVal == "" {
-		m.Where("status != 4")
+		m.Where("activity_type != 4")
 	}
 	if disable != -1 {
 		m = m.Where("disable = ?", disable)
