@@ -68,7 +68,9 @@ func (s *adminEquity) Create(r *ghttp.Request) {
 		return
 	}
 	req.Price = int(priceInt)
-
+	if req.NfrSec > 0 {
+		req.NfrSec = req.NfrSec * 24 * 60 * 60
+	}
 	err = service.AdminEquity.Create(req)
 	if err != nil {
 		s.FailJsonExit(r, err.Error())
