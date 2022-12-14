@@ -224,7 +224,7 @@ func (s *seckillActivity) DoBuy(in model.DoBuyReq) {
 		Status:      1,
 		Price:       activityInfo.Price,
 		PublisherId: in.PublisherId,
-		PayExpireAt: gtime.Now().Add(time.Minute * 1),
+		PayExpireAt: gtime.Now().Add(time.Minute * 10),
 	}
 	e = SeckillOrder.Create(tx, interOrder)
 	if e != nil {
