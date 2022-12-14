@@ -521,6 +521,8 @@ func (s *adminEquity) HandelExcelRowErr(rows [][]string, userMap map[string]prov
 				LimitNum:   num,
 				Phone:      mobileRow,
 			}
+			g.Log().Errorf("导入白名单HandelExcelRowErr err:%v", errMessage)
+
 			errItems = append(errItems, errItem)
 		} else {
 			succItem := model.ImportItem{
