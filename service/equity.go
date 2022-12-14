@@ -195,13 +195,13 @@ func (c *equity) GetCanBuyCount(activityInfo *model.EquityActivity, userId strin
 		Where("user_id = ?", userId).
 		Where("activity_id = ?", activityInfo.Id).
 		Where("status in (?)", g.Slice{model.WAIT_PAY, model.PAID}).
-		Count()
+		Sum("num")
 	if err != nil {
 		// c.FailJsonExit(r, "网络繁忙")
 		err = gerror.New("网络繁忙")
 		return
 	}
-	limitNum = limitBuy - alreadyBuyNum
+	limitNum = limitBuy - int(alreadyBuyNum)
 	return
 }
 
