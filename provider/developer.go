@@ -66,7 +66,7 @@ type GetCreatorInfoRet struct {
 }
 
 type DeveloperDetail struct {
-	Id             string      `json:"id,omitempty"`
+	Id             int         `json:"id,omitempty"`
 	RelationUserId string      `json:"relationUserId"`
 	Name           string      `json:"name"`
 	LogoUrl        string      `json:"logoUrl"`

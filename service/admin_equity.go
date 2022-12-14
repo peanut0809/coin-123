@@ -254,7 +254,9 @@ func (s *adminEquity) Item(templateId string) (ret model.EquityActivity, err err
 	if err != nil {
 		return
 	}
-	ret.Price = ret.Price / 100
+	ret.Number = ret.TotalNumber
+	//ret.Price = ret.Price / 100
+	ret.NfrSec = ret.NfrSec / (24 * 60 * 60)
 	return
 }
 
