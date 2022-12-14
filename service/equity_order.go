@@ -80,6 +80,8 @@ func (c *equityOrder) Create(req *model.EquityOrderReq, activityInfo *model.Equi
 		ActivityName: activityInfo.Name,
 		UserName:     user.Nickname,
 		UserId:       req.UserId,
+		UserPhone:    user.Phone,
+		Icon:         activityInfo.CoverImgUrl,
 		Status:       model.WAIT_PAY,
 		Price:        activityInfo.Price,
 		PayExpireAt:  gtime.Now().Add(time.Minute * 10),
