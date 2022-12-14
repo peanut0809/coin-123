@@ -57,10 +57,7 @@ func (s *adminEquity) Create(r *ghttp.Request) {
 		s.FailJsonExit(r, "价格参数错误")
 		return
 	}
-	if len(req.Name) > 30 {
-		s.FailJsonExit(r, "资产名称过长限制30个")
-		return
-	}
+
 	decimalValue = decimalValue.Mul(decimal.NewFromFloat(100))
 	priceInt := decimalValue.IntPart()
 	if priceInt <= 0 {
