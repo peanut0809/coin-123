@@ -194,6 +194,7 @@ func (c *equity) GetCanBuyCount(activityInfo *model.EquityActivity, userId strin
 	alreadyBuyNum, err := g.DB().Model("equity_orders").
 		Where("user_id = ?", userId).
 		Where("activity_id = ?", activityInfo.Id).
+		Where("status in (?)", g.Slice{model.WAIT_PAY, model.PAID}).
 		Count()
 	if err != nil {
 		// c.FailJsonExit(r, "网络繁忙")
