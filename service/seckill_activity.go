@@ -88,7 +88,7 @@ func (s *seckillActivity) SetSubResult(in model.DoSubResult) {
 	return
 }
 
-//回退库存
+// 回退库存
 func (s *seckillActivity) UpdateRemain(tx *gdb.TX, aid int, num int) (err error) {
 	_, err = tx.Exec("UPDATE seckill_activity SET remain_num = remain_num + ? WHERE id = ?", num, aid)
 	return
@@ -224,7 +224,7 @@ func (s *seckillActivity) DoBuy(in model.DoBuyReq) {
 		Status:      1,
 		Price:       activityInfo.Price,
 		PublisherId: in.PublisherId,
-		PayExpireAt: gtime.Now().Add(time.Minute * 10),
+		PayExpireAt: gtime.Now().Add(time.Minute * 1),
 	}
 	e = SeckillOrder.Create(tx, interOrder)
 	if e != nil {
