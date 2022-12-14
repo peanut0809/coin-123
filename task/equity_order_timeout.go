@@ -1,8 +1,11 @@
 package task
 
 import (
+	"context"
+	"github.com/gogf/gf/database/gdb"
 	"github.com/gogf/gf/frame/g"
 	"meta_launchpad/cache"
+	"meta_launchpad/model"
 	"meta_launchpad/service"
 	"time"
 )
@@ -32,7 +35,19 @@ func CheckEquityOrderTimeout() {
 		return
 	}
 	for _, v := range workers {
-		err := service.EquityOrder.Cancel(v.UserId, v.OrderNo)
+		orderInfo, err := service.EquityOrder.GetInfoByOrderNo(v.OrderNo)
+		if err != nil {
+			g.Log().Errorf("CheckEquityOrderTimeout err:%v", err)
+			return
+		}
+		err = g.DB().Transaction(context.Background(), func(ctx context.Context, tx *gdb.TX) error {
+			err = service.EquityOrder.UpdateOrderNoStatus(v.OrderNo, model.TIMEOUT)
+			if err != nil {
+				g.Log().Errorf("CheckEquityOrderTimeout err:%v", err)
+				return err
+			}
+			return service.EquityOrder.InventoryRollback(tx, orderInfo.ActivityId, orderInfo.Num)
+		})
 		if err != nil {
 			g.Log().Errorf("CheckEquityOrderTimeout err:%v", err)
 			return

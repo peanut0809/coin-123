@@ -202,14 +202,12 @@ func (c *equityOrder) Cancel(userId string, orderNo string) (err error) {
 		return
 	}
 	now := time.Now()
-	status := 0
-	if orderInfo.PayExpireAt.Unix() > now.Unix() {
-		status = model.TIMEOUT
-	} else {
-		status = model.CANCEL
+	if now.Unix() >= orderInfo.PayExpireAt.Unix() {
+		err = fmt.Errorf("订单已过期")
+		return
 	}
 	err = g.DB().Transaction(context.Background(), func(ctx context.Context, tx *gdb.TX) error {
-		err = c.UpdateOrderNoStatus(orderNo, status)
+		err = c.UpdateOrderNoStatus(orderNo, model.CANCEL)
 		if err != nil {
 			return err
 		}
