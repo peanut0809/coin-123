@@ -44,15 +44,24 @@ type EquityOrderList struct {
 }
 
 type AdminEquityOrderReq struct {
-	PublisherId string `json:"publisherId"`
-	ActivityId  int    `json:"activityId"`
-	Page        int    `json:"pageNum"`
-	PageSize    int    `json:"pageSize"`
-	Phone       int    `json:"phone"`
-	Status      int    `json:"status"`
-	StartDate   string `json:"startDate"`
-	EndDate     string `json:"endDate"`
-	MinPrice    int    `json:"minPrice"`
-	MaxPrice    int    `json:"maxPrice"`
-	OrderNo     string `json:"orderNo"`
+	PublisherId  string `json:"publisherId"`
+	ActivityId   int    `json:"activityId"`
+	Page         int    `json:"pageNum"`
+	PageSize     int    `json:"pageSize"`
+	Phone        int    `json:"phone"`
+	Status       int    `json:"status"`
+	StartDate    string `json:"startDate"`
+	EndDate      string `json:"endDate"`
+	PayStartDate string `json:"payStartDate"`
+	PayEndDate   string `json:"payEndDate"`
+	MinPrice     int    `json:"minPrice"`
+	MaxPrice     int    `json:"maxPrice"`
+	OrderNo      string `json:"orderNo"`
+}
+type AdminEquityOrderItems struct {
+	List          []*EquityOrderFull
+	Total         int
+	OrderCount    int
+	OrderPayMoney int
+	OrderPayCount int
 }

@@ -365,8 +365,16 @@ func (s *adminEquity) EquityActivityItems(in model.AdminEquityReq) (ret model.Eq
 	return
 }
 
-func (s *adminEquity) OrderItems(in model.AdminEquityOrderReq) (ret model.EquityOrderList, err error) {
+func (s *adminEquity) OrderItems(in model.AdminEquityOrderReq) (ret model.AdminEquityOrderItems, err error) {
 	m := g.DB().Model("equity_orders").Where("publisher_id", in.PublisherId)
+
+	OrderCount, _ := g.DB().Model("equity_orders").Where("publisher_id", in.PublisherId).Count()
+	ret.OrderCount = OrderCount
+	OrderPayCount, _ := g.DB().Model("equity_orders").Where("publisher_id", in.PublisherId).Where("status", 2).Count()
+	ret.OrderPayCount = OrderPayCount
+	OrderPayMoney, _ := g.DB().Model("equity_orders").Where("publisher_id", in.PublisherId).Where("status", 2).Sum("real_fee")
+	ret.OrderPayMoney = int(OrderPayMoney)
+
 	if in.Phone > 0 {
 		m = m.Where("phone", in.Phone)
 	}
@@ -387,6 +395,12 @@ func (s *adminEquity) OrderItems(in model.AdminEquityOrderReq) (ret model.Equity
 	}
 	if in.OrderNo != "" {
 		m = m.Where("order_no ", in.OrderNo)
+	}
+	if in.PayStartDate != "" {
+		m = m.Where("pay_at  >", in.PayStartDate)
+	}
+	if in.PayEndDate != "" {
+		m = m.Where("pay_at  < ", in.PayEndDate)
 	}
 	total, err := m.Count()
 	if err != nil {
