@@ -59,6 +59,22 @@ func (s *activity) ListByClient(r *ghttp.Request) {
 	}
 	s.SusJsonExit(r, ret)
 }
+func (s *activity) AllListByClient(r *ghttp.Request) {
+	pageNum := r.GetQueryInt("pageNum", 1)
+	pageSize := r.GetQueryInt("pageSize", 20)
+	activityType := r.GetQueryInt("activityType")
+	searchVal := r.GetQueryString("searchVal")
+	publisherId := s.GetPublisherId(r)
+	// if publisherId == "" {
+	// 	publisherId = r.GetQueryString("publisherId")
+	// }
+	ret, err := service.Activity.AllList(nil, pageNum, pageSize, "", "", activityType, "", searchVal, publisherId, 0)
+	if err != nil {
+		s.FailJsonExit(r, err.Error())
+		return
+	}
+	s.SusJsonExit(r, ret)
+}
 
 func (s *activity) List(r *ghttp.Request) {
 	pageNum := r.GetQueryInt("pageNum", 1)

@@ -1,12 +1,13 @@
 package service
 
 import (
-	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/utils"
 	"context"
 	"encoding/json"
 	"fmt"
 	"meta_launchpad/model"
 	"meta_launchpad/provider"
+
+	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/utils"
 
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/os/gtime"
@@ -92,6 +93,62 @@ func (s *activity) List(activityIds []int, pageNum int, pageSize int, startTime,
 	if err != nil {
 		return
 	}
+	list, err := s.FullList(as, publisherId, n)
+	ret.List = list
+	return
+}
+
+func (s *activity) AllList(activityIds []int, pageNum int, pageSize int, startTime, endTime string, activityType int, status, searchVal, publisherId string, disable int) (ret model.AdminActivityList, err error) {
+	m := g.DB().Model("activity")
+	if disable != -1 {
+		m = m.Where("disable = ?", disable)
+	}
+	if publisherId != "" {
+		m = m.Where("publisher_id = ?", publisherId)
+	}
+	if startTime != "" {
+		m = m.Where("start_time >= ?", startTime)
+	}
+	if endTime != "" {
+		m = m.Where("end_time <= ?", endTime)
+	}
+	if len(activityIds) != 0 {
+		m = m.Where("id IN (?)", activityIds)
+	}
+	if activityType != 0 {
+		m = m.Where("activity_type = ?", activityType)
+	}
+	n := gtime.Now()
+	if status == "0" { //未开始
+		m = m.Where("start_time > ?", n)
+	}
+	if status == "1" { //进行中
+		m = m.Where("? > start_time AND ? < end_time", n, n)
+	}
+	if status == "2" { //已结束
+		m = m.Where("? > end_time", n)
+	}
+	if searchVal != "" {
+		m = m.Where("(name like ? OR id = ?)", "%"+searchVal+"%", searchVal)
+	}
+	ret.Total, err = m.Count()
+	if err != nil {
+		return
+	}
+	if ret.Total == 0 {
+		return
+	}
+	var as []model.Activity
+	err = m.Order("id DESC").Page(pageNum, pageSize).Scan(&as)
+	if err != nil {
+		return
+	}
+	list, err := s.FullList(as, publisherId, n)
+	ret.List = list
+	return
+}
+
+func (s *activity) FullList(as []model.Activity, publisherId string, n *gtime.Time) (list []model.AdminActivityFull, err error) {
 	subIds := make([]int, 0)
 	secKillIds := make([]int, 0)
 	equityIds := make([]int, 0)
@@ -197,13 +254,13 @@ func (s *activity) List(activityIds []int, pageNum int, pageSize int, startTime,
 			item.ActivityStatus = "2"
 			item.ActivityStatusTxt = "已结束"
 		}
-		ret.List = append(ret.List, item)
+		list = append(list, item)
 	}
 	if publisherId == "" {
 		publisherInfoMap, _ := provider.Developer.GetPublisherByIds(publisherIds)
-		for i := range ret.List {
-			ret.List[i].PublisherName = publisherInfoMap[ret.List[i].PublisherId].Name
-			ret.List[i].PublisherIcon = publisherInfoMap[ret.List[i].PublisherId].Icon
+		for i := range list {
+			list[i].PublisherName = publisherInfoMap[list[i].PublisherId].Name
+			list[i].PublisherIcon = publisherInfoMap[list[i].PublisherId].Icon
 		}
 	}
 	return
