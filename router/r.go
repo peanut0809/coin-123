@@ -7,6 +7,8 @@ import (
 
 	"brq5j1d.gfanx.pro/meta_cloud/meta_common/common/middleware"
 	"brq5j1d.gfanx.pro/meta_cloud/meta_common/library"
+	"brq5j1d.gfanx.pro/meta_cloud/meta_common/v2/common/admin"
+	sysApi "brq5j1d.gfanx.pro/meta_cloud/meta_common/v2/common/api"
 	"github.com/gogf/gf/errors/gcode"
 	"github.com/gogf/gf/errors/gerror"
 	"github.com/gogf/gf/frame/g"
@@ -175,5 +177,19 @@ func InitRouter() *ghttp.Server {
 		group.POST("/equity/order/export", api.AdminEquity.OrderExport) //订单导出
 
 	})
+
+	s.Group("/admin", func(group *ghttp.RouterGroup) {
+		sysApi.GfToken.Middleware(group)
+		group.Middleware(admin.Ctx, admin.Auth)
+
+		// 空投配置集合
+		group.POST("/air/items", api.AdminDropActivity.Items)
+		// 空投配置明细集合
+		group.POST("/air/item", api.AdminDropActivity.Item)
+		// 发起空投
+		group.POST("/air", api.AdminDropActivity.AirDrop)
+
+	})
+
 	return s
 }
