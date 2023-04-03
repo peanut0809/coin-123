@@ -152,18 +152,24 @@ func (s *airDropActivity) AirDrop(req *model.AirDropActivityReq) (ret interface{
 func (s *airDropActivity) MakeSpeedDrop(req model.AirDropActivity, mobileItems []model.MobileCollect) {
 	// 手机号集合 手机号 用户id 数量 message(创建用户、手机号格式异常)
 	mc := s.MakeMobileItems(mobileItems)
+	var err error
 	for _, mobileInfo := range mc {
 		errMessage := ""
-		mobileInfo.ActivityId = req.Id
-		err := s.MarktingUserSpeedNum(mobileInfo)
-		if err != nil {
-			errMessage = errMessage + err.Error()
+		if mobileInfo.Number <= 0 {
+			errMessage = errMessage + "空投数量异常"
+		}
+		if mobileInfo.Number > 0 && errMessage == "" && !mobileInfo.HaveErr {
+			mobileInfo.ActivityId = req.Id
+			err = s.MarktingUserSpeedNum(mobileInfo)
+			if err != nil {
+				errMessage = errMessage + err.Error()
+			}
 		}
 		if errMessage != "" {
 			mobileInfo.Message = mobileInfo.Message + "【" + errMessage + "】"
 		}
 		status := model.Air_Drop_Status_01
-		if mobileInfo.HaveErr == true || errMessage != "" {
+		if mobileInfo.HaveErr || errMessage != "" {
 			status = model.Air_Drop_Status_02
 		}
 		_, err = g.DB().Model("air_drop_activity_record").Insert(&model.AirDropActivityRecord{
@@ -185,26 +191,32 @@ func (s *airDropActivity) MakeSpeedDrop(req model.AirDropActivity, mobileItems [
 // 元晶空投
 func (s *airDropActivity) MakeCrystalDrop(req model.AirDropActivity, mobileItems []model.MobileCollect) {
 	mc := s.MakeMobileItems(mobileItems)
+	var err error
 	for _, mobileInfo := range mc {
 		errMessage := ""
-		//发放元晶
-		xJTransferReq := &map[string]interface{}{
-			"userId":   mobileInfo.UserId,
-			"category": 1,
-			"amount":   mobileInfo.Number,
-			"source":   36,
-			"orderNo":  req.OrderNo,
-			//"orderNo":  utils.Generate(),
+		if mobileInfo.Number <= 0 {
+			errMessage = errMessage + "空投数量异常"
 		}
-		err := provider.User.YJTransfer(xJTransferReq)
-		if err != nil {
-			errMessage = errMessage + err.Error()
+		if mobileInfo.Number > 0 && errMessage == "" && !mobileInfo.HaveErr {
+			//发放元晶
+			xJTransferReq := &map[string]interface{}{
+				"userId":   mobileInfo.UserId,
+				"category": 1,
+				"amount":   mobileInfo.Number,
+				"source":   36,
+				"orderNo":  req.OrderNo,
+				//"orderNo":  utils.Generate(),
+			}
+			err = provider.User.YJTransfer(xJTransferReq)
+			if err != nil {
+				errMessage = errMessage + err.Error()
+			}
 		}
 		if errMessage != "" {
 			mobileInfo.Message = mobileInfo.Message + "【" + errMessage + "】"
 		}
 		status := model.Air_Drop_Status_01
-		if mobileInfo.HaveErr == true || errMessage != "" {
+		if mobileInfo.HaveErr || errMessage != "" {
 			status = model.Air_Drop_Status_02
 		}
 		_, err = g.DB().Model("air_drop_activity_record").Insert(&model.AirDropActivityRecord{
@@ -258,7 +270,7 @@ func (s *airDropActivity) MakeMobileItems(mobileItems []model.MobileCollect) (mo
 				mobilItem.Message = "UsersRegistUserByPhone err" + err.Error()
 				continue
 			} else {
-				mobilItem.Message = "(注册新用户)"
+				//mobilItem.Message = "(注册新用户)"
 				mobilItem.UserId = guir.UserId
 			}
 		} else {
