@@ -58,11 +58,12 @@ type AirDropActivityItemRex struct {
 }
 
 type MobileCollect struct {
-	Mobile  string `json:"mobile"`
-	Number  int    `json:"number"`
-	UserId  string `json:"userId"`
-	Message string `json:"message"`
-	HaveErr bool   `json:"haveErr"`
+	Mobile     string `json:"mobile"`
+	Number     int    `json:"number"`
+	UserId     string `json:"userId"`
+	Message    string `json:"message"`
+	HaveErr    bool   `json:"haveErr"`
+	ActivityId int    `json:"activityId"`
 }
 type MarktingUserSpeedNumReq struct {
 	UserId string `json:"userId"`

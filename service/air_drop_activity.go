@@ -154,6 +154,7 @@ func (s *airDropActivity) MakeSpeedDrop(req model.AirDropActivity, mobileItems [
 	mc := s.MakeMobileItems(mobileItems)
 	for _, mobileInfo := range mc {
 		errMessage := ""
+		mobileInfo.ActivityId = req.Id
 		err := s.MarktingUserSpeedNum(mobileInfo)
 		if err != nil {
 			errMessage = errMessage + err.Error()
@@ -318,9 +319,10 @@ func (s *airDropActivity) MakeExcelItems(excelFile string) (mobileItems []model.
 func (s *airDropActivity) MarktingUserSpeedNum(item model.MobileCollect) (err error) {
 	// 获取用户信息
 	params := g.Map{
-		"userId": item.UserId,
-		"number": item.Number,
-		"from":   2,
+		"userId":     item.UserId,
+		"number":     item.Number,
+		"from":       2,
+		"activityId": item.ActivityId,
 	}
 	_, err = utils.SendJsonRpc(context.Background(), "activity", "FormulaMarkting.MarktingUserSpeedNum", params)
 	if err != nil {
