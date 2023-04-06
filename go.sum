@@ -5,8 +5,8 @@ brq5j1d.gfanx.pro/meta_cloud/gf-nacos v1.0.1/go.mod h1:fSOIMyIw89aiTQPyU+i0z1d3r
 brq5j1d.gfanx.pro/meta_cloud/meta_common v1.3.22/go.mod h1:7C6u3XRxMCVzEC4plkHx4Zovn0ycBZ+RX/zFwAPm3Ik=
 brq5j1d.gfanx.pro/meta_cloud/meta_common v1.10.4 h1:2LWdkAYJ8NCIE4aXyEIaccrVo233sNXi2/ReKui7Qbo=
 brq5j1d.gfanx.pro/meta_cloud/meta_common v1.10.4/go.mod h1:meOxQqcyKy1uLxUvJr/aZR3xIoydYa/enASFwOFQqng=
-brq5j1d.gfanx.pro/meta_cloud/meta_common/v2 v2.4.11 h1:mYIu1LdEEoxZmlSwLA9Z1pdJqjWE0+Zx99ldQ3HAIGE=
-brq5j1d.gfanx.pro/meta_cloud/meta_common/v2 v2.4.11/go.mod h1:HHrAM2IRDjdUaBNZiFwJvA8L2E28FsYjnnZ/A67TfcM=
+brq5j1d.gfanx.pro/meta_cloud/meta_common/v2 v2.4.14 h1:VDDOO2CQia2TMFf4s1AXqC3UqyITFqx72lhB0avoiIs=
+brq5j1d.gfanx.pro/meta_cloud/meta_common/v2 v2.4.14/go.mod h1:HHrAM2IRDjdUaBNZiFwJvA8L2E28FsYjnnZ/A67TfcM=
 brq5j1d.gfanx.pro/meta_cloud/meta_service v0.0.55 h1:rXQQ3WdlYc0zZjV9ppomhq+2JcXO4LMykSr9Tjoi+G0=
 brq5j1d.gfanx.pro/meta_cloud/meta_service v0.0.55/go.mod h1:MQvl68ODmwMBTRgmGbWwP22E7UXzIx+hqm6iyCFNPKM=
 cloud.google.com/go v0.26.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=

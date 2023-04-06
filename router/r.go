@@ -183,6 +183,7 @@ func InitRouter() *ghttp.Server {
 		group.Middleware(sysApi.Auth.VerifyToken)
 		group.Middleware(admin.Ctx, admin.Auth)
 
+		group.Hook("/*", ghttp.HookAfterOutput, admin.OptionLog)
 		// 空投配置集合
 		group.POST("/air/items", api.AdminDropActivity.Items)
 		// 空投配置明细集合
