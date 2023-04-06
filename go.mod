@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	brq5j1d.gfanx.pro/meta_cloud/meta_common v1.10.4
-	brq5j1d.gfanx.pro/meta_cloud/meta_common/v2 v2.4.9
+	brq5j1d.gfanx.pro/meta_cloud/meta_common/v2 v2.4.11
 	brq5j1d.gfanx.pro/meta_cloud/meta_service v0.0.55
 	github.com/gogf/gf v1.16.9
 	github.com/imloama/gf-nacos v0.0.8

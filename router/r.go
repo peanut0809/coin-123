@@ -179,7 +179,8 @@ func InitRouter() *ghttp.Server {
 	})
 
 	s.Group("/admin", func(group *ghttp.RouterGroup) {
-		sysApi.GfToken.Middleware(group)
+
+		group.Middleware(sysApi.Auth.VerifyToken)
 		group.Middleware(admin.Ctx, admin.Auth)
 
 		// 空投配置集合
