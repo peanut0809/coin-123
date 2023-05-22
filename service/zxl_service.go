@@ -33,13 +33,13 @@ func (s *zxlService) MarktingZxlOrder(req *ZxlOrderCreatReq) (res *ZxlOrderCreat
 		fmt.Println("------图片取证下单返回结果------")
 		g.Log().Info(orderNo, orderErr, req)
 
-		if orderErr != nil{
+		if orderErr != nil {
 			errMessage = orderErr.Error()
 		}
 		res = &ZxlOrderCreatRes{
-			EvidenceId :req.EvidenceId,
-			EvidenceOrder:orderNo,
-			EvidenceErr:errMessage,
+			EvidenceId:    req.EvidenceId,
+			EvidenceOrder: orderNo,
+			EvidenceErr:   errMessage,
 		}
 		return
 	}
@@ -48,12 +48,12 @@ func (s *zxlService) MarktingZxlOrder(req *ZxlOrderCreatReq) (res *ZxlOrderCreat
 		videoOrder, videoOrderErr := zxlImpl.EvidenceObtainVideo(req.WebUrls, req.Title, req.Remark, 10*time.Second)
 		fmt.Println("------zxl视频下单返回结果------")
 		g.Log().Info(videoOrder, videoOrderErr, req)
-		if videoOrderErr != nil{
+		if videoOrderErr != nil {
 			errMessage = videoOrderErr.Error()
 		}
 		res = &ZxlOrderCreatRes{
-			EvidenceOrder:videoOrder,
-			EvidenceErr:errMessage,
+			EvidenceOrder: videoOrder,
+			EvidenceErr:   errMessage,
 		}
 		return
 	}
@@ -90,13 +90,7 @@ func (s *zxlService) MarktingZxlOrderAvalue(req *ZxlOrderCreatReq) (err error) {
 		err = fmt.Errorf("UrlType异常")
 		return
 	}
-	switch req.UrlType {
-	case "img", "video":
-		return nil
-	default:
-		err = fmt.Errorf("UrlType异常")
-		return
-	}
+
 	if req.WebUrls == "" {
 		err = fmt.Errorf("WebUrls异常")
 		return
