@@ -45,6 +45,12 @@ func (s *zxlService) MarktingZxlOrder(req *ZxlOrderCreatReq) (res *ZxlOrderCreat
 	}
 	// ------ 视频取证订单 ------
 	if req.UrlType == "video" {
+
+		if req.Duration > 5 {
+			zocr := s.NewEvidenceObtainVideo(zxlImpl, req)
+			return zocr, nil
+		}
+
 		videoOrder, videoOrderErr := zxlImpl.EvidenceObtainVideo(req.WebUrls, req.Title, req.Remark, 10*time.Second)
 		fmt.Println("------zxl视频下单返回结果------")
 		g.Log().Info(videoOrder, videoOrderErr, req)
@@ -106,6 +112,35 @@ func (s *zxlService) MarktingZxlInit() (zxlImpl *zxl.ZxlImpl, err error) {
 	return
 }
 
+// ------ 长视频录屏 ------
+func (s *zxlService) NewEvidenceObtainVideo(zxlImpl *zxl.ZxlImpl, req *ZxlOrderCreatReq) (res *ZxlOrderCreatRes) {
+	fmt.Println("------长视频录屏下单-------")
+	if req.Duration > 60 {
+		req.Duration = 60
+	}
+	orderReq := zxl.ObtainVideoOption{
+		WebUrls:        req.WebUrls,
+		Title:          req.Title,
+		Remark:         req.Remark,
+		RepresentAppId: "",
+		Duration:       req.Duration * 60,
+	}
+	fmt.Println("------zxl长视频下单请求------")
+	g.Log().Info(orderReq, req)
+	videoOrder, videoOrderErr := zxlImpl.NewEvidenceObtainVideo(&orderReq, 10*time.Second)
+	fmt.Println("------zxl长视频下单返回结果------")
+	g.Log().Info(videoOrder, videoOrderErr, req)
+	errMessage := ""
+	if videoOrderErr != nil {
+		errMessage = videoOrderErr.Error()
+	}
+	res = &ZxlOrderCreatRes{
+		EvidenceOrder: videoOrder,
+		EvidenceErr:   errMessage,
+	}
+	return
+}
+
 // ------ 创建至信链订单请求参数 -------
 type ZxlOrderCreatReq struct {
 	Title      string `json:"title"`      // 取证标题
@@ -113,6 +148,7 @@ type ZxlOrderCreatReq struct {
 	WebUrls    string `json:"webUrls"`    // 取证图片或者视频链接
 	UrlType    string `json:"urlType"`    // url类型
 	Timeout    int    `json:"timeout"`    // 超时时间
+	Duration   int    `json:"duration"`   // 录屏时间
 	EvidenceId int    `json:"evidenceId"` // 后台创建取证请求id
 }
 
