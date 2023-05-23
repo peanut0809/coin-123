@@ -126,6 +126,7 @@ func (s *zxlService) NewEvidenceObtainVideo(zxlImpl *zxl.ZxlImpl, req *ZxlOrderC
 		Duration:       req.Duration * 60,
 	}
 	fmt.Println("------zxl长视频下单请求------")
+
 	g.Log().Info(orderReq, req)
 	videoOrder, videoOrderErr := zxlImpl.NewEvidenceObtainVideo(&orderReq, 10*time.Second)
 	fmt.Println("------zxl长视频下单返回结果------")
