@@ -1,6 +1,6 @@
 # HTTP Server
 [server]
-    Address     = ":8115"
+    Address     = ":3015"
 
 # nacos服务发现配置参数，来自：https://github.com/nacos-group/nacos-sdk-go/blob/master/common/constant/config.go的ServerConfig
 [database]
