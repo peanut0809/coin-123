@@ -22,8 +22,8 @@ func (c *commonMeans) ResponseSuccess(r *ghttp.Request, responseData interface{}
 }
 
 // ------ 返回失败 ------
-func (c *commonMeans) ResponseFail(r *ghttp.Request, message string) {
-	if message == "" {
+func (c *commonMeans) ResponseFail(r *ghttp.Request,message string) {
+	if message == ""{
 		message = "fail"
 	}
 	response := &g.Map{
