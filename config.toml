@@ -1,11 +1,26 @@
 # HTTP Server
 [server]
-    Address     = ":3015"
-
-# nacos服务发现配置参数，来自：https://github.com/nacos-group/nacos-sdk-go/blob/master/common/constant/config.go的ServerConfig
+    Address     = ":8126"
 [database]
     [[database.default]]
-    
-[redis]
-  
+        link = "mysql:root:1111111q@tcp(127.0.0.1:3306)/peanut-coin123?charset=utf8mb4&parseTime=True&loc=Local"
+        charset   = "utf8mb4" #数据库编码
+        debug = true
+        dryRun = false #空跑
+        maxIdle      = "10" #连接池最大闲置的连接数
+        maxOpen     = "10" #连接池最大打开的连接数
+        maxLifetime  = "30" #(单位秒)连接对象可重复使用的时间长度
 
+[redis]
+    open = true #是否开启 redis 缓存 若不开启使用gchache缓存方式
+    #default = "127.0.0.1:6379,9?idleTimeout=20&maxActive=100"
+    default = "39.107.72.102:36379,0,redis_123456?idleTimeout=20&maxActive=100"
+
+#开发者后台的配置
+[developer]
+    host = "http://39.107.72.102:1573"
+
+# rabbitmq 配置
+[rabbitmq]
+    [rabbitmq.default]
+        link = "amqp://chat:ZHlLORFUeUcv@39.107.72.102:5672/"

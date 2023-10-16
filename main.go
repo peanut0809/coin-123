@@ -1,7 +1,7 @@
 package main
 
 import (
-	"cccn-zxl-server/router"
+	"peanut-coin123/router"
 
 	"github.com/gogf/gf/frame/g"
 )
