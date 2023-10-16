@@ -1,0 +1,1 @@
+{"chainAddr":"","chainName":"","chainType":1,"createdAt":"2022-09-08 11:04:08","desc":"","icon":"","id":11,"isDeleted":0,"name":"SASS_02","publisherId":"SASS_02","updatedAt":"2022-09-08 11:04:11","userId":0,"websiteUrl":""}
