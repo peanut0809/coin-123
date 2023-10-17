@@ -14,6 +14,7 @@ type CoinListReq struct {
 	Page     int    `json:"pageNum"`
 	PageSize int    `json:"pageSize"`
 	CoinName string `json:"CoinName"`
+	Type     int    `json:"type"`
 }
 
 type CoinList struct {

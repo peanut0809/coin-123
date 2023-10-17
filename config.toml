@@ -15,11 +15,6 @@
     open = true #是否开启 redis 缓存 若不开启使用gchache缓存方式
     #default = "127.0.0.1:6379,9?idleTimeout=20&maxActive=100"
     default = "39.107.72.102:36379,0,redis_123456?idleTimeout=20&maxActive=100"
-
-#开发者后台的配置
-[developer]
-    host = "http://39.107.72.102:1573"
-
 # rabbitmq 配置
 [rabbitmq]
     [rabbitmq.default]

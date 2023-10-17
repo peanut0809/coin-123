@@ -50,7 +50,18 @@ func (s *admin) CreateCoinItems(r *ghttp.Request) {
 	common.CommonMeans.ResponseSuccess(r, nil)
 }
 func (s *admin) CoinList(r *ghttp.Request) {
-	common.CommonMeans.ResponseSuccess(r, nil)
+	var req model.CoinListReq
+	err := r.Parse(&req)
+	if err != nil {
+		common.CommonMeans.ResponseFail(r, err.Error())
+		return
+	}
+	cl, err2 := service.AdminService.CoinList(req)
+	if err2 != nil {
+		common.CommonMeans.ResponseFail(r, err2.Error())
+		return
+	}
+	common.CommonMeans.ResponseSuccess(r, cl)
 }
 
 // 创建币安IEO/下架交易对
@@ -79,6 +90,48 @@ func (s *admin) CreateIeoOffCoin(r *ghttp.Request) {
 		return
 	}
 	common.CommonMeans.ResponseSuccess(r, nil)
+}
+func (s *admin) CoinIeoOffList(r *ghttp.Request) {
+	var req model.CoinIeoOffReq
+	err := r.Parse(&req)
+	if err != nil {
+		common.CommonMeans.ResponseFail(r, err.Error())
+		return
+	}
+	cl, err2 := service.AdminService.CoinIeoOffList(req)
+	if err2 != nil {
+		common.CommonMeans.ResponseFail(r, err2.Error())
+		return
+	}
+	common.CommonMeans.ResponseSuccess(r, cl)
+}
+func (s *admin) CoinCoreList(r *ghttp.Request) {
+	var req model.CoinCoreReq
+	err := r.Parse(&req)
+	if err != nil {
+		common.CommonMeans.ResponseFail(r, err.Error())
+		return
+	}
+	cl, err2 := service.AdminService.CoinCoreList(req)
+	if err2 != nil {
+		common.CommonMeans.ResponseFail(r, err2.Error())
+		return
+	}
+	common.CommonMeans.ResponseSuccess(r, cl)
+}
+func (s *admin) CoinRenameList(r *ghttp.Request) {
+	var req model.CoinRenameReq
+	err := r.Parse(&req)
+	if err != nil {
+		common.CommonMeans.ResponseFail(r, err.Error())
+		return
+	}
+	cl, err2 := service.AdminService.CoinRenameList(req)
+	if err2 != nil {
+		common.CommonMeans.ResponseFail(r, err2.Error())
+		return
+	}
+	common.CommonMeans.ResponseSuccess(r, cl)
 }
 
 // 创建币安核心公告
