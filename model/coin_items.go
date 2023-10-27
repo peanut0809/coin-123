@@ -11,10 +11,11 @@ type CoinItems struct {
 	UpdatedAt       string `orm:"updated_at" json:"updatedAt"`
 }
 type CoinListReq struct {
-	Page     int    `json:"pageNum"`
-	PageSize int    `json:"pageSize"`
-	CoinName string `json:"CoinName"`
-	Type     int    `json:"type"`
+	Page        int    `json:"pageNum"`
+	PageSize    int    `json:"pageSize"`
+	CoinName    string `json:"CoinName"`
+	Type        int    `json:"type"`
+	DateContext string `json:"dateContext"`
 }
 
 type CoinList struct {

@@ -33,7 +33,7 @@ func (s *adminService) Create(in model.CoinItems) (err error) {
 	return
 }
 
-// 创建代币上架列表
+// 创建币安代币上架列表
 func (s *adminService) CoinList(in model.CoinListReq) (list model.CoinList, err error) {
 	m := g.DB().Model("coin123_items")
 	if in.CoinName != "" {

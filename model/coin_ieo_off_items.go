@@ -10,10 +10,11 @@ type CoinIeoOffItems struct {
 	UpdatedAt       string `orm:"updated_at" json:"updatedAt"`
 }
 type CoinIeoOffReq struct {
-	Page     int    `json:"pageNum"`
-	PageSize int    `json:"pageSize"`
-	Type     string `json:"type"`
-	CoinName string `json:"coinName"`
+	Page        int    `json:"pageNum"`
+	PageSize    int    `json:"pageSize"`
+	Type        string `json:"type"`
+	CoinName    string `json:"coinName"`
+	DateContext string `json:"dateContext"`
 }
 
 type CoinIeoOffList struct {
