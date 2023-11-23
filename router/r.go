@@ -25,7 +25,7 @@ func InitRouter() *ghttp.Server {
 	})
 	s.Group("/front", func(group *ghttp.RouterGroup) {
 		group.GET("/coin/items", frontApi.Front.CoinList)              // 现货交易对列表
-		group.GET("/coin/ieo/off/items", frontApi.Front.CoinList)      // 币安ieo列表
+		group.GET("/coin/ieo/off/items", frontApi.Front.CoinIeoOffList)      // 币安ieo列表
 		group.GET("/coin/rename/items", frontApi.Front.CoinRenameList) // 改名公告
 		group.GET("/coin/core/items", frontApi.Front.CoinCoreList)     // 核心公告
 

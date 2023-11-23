@@ -3,7 +3,7 @@
     Address     = ":8126"
 [database]
     [[database.default]]
-        link = "mysql:root:1111111q@tcp(127.0.0.1:3306)/peanut-coin123?charset=utf8mb4&parseTime=True&loc=Local"
+        link = "mysql:root:peanut123@tcp(47.245.11.206:3306)/peanut-coin123?charset=utf8mb4&parseTime=True&loc=Local"
         charset   = "utf8mb4" #数据库编码
         debug = true
         dryRun = false #空跑
